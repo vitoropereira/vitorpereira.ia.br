@@ -1,0 +1,53 @@
+[
+    {
+        "id": "ai-ecommerce",
+        "title": "Sistema de IA para E-commerce",
+        "excerpt": "Plataforma de recomendações inteligentes que aumentou as vendas em 35%",
+        "description": "Sistema completo de machine learning que analisa comportamento do usuário e histórico de compras para sugerir produtos relevantes.",
+        "category": "ai",
+        "technologies": ["Python", "TensorFlow", "React", "PostgreSQL"],
+        "year": "2024",
+        "status": "completed",
+        "featured": true,
+        "client": "E-commerce de Grande Porte",
+        "results": [
+            "35% de aumento nas vendas",
+            "60% de melhoria na taxa de conversão",
+            "Redução de 40% no tempo de busca por produtos"
+        ]
+    },
+    {
+        "id": "finance-app",
+        "title": "App de Gestão Financeira",
+        "excerpt": "Aplicativo completo para controle financeiro pessoal com mais de 10k usuários",
+        "description": "Aplicativo mobile com categorização automática de gastos, metas de economia e relatórios detalhados.",
+        "category": "mobile",
+        "technologies": ["React Native", "Node.js", "MongoDB", "Express"],
+        "year": "2024",
+        "status": "completed",
+        "featured": true,
+        "client": "Startup Fintech",
+        "results": [
+            "10k+ usuários ativos",
+            "4.8 estrelas nas app stores",
+            "70% de retenção mensal"
+        ]
+    },
+    {
+        "id": "marketing-automation",
+        "title": "Automação de Marketing",
+        "excerpt": "Sistema que reduziu tempo de campanhas em 60%",
+        "description": "Plataforma completa de automação com segmentação avançada, A/B testing e relatórios em tempo real.",
+        "category": "automation",
+        "technologies": ["PHP", "Laravel", "Vue.js", "Redis"],
+        "year": "2023",
+        "status": "completed",
+        "featured": true,
+        "client": "Agência de Marketing Digital",
+        "results": [
+            "60% redução no tempo de criação de campanhas",
+            "300% aumento na eficiência de segmentação",
+            "ROI de 250% no primeiro ano"
+        ]
+    }
+]
