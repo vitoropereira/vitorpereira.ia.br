@@ -21,8 +21,21 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Email</h3>
-                            <p class="text-gray-600">vitor@vitorpereira.ia.br</p>
+                            <p class="text-gray-600">vop1234@hotmail.com</p>
                             <p class="text-sm text-gray-500 mt-1">Respondo em até 24h</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 w-12 h-12 bg-primary rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">Telefone</h3>
+                            <p class="text-gray-600">+55 81 99673-3973</p>
+                            <p class="text-sm text-gray-500 mt-1">WhatsApp disponível</p>
                         </div>
                     </div>
 
@@ -35,7 +48,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">Localização</h3>
-                            <p class="text-gray-600">São Paulo, Brasil</p>
+                            <p class="text-gray-600">Recife, Pernambuco, Brasil</p>
                             <p class="text-sm text-gray-500 mt-1">Disponível para trabalho remoto</p>
                         </div>
                     </div>

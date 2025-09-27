@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
+    <meta name="description" content="<?php echo $pageDescription; ?>">
+    <meta name="keywords" content="Full-Stack Developer, JavaScript, TypeScript, React, Next.js, Node.js, CTO, Automação IA, WhatsApp, N8N, OpenAI, Recife, Pernambuco">
+    <meta name="author" content="Vitor Pereira">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vitorpereira.ia.br">
+    <meta property="og:title" content="<?php echo $pageTitle; ?>">
+    <meta property="og:description" content="<?php echo $pageDescription; ?>">
+    <meta property="og:image" content="https://vitorpereira.ia.br/assets/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vitorpereira.ia.br">
+    <meta property="twitter:title" content="<?php echo $pageTitle; ?>">
+    <meta property="twitter:description" content="<?php echo $pageDescription; ?>">
+    <meta property="twitter:image" content="https://vitorpereira.ia.br/assets/images/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="canonical" href="https://vitorpereira.ia.br<?php echo $page == 'home' ? '' : '/?page=' . $page; ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,7 +48,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="text-2xl font-bold text-primary">Vitor Pereira</a>
-                    <span class="ml-2 text-sm text-gray-600">IA & Development</span>
+                    <span class="ml-2 text-sm text-gray-600">Full-Stack Developer & AI Specialist</span>
                 </div>
 
                 <div class="hidden md:flex items-center space-x-8">

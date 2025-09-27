@@ -1,64 +1,74 @@
 <?php
 $posts = [
     [
-        'id' => 'ia-desenvolvimento-web',
-        'title' => 'Como a IA está transformando o desenvolvimento web',
-        'excerpt' => 'Explorando as principais ferramentas de IA que estão revolucionando a forma como desenvolvemos aplicações web.',
+        'id' => 'n8n-automacao-whatsapp',
+        'title' => 'Automatizando WhatsApp Business com N8N e OpenAI',
+        'excerpt' => 'Como criar automações inteligentes para WhatsApp usando N8N, OpenAI e webhooks para otimizar atendimento.',
         'date' => '2024-09-25',
-        'readTime' => '5 min',
-        'category' => 'Inteligência Artificial',
-        'tags' => ['IA', 'Desenvolvimento Web', 'Automação', 'Ferramentas'],
-        'content' => 'Conteúdo completo do artigo sobre IA...'
+        'readTime' => '8 min',
+        'category' => 'Automação',
+        'tags' => ['N8N', 'WhatsApp', 'OpenAI', 'Automação', 'ChatBot'],
+        'content' => 'Guia completo para implementar automações WhatsApp...'
     ],
     [
-        'id' => 'apis-restful',
-        'title' => 'Melhores práticas para APIs RESTful',
-        'excerpt' => 'Guia completo sobre como projetar e implementar APIs REST eficientes e escaláveis.',
+        'id' => 'typescript-react-next',
+        'title' => 'TypeScript + React + Next.js: Stack Moderna para SaaS',
+        'excerpt' => 'Explorando as melhores práticas para desenvolver aplicações SaaS escaláveis com TypeScript, React e Next.js.',
         'date' => '2024-09-20',
-        'readTime' => '7 min',
-        'category' => 'Desenvolvimento',
-        'tags' => ['API', 'REST', 'Backend', 'Boas Práticas'],
-        'content' => 'Conteúdo completo do artigo sobre APIs...'
+        'readTime' => '10 min',
+        'category' => 'Frontend',
+        'tags' => ['TypeScript', 'React', 'Next.js', 'SaaS', 'Desenvolvimento'],
+        'content' => 'Implementação completa de stack moderna...'
     ],
     [
-        'id' => 'automacao-python',
-        'title' => 'Automação com Python: Primeiros Passos',
-        'excerpt' => 'Como começar a automatizar tarefas repetitivas usando Python e suas bibliotecas.',
+        'id' => 'openai-api-integracao',
+        'title' => 'Integrando OpenAI API em Aplicações JavaScript',
+        'excerpt' => 'Implementação prática de ChatGPT e outras APIs da OpenAI em aplicações web modernas.',
         'date' => '2024-09-15',
-        'readTime' => '4 min',
-        'category' => 'Python',
-        'tags' => ['Python', 'Automação', 'Scripting', 'Produtividade'],
-        'content' => 'Conteúdo completo do artigo sobre automação...'
+        'readTime' => '6 min',
+        'category' => 'Inteligência Artificial',
+        'tags' => ['OpenAI', 'API', 'JavaScript', 'IA', 'ChatGPT'],
+        'content' => 'Tutorial completo de integração OpenAI...'
     ],
     [
-        'id' => 'machine-learning-pratico',
-        'title' => 'Machine Learning na Prática: Projeto do Zero',
-        'excerpt' => 'Desenvolvendo um sistema de recomendação completo do planejamento à produção.',
+        'id' => 'micro-saas-desenvolvimento',
+        'title' => 'Desenvolvendo Micro-SaaS: Da Ideia ao Launch',
+        'excerpt' => 'Experiências reais desenvolvendo múltiplas soluções Micro-SaaS: tecnologias, desafios e estratégias.',
         'date' => '2024-09-10',
         'readTime' => '12 min',
-        'category' => 'Machine Learning',
-        'tags' => ['ML', 'Python', 'Projeto', 'Dados'],
-        'content' => 'Conteúdo completo do artigo sobre ML...'
+        'category' => 'Empreendedorismo',
+        'tags' => ['Micro-SaaS', 'Startup', 'Produto', 'Desenvolvimento'],
+        'content' => 'Jornada completa de desenvolvimento SaaS...'
     ],
     [
-        'id' => 'react-performance',
-        'title' => 'Otimizando Performance em Aplicações React',
-        'excerpt' => 'Técnicas avançadas para melhorar a performance de apps React em produção.',
+        'id' => 'cto-lideranca-tecnica',
+        'title' => 'Lições de 10 Anos como CTO: Liderança Técnica',
+        'excerpt' => 'Insights práticos sobre liderança técnica, gestão de equipes e tomada de decisões arquiteturais.',
         'date' => '2024-09-05',
-        'readTime' => '8 min',
-        'category' => 'Frontend',
-        'tags' => ['React', 'Performance', 'Otimização', 'JavaScript'],
-        'content' => 'Conteúdo completo do artigo sobre React...'
+        'readTime' => '9 min',
+        'category' => 'Liderança',
+        'tags' => ['CTO', 'Liderança', 'Gestão', 'Arquitetura', 'Carreira'],
+        'content' => 'Experiências reais de liderança técnica...'
     ],
     [
-        'id' => 'docker-desenvolvimento',
-        'title' => 'Docker para Desenvolvedores: Guia Prático',
-        'excerpt' => 'Como usar Docker para padronizar ambientes de desenvolvimento e facilitar deploys.',
+        'id' => 'transicao-carreira-tech',
+        'title' => 'Da Aviação para Tech: Minha Transição de Carreira',
+        'excerpt' => 'Como a experiência no controle de tráfego aéreo me preparou para uma carreira bem-sucedida em tecnologia.',
         'date' => '2024-08-30',
-        'readTime' => '10 min',
-        'category' => 'DevOps',
-        'tags' => ['Docker', 'DevOps', 'Containers', 'Deploy'],
-        'content' => 'Conteúdo completo do artigo sobre Docker...'
+        'readTime' => '7 min',
+        'category' => 'Carreira',
+        'tags' => ['Carreira', 'Transição', 'Tech', 'Aviação', 'História'],
+        'content' => 'Jornada de transição profissional...'
+    ],
+    [
+        'id' => 'scale-ai-code-review',
+        'title' => 'Experiência como AI Code Reviewer na Scale AI',
+        'excerpt' => 'Insights sobre revisão de código gerado por IA, qualidade de código e o futuro da programação assistida.',
+        'date' => '2024-08-25',
+        'readTime' => '5 min',
+        'category' => 'Inteligência Artificial',
+        'tags' => ['Scale AI', 'Code Review', 'IA', 'Qualidade', 'Programação'],
+        'content' => 'Experiências reais revisando código IA...'
     ]
 ];
 

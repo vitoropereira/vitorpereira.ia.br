@@ -1,53 +1,104 @@
 [
     {
-        "id": "ai-ecommerce",
-        "title": "Sistema de IA para E-commerce",
-        "excerpt": "Plataforma de recomendações inteligentes que aumentou as vendas em 35%",
-        "description": "Sistema completo de machine learning que analisa comportamento do usuário e histórico de compras para sugerir produtos relevantes.",
-        "category": "ai",
-        "technologies": ["Python", "TensorFlow", "React", "PostgreSQL"],
-        "year": "2024",
-        "status": "completed",
-        "featured": true,
-        "client": "E-commerce de Grande Porte",
-        "results": [
-            "35% de aumento nas vendas",
-            "60% de melhoria na taxa de conversão",
-            "Redução de 40% no tempo de busca por produtos"
-        ]
-    },
-    {
-        "id": "finance-app",
-        "title": "App de Gestão Financeira",
-        "excerpt": "Aplicativo completo para controle financeiro pessoal com mais de 10k usuários",
-        "description": "Aplicativo mobile com categorização automática de gastos, metas de economia e relatórios detalhados.",
-        "category": "mobile",
-        "technologies": ["React Native", "Node.js", "MongoDB", "Express"],
-        "year": "2024",
-        "status": "completed",
-        "featured": true,
-        "client": "Startup Fintech",
-        "results": [
-            "10k+ usuários ativos",
-            "4.8 estrelas nas app stores",
-            "70% de retenção mensal"
-        ]
-    },
-    {
-        "id": "marketing-automation",
-        "title": "Automação de Marketing",
-        "excerpt": "Sistema que reduziu tempo de campanhas em 60%",
-        "description": "Plataforma completa de automação com segmentação avançada, A/B testing e relatórios em tempo real.",
+        "id": "whatsapp-automation",
+        "title": "Automação WhatsApp - My Group Metrics",
+        "excerpt": "Sistema de automação e análise de dados para WhatsApp Business",
+        "description": "Plataforma completa de automação para WhatsApp com análise avançada de métricas, chatbots inteligentes e integração com OpenAI para respostas automatizadas.",
         "category": "automation",
-        "technologies": ["PHP", "Laravel", "Vue.js", "Redis"],
-        "year": "2023",
+        "technologies": ["N8N", "OpenAI", "Node.js", "TypeScript", "WhatsApp API"],
+        "year": "2024",
         "status": "completed",
         "featured": true,
-        "client": "Agência de Marketing Digital",
+        "client": "My Group Metrics",
         "results": [
-            "60% redução no tempo de criação de campanhas",
-            "300% aumento na eficiência de segmentação",
-            "ROI de 250% no primeiro ano"
+            "Automação completa de atendimento WhatsApp",
+            "Redução de 80% no tempo de resposta",
+            "Análise de dados em tempo real"
+        ]
+    },
+    {
+        "id": "micro-saas-platform",
+        "title": "Plataforma Micro-SaaS",
+        "excerpt": "Desenvolvimento full-stack de soluções SaaS escaláveis",
+        "description": "Desenvolvimento de múltiplas soluções Micro-SaaS focadas em automação e produtividade, utilizando stack moderna com Next.js, TypeScript e integrações de IA.",
+        "category": "web",
+        "technologies": ["Next.js", "TypeScript", "React", "Node.js", "Prisma"],
+        "year": "2024",
+        "status": "completed",
+        "featured": true,
+        "client": "Projeto Próprio",
+        "results": [
+            "Múltiplas soluções SaaS implementadas",
+            "Arquitetura escalável e moderna",
+            "Integrações avançadas com IA"
+        ]
+    },
+    {
+        "id": "4trip-agency",
+        "title": "4trip Agência Receptiva",
+        "excerpt": "Plataforma completa para agência de turismo em Alagoas e Pernambuco",
+        "description": "Sistema web completo para gestão de turismo receptivo, incluindo reservas, pagamentos, gestão de clientes e integrações com APIs de terceiros.",
+        "category": "web",
+        "technologies": ["React", "Node.js", "Express", "MongoDB", "API Integration"],
+        "year": "2020-2024",
+        "status": "completed",
+        "featured": true,
+        "client": "4trip Agência (Co-founder)",
+        "results": [
+            "Gestão completa de operações turísticas",
+            "Sistema de reservas e pagamentos",
+            "Crescimento sustentável da agência"
+        ]
+    },
+    {
+        "id": "leadsops-ai",
+        "title": "Leadsops.ai - CTO",
+        "excerpt": "Plataforma de geração e qualificação de leads com IA",
+        "description": "Liderança técnica no desenvolvimento de plataforma SaaS para automação de leads utilizando inteligência artificial, OCR e processamento de dados.",
+        "category": "ai",
+        "technologies": ["Python", "OpenAI", "OCR", "React", "FastAPI"],
+        "year": "2024",
+        "status": "completed",
+        "featured": false,
+        "client": "Leadsops.ai (CTO)",
+        "results": [
+            "Automação de qualificação de leads",
+            "Processamento inteligente de documentos",
+            "Integração avançada com IA"
+        ]
+    },
+    {
+        "id": "scale-ai-reviewer",
+        "title": "AI Code Reviewer - Scale AI",
+        "excerpt": "Revisão especializada de código gerado por IA",
+        "description": "Atuação como especialista em revisão de código gerado por inteligência artificial, garantindo qualidade, segurança e melhores práticas em desenvolvimento.",
+        "category": "ai",
+        "technologies": ["Python", "JavaScript", "TypeScript", "Code Review", "AI"],
+        "year": "2024",
+        "status": "completed",
+        "featured": false,
+        "client": "Scale AI",
+        "results": [
+            "Revisão de centenas de códigos IA",
+            "Garantia de qualidade em códigos gerados",
+            "Contribuição para melhoria de modelos IA"
+        ]
+    },
+    {
+        "id": "iv-tecnologias",
+        "title": "I.V.Tecnologias Web - CTO",
+        "excerpt": "Liderança técnica e desenvolvimento de soluções web empresariais",
+        "description": "Como CTO, responsável pelo desenvolvimento de múltiplas soluções web, liderança de equipes técnicas e definição de arquiteturas escaláveis para diversos clientes.",
+        "category": "web",
+        "technologies": ["PHP", "Laravel", "JavaScript", "MySQL", "Technical Leadership"],
+        "year": "2015-2024",
+        "status": "ongoing",
+        "featured": true,
+        "client": "I.V.Tecnologias (CTO)",
+        "results": [
+            "Liderança técnica por 9+ anos",
+            "Múltiplos projetos web entregues",
+            "Crescimento sustentável da empresa"
         ]
     }
 ]
