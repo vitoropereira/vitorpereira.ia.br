@@ -90,7 +90,7 @@
             </div>
 
             <div class="fade-in">
-                <form class="bg-gray-50 rounded-lg p-8" action="#" method="POST">
+                <form id="contactForm" class="bg-gray-50 rounded-lg p-8" action="#" method="POST">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Envie uma mensagem</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -155,8 +155,10 @@
                         </label>
                     </div>
 
-                    <button type="submit"
-                            class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-secondary transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    <div id="formMessage" class="hidden mb-4 p-4 rounded-lg"></div>
+
+                    <button type="submit" id="submitBtn"
+                            class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-secondary transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         Enviar Mensagem
                     </button>
 
@@ -168,6 +170,64 @@
         </div>
     </div>
 </section>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const submitBtn = document.getElementById('submitBtn');
+    const formMessage = document.getElementById('formMessage');
+
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+    formMessage.classList.add('hidden');
+
+    // Get form data
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        company: document.getElementById('company').value,
+        project_type: document.getElementById('project_type').value,
+        budget: document.getElementById('budget').value,
+        message: document.getElementById('message').value
+    };
+
+    try {
+        const response = await fetch('/api/send-contact.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        // Show message
+        formMessage.classList.remove('hidden');
+
+        if (data.success) {
+            formMessage.className = 'mb-4 p-4 rounded-lg bg-green-100 border border-green-400 text-green-700';
+            formMessage.textContent = data.message;
+
+            // Reset form
+            document.getElementById('contactForm').reset();
+        } else {
+            formMessage.className = 'mb-4 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+            formMessage.textContent = data.message || 'Erro ao enviar mensagem. Tente novamente.';
+        }
+    } catch (error) {
+        formMessage.classList.remove('hidden');
+        formMessage.className = 'mb-4 p-4 rounded-lg bg-red-100 border border-red-400 text-red-700';
+        formMessage.textContent = 'Erro ao enviar mensagem. Tente novamente mais tarde.';
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Mensagem';
+    }
+});
+</script>
 
 <section class="section-padding bg-gray-50">
     <div class="container">

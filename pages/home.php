@@ -1,3 +1,12 @@
+<?php
+$projectsJson = file_get_contents(__DIR__ . '/../data/projects.json');
+$projects = json_decode($projectsJson, true);
+$featuredProjects = array_filter($projects, function($p) {
+    return $p['featured'] === true;
+});
+$featuredProjects = array_slice($featuredProjects, 0, 3);
+?>
+
 <section class="hero-gradient min-h-screen flex items-center">
     <div class="container">
         <div class="text-center text-white">
@@ -71,44 +80,28 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="project-card fade-in">
-                <div class="h-48 bg-gradient-to-br from-green-500 to-teal-600"></div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold mb-2">Automação WhatsApp - My Group Metrics</h3>
-                    <p class="text-gray-600 mb-4">Sistema completo de automação e análise de dados para WhatsApp Business com IA.</p>
-                    <div class="flex flex-wrap">
-                        <span class="tech-tag">N8N</span>
-                        <span class="tech-tag">OpenAI</span>
-                        <span class="tech-tag">TypeScript</span>
+            <?php foreach ($featuredProjects as $project): ?>
+                <?php
+                $gradients = [
+                    'ai' => 'from-blue-500 to-purple-600',
+                    'web' => 'from-green-500 to-teal-600',
+                    'automation' => 'from-orange-500 to-red-600',
+                ];
+                $gradient = $gradients[$project['category']] ?? 'from-gray-500 to-gray-700';
+                ?>
+                <div class="project-card fade-in">
+                    <div class="h-48 bg-gradient-to-br <?php echo $gradient; ?>"></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2"><?php echo htmlspecialchars($project['title']); ?></h3>
+                        <p class="text-gray-600 mb-4"><?php echo htmlspecialchars($project['excerpt']); ?></p>
+                        <div class="flex flex-wrap">
+                            <?php foreach (array_slice($project['technologies'], 0, 3) as $tech): ?>
+                                <span class="tech-tag"><?php echo htmlspecialchars($tech); ?></span>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="project-card fade-in">
-                <div class="h-48 bg-gradient-to-br from-blue-500 to-purple-600"></div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold mb-2">Plataforma Micro-SaaS</h3>
-                    <p class="text-gray-600 mb-4">Desenvolvimento full-stack de múltiplas soluções SaaS escaláveis com IA.</p>
-                    <div class="flex flex-wrap">
-                        <span class="tech-tag">Next.js</span>
-                        <span class="tech-tag">TypeScript</span>
-                        <span class="tech-tag">Prisma</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card fade-in">
-                <div class="h-48 bg-gradient-to-br from-orange-500 to-red-600"></div>
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold mb-2">4trip Agência Receptiva</h3>
-                    <p class="text-gray-600 mb-4">Plataforma completa para gestão de turismo em Alagoas e Pernambuco.</p>
-                    <div class="flex flex-wrap">
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">MongoDB</span>
-                    </div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
 
         <div class="text-center mt-12 fade-in">

@@ -1,3 +1,17 @@
+<?php
+$projectsJson = file_get_contents(__DIR__ . '/../data/projects.json');
+$projects = json_decode($projectsJson, true);
+
+// Filter for featured projects
+$featuredProjects = array_filter($projects, function($p) {
+    return $p['featured'] === true;
+});
+
+// Get unique categories
+$categories = array_unique(array_column($projects, 'category'));
+sort($categories);
+?>
+
 <section class="section-padding bg-white">
     <div class="container">
         <div class="text-center mb-16">
@@ -18,194 +32,81 @@
             <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300" data-filter="web">
                 Desenvolvimento Web
             </button>
-            <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300" data-filter="mobile">
-                Mobile
-            </button>
             <button class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300" data-filter="automation">
                 Automação
             </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="project-card fade-in" data-category="ai web">
-                <div class="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">Sistema de IA para E-commerce</h3>
-                        <span class="text-sm text-gray-500">2024</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        Plataforma de recomendações inteligentes que analisa comportamento do usuário e histórico de compras
-                        para sugerir produtos relevantes, resultando em aumento de 35% nas vendas.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">TensorFlow</span>
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">PostgreSQL</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">Ver Demo</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">GitHub</a>
-                    </div>
-                </div>
-            </div>
+            <?php foreach ($projects as $project): ?>
+                <?php
+                // Define gradient colors based on category
+                $gradients = [
+                    'ai' => 'from-blue-500 to-purple-600',
+                    'web' => 'from-green-500 to-teal-600',
+                    'automation' => 'from-orange-500 to-red-600',
+                    'mobile' => 'from-indigo-500 to-blue-600'
+                ];
+                $gradient = $gradients[$project['category']] ?? 'from-gray-500 to-gray-700';
 
-            <div class="project-card fade-in" data-category="mobile web">
-                <div class="h-48 bg-gradient-to-br from-green-500 to-teal-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">App de Gestão Financeira</h3>
-                        <span class="text-sm text-gray-500">2024</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        Aplicativo completo para controle financeiro pessoal com categorização automática de gastos,
-                        metas de economia e relatórios detalhados. Mais de 10k usuários ativos.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">React Native</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">MongoDB</span>
-                        <span class="tech-tag">Express</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">App Store</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">Play Store</a>
-                    </div>
-                </div>
-            </div>
+                // Define icons based on category
+                $icons = [
+                    'ai' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>',
+                    'web' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"></path>',
+                    'automation' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>',
+                    'mobile' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>'
+                ];
+                $icon = $icons[$project['category']] ?? $icons['web'];
+                ?>
 
-            <div class="project-card fade-in" data-category="automation web">
-                <div class="h-48 bg-gradient-to-br from-orange-500 to-red-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
+                <div class="project-card fade-in" data-category="<?php echo $project['category']; ?>">
+                    <div class="h-48 bg-gradient-to-br <?php echo $gradient; ?> relative overflow-hidden">
+                        <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <?php echo $icon; ?>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">Automação de Marketing</h3>
-                        <span class="text-sm text-gray-500">2023</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        Sistema completo de automação de campanhas de marketing digital com segmentação avançada,
-                        A/B testing e relatórios em tempo real. Reduziu tempo de campanhas em 60%.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">PHP</span>
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Redis</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">Ver Caso</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">Documentação</a>
-                    </div>
-                </div>
-            </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-semibold"><?php echo htmlspecialchars($project['title']); ?></h3>
+                            <span class="text-sm text-gray-500"><?php echo $project['year']; ?></span>
+                        </div>
+                        <p class="text-gray-600 mb-4">
+                            <?php echo htmlspecialchars($project['description']); ?>
+                        </p>
+                        <div class="flex flex-wrap mb-4">
+                            <?php foreach (array_slice($project['technologies'], 0, 4) as $tech): ?>
+                                <span class="tech-tag"><?php echo htmlspecialchars($tech); ?></span>
+                            <?php endforeach; ?>
+                        </div>
 
-            <div class="project-card fade-in" data-category="ai automation">
-                <div class="h-48 bg-gradient-to-br from-purple-500 to-pink-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">Chatbot Inteligente para Suporte</h3>
-                        <span class="text-sm text-gray-500">2024</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        Chatbot alimentado por IA que resolve 80% das dúvidas dos clientes automaticamente,
-                        com integração WhatsApp, Telegram e website. Processamento de linguagem natural avançado.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">OpenAI</span>
-                        <span class="tech-tag">FastAPI</span>
-                        <span class="tech-tag">Docker</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">Testar Bot</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">Documentação</a>
-                    </div>
-                </div>
-            </div>
+                        <?php if (!empty($project['results'])): ?>
+                            <div class="mb-4 text-sm text-gray-600">
+                                <strong>Resultados:</strong>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <?php foreach (array_slice($project['results'], 0, 2) as $result): ?>
+                                        <li><?php echo htmlspecialchars($result); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
 
-            <div class="project-card fade-in" data-category="web">
-                <div class="h-48 bg-gradient-to-br from-indigo-500 to-blue-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9"></path>
-                        </svg>
+                        <div class="flex gap-3">
+                            <?php if ($project['url']): ?>
+                                <a href="<?php echo htmlspecialchars($project['url']); ?>"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="text-primary hover:text-secondary font-semibold">
+                                    Ver Projeto →
+                                </a>
+                            <?php else: ?>
+                                <span class="text-gray-400 font-semibold">Projeto Interno</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">Plataforma de Ensino Online</h3>
-                        <span class="text-sm text-gray-500">2023</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        LMS completo com sistema de videoaulas, exercícios interativos, certificados automáticos
-                        e gamificação. Suporta mais de 5k alunos simultâneos.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">Next.js</span>
-                        <span class="tech-tag">TypeScript</span>
-                        <span class="tech-tag">Prisma</span>
-                        <span class="tech-tag">Stripe</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">Acessar Plataforma</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">Case Study</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="project-card fade-in" data-category="automation ai">
-                <div class="h-48 bg-gradient-to-br from-yellow-500 to-orange-600 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-xl font-semibold">Análise Preditiva de Vendas</h3>
-                        <span class="text-sm text-gray-500">2024</span>
-                    </div>
-                    <p class="text-gray-600 mb-4">
-                        Sistema de machine learning que prevê tendências de vendas com 92% de precisão,
-                        otimizando estoque e estratégias comerciais para grandes varejistas.
-                    </p>
-                    <div class="flex flex-wrap mb-4">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">Scikit-learn</span>
-                        <span class="tech-tag">Pandas</span>
-                        <span class="tech-tag">Streamlit</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <a href="#" class="text-primary hover:text-secondary font-semibold">Ver Dashboard</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-800">Metodologia</a>
-                    </div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
@@ -220,13 +121,6 @@
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
             <div class="text-center fade-in">
                 <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" class="w-10 h-10">
-                </div>
-                <h3 class="font-semibold">Python</h3>
-            </div>
-
-            <div class="text-center fade-in">
-                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" class="w-10 h-10">
                 </div>
                 <h3 class="font-semibold">JavaScript</h3>
@@ -234,9 +128,23 @@
 
             <div class="text-center fade-in">
                 <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" class="w-10 h-10">
+                </div>
+                <h3 class="font-semibold">TypeScript</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" class="w-10 h-10">
                 </div>
                 <h3 class="font-semibold">React</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" class="w-10 h-10">
+                </div>
+                <h3 class="font-semibold">Next.js</h3>
             </div>
 
             <div class="text-center fade-in">
@@ -255,9 +163,48 @@
 
             <div class="text-center fade-in">
                 <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" class="w-10 h-10">
+                </div>
+                <h3 class="font-semibold">Python</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
                     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" class="w-10 h-10">
                 </div>
                 <h3 class="font-semibold">Docker</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB" class="w-10 h-10">
+                </div>
+                <h3 class="font-semibold">MongoDB</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL" class="w-10 h-10">
+                </div>
+                <h3 class="font-semibold">MySQL</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-10 h-10 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold">Git</h3>
+            </div>
+
+            <div class="text-center fade-in">
+                <div class="w-16 h-16 bg-white rounded-lg shadow-md flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-10 h-10 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.84 4.67h1.68v8.36h-1.68V4.67zM12 18.155c-.635 0-1.155-.519-1.155-1.155s.52-1.155 1.155-1.155 1.155.52 1.155 1.155-.52 1.155-1.155 1.155z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold">AI/ML</h3>
             </div>
         </div>
     </div>

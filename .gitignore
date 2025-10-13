@@ -1,0 +1,29 @@
+# IDE and Editor files
+.vscode/sftp.json
+.vscode/testesftp.json
+.vscode/settings.json
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build files
+assets/css/output.css
+*.map
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Temporary files
+*.bak
+*.swp
+*~
