@@ -5,7 +5,13 @@
         "excerpt": "Plataforma IA que analisa conversas WhatsApp para insights estratégicos de negócio",
         "description": "Sistema avançado de análise de conversas WhatsApp com IA, oferecendo identificação de palavras-chave, análise de sentimento, resumos automáticos e monitoramento de qualidade em tempo real para transformar dados em decisões estratégicas.",
         "category": "ai",
-        "technologies": ["OpenAI", "WhatsApp API", "Python", "Data Analytics", "NLP"],
+        "technologies": [
+            "OpenAI",
+            "WhatsApp API",
+            "Python",
+            "Data Analytics",
+            "NLP"
+        ],
         "year": "2024",
         "status": "mvp",
         "featured": true,
@@ -23,7 +29,13 @@
         "excerpt": "Transforme vídeos educacionais em e-books, resumos e quizzes com IA",
         "description": "Plataforma que utiliza IA para transcrever vídeos educacionais e gerar automaticamente materiais didáticos diversos como e-books, resumos, quizzes interativos e mapas mentais. Suporte multilíngue e edição flexível de conteúdo gerado.",
         "category": "ai",
-        "technologies": ["OpenAI", "Video Processing", "NLP", "React", "Python"],
+        "technologies": [
+            "OpenAI",
+            "Video Processing",
+            "NLP",
+            "React",
+            "Python"
+        ],
         "year": "2024",
         "status": "completed",
         "featured": true,
@@ -41,7 +53,13 @@
         "excerpt": "Chatbot especializado para pastores com pesquisa teológica reformada",
         "description": "Assistente de IA focado em teologia reformada, oferecendo suporte à pregação expositiva, pesquisa teológica, preparação de sermões e análise de documentos. Inclui modelos avançados de IA e assistentes personalizados.",
         "category": "ai",
-        "technologies": ["OpenAI", "GPT-4", "Document AI", "React", "Node.js"],
+        "technologies": [
+            "OpenAI",
+            "GPT-4",
+            "Document AI",
+            "React",
+            "Node.js"
+        ],
         "year": "2024",
         "status": "completed",
         "featured": true,
@@ -59,7 +77,13 @@
         "excerpt": "Analytics e gestão de comunidades WhatsApp com crescimento de até 40%",
         "description": "Ferramenta completa de gestão e analytics para comunidades WhatsApp, oferecendo resumos diários, relatórios de engajamento, identificação de hot topics, agendamento de mensagens e análise detalhada de atividade de membros.",
         "category": "automation",
-        "technologies": ["WhatsApp API", "N8N", "Analytics", "Bot", "Data Visualization"],
+        "technologies": [
+            "WhatsApp API",
+            "N8N",
+            "Analytics",
+            "Bot",
+            "Data Visualization"
+        ],
         "year": "2024",
         "status": "completed",
         "featured": true,
@@ -77,7 +101,12 @@
         "excerpt": "Comunidade e educação sobre criação de negócios Micro-SaaS",
         "description": "Plataforma educacional e comunidade focada em ensinar empreendedores a criar, lançar e escalar Micro-SaaS. Oferece cursos práticos, mentoria, networking e suporte completo da ideia ao lançamento.",
         "category": "web",
-        "technologies": ["Next.js", "Community Platform", "Educational Content", "SaaS"],
+        "technologies": [
+            "Next.js",
+            "Community Platform",
+            "Educational Content",
+            "SaaS"
+        ],
         "year": "2024",
         "status": "ongoing",
         "featured": true,
@@ -95,7 +124,13 @@
         "excerpt": "Agência de turismo receptivo em Alagoas e Pernambuco",
         "description": "Plataforma completa para agência de turismo receptivo especializada em destinos do Nordeste, incluindo sistema de reservas, gestão de tours, transfers, integração com parceiros e plataforma de pagamentos online.",
         "category": "web",
-        "technologies": ["React", "Node.js", "Express", "MongoDB", "API Integration"],
+        "technologies": [
+            "React",
+            "Node.js",
+            "Express",
+            "MongoDB",
+            "API Integration"
+        ],
         "year": "2020-2024",
         "status": "completed",
         "featured": true,
@@ -113,7 +148,12 @@
         "excerpt": "Crowdfunding online que arrecadou R$ 2,7 milhões em 2025",
         "description": "Plataforma de crowdfunding e doações online focada em impacto social, permitindo criação rápida de campanhas, integração com redes sociais, tracking transparente de doações e gestão completa de arrecadações.",
         "category": "web",
-        "technologies": ["React", "Node.js", "Payment Gateway", "Social Integration"],
+        "technologies": [
+            "React",
+            "Node.js",
+            "Payment Gateway",
+            "Social Integration"
+        ],
         "year": "2022",
         "status": "completed",
         "featured": false,
@@ -131,7 +171,13 @@
         "excerpt": "Sistema completo para gerenciamento de condomínios militares",
         "description": "Plataforma web e mobile para gestão de condomínios militares, incluindo controle de moradores, gestão financeira, comunicação interna, reservas de áreas comuns e suporte via WhatsApp.",
         "category": "web",
-        "technologies": ["PHP", "MySQL", "React Native", "iOS", "Android"],
+        "technologies": [
+            "PHP",
+            "MySQL",
+            "React Native",
+            "iOS",
+            "Android"
+        ],
         "year": "2015-2024",
         "status": "completed",
         "featured": false,
@@ -149,7 +195,13 @@
         "excerpt": "Liderança técnica e desenvolvimento de soluções web empresariais",
         "description": "Como CTO, responsável pelo desenvolvimento de múltiplas soluções web, liderança de equipes técnicas, definição de arquiteturas escaláveis e gestão de projetos para diversos clientes corporativos ao longo de 9+ anos.",
         "category": "web",
-        "technologies": ["PHP", "Laravel", "JavaScript", "MySQL", "Technical Leadership"],
+        "technologies": [
+            "PHP",
+            "Laravel",
+            "JavaScript",
+            "MySQL",
+            "Technical Leadership"
+        ],
         "year": "2015-2024",
         "status": "ongoing",
         "featured": true,
@@ -167,7 +219,13 @@
         "excerpt": "Revisão especializada de código gerado por IA",
         "description": "Atuação como especialista em revisão de código gerado por inteligência artificial para a Scale AI, garantindo qualidade, segurança, melhores práticas e contribuindo para melhoria dos modelos de IA de código.",
         "category": "ai",
-        "technologies": ["Python", "JavaScript", "TypeScript", "Code Review", "AI Models"],
+        "technologies": [
+            "Python",
+            "JavaScript",
+            "TypeScript",
+            "Code Review",
+            "AI Models"
+        ],
         "year": "2024",
         "status": "completed",
         "featured": false,
@@ -185,7 +243,13 @@
         "excerpt": "Plataforma SaaS de geração e qualificação de leads com IA",
         "description": "Liderança técnica no desenvolvimento de plataforma SaaS para automação de geração e qualificação de leads utilizando inteligência artificial, OCR para processamento de documentos e análise avançada de dados.",
         "category": "ai",
-        "technologies": ["Python", "OpenAI", "OCR", "React", "FastAPI"],
+        "technologies": [
+            "Python",
+            "OpenAI",
+            "OCR",
+            "React",
+            "FastAPI"
+        ],
         "year": "2024",
         "status": "completed",
         "featured": false,

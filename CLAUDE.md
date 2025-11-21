@@ -57,7 +57,8 @@ The entire site uses a single entry point ([index.php](index.php)) with query-st
 
 **Data Management:**
 - [data/projects.json](data/projects.json) contains all project information
-- Project structure: `id`, `title`, `excerpt`, `description`, `category`, `technologies`, `year`, `status`, `featured`, `client`, `results`
+- Project structure: `id`, `title`, `excerpt`, `description`, `category`, `technologies`, `year`, `status`, `featured`, `client`, `url`, `results`
+- `url` field is optional - can be null for projects without public URLs
 
 **JavaScript:**
 - [assets/js/main.js](assets/js/main.js): Mobile menu toggle, Intersection Observer animations, smooth scrolling
@@ -148,15 +149,25 @@ Edit [data/projects.json](data/projects.json) with this structure:
     "category": "web|mobile|ai|automation",
     "technologies": ["Tech1", "Tech2"],
     "year": "2024",
-    "status": "completed|ongoing",
+    "status": "completed|ongoing|mvp",
     "featured": true|false,
     "client": "Client Name",
+    "url": "https://example.com",
     "results": ["Result 1", "Result 2"]
 }
 ```
+Note: `url` field is optional and can be set to `null` for projects without public URLs.
 
 ### Adding Blog Posts
 Blog posts are currently hardcoded in [pages/blog.php](pages/blog.php). Add new posts to the `$posts` array in the file.
+
+### Contact Form
+The contact page ([pages/contact.php](pages/contact.php)) includes a form that submits to `/api/send-contact.php`:
+- Form uses JavaScript fetch API for async submission
+- Expected endpoint: `/api/send-contact.php` (needs to be created)
+- Form data: name, email, company, project_type, budget, message
+- Response format: JSON with `success` boolean and `message` string
+- WhatsApp contact: +55 81 99673-3973
 
 ### SEO Management
 Meta tags are set dynamically in [index.php](index.php:2-23) based on the `$page` variable. Update the switch statement to modify titles and descriptions.
@@ -191,6 +202,8 @@ Meta tags are set dynamically in [index.php](index.php:2-23) based on the `$page
 3. Tailwind loaded from CDN (not optimized/purged)
 4. No automated testing
 5. FTP credentials committed to repository (security concern)
+6. Contact form endpoint (`/api/send-contact.php`) needs to be implemented
+7. Social media links in contact page are placeholder (#)
 
 ## Common Tasks
 
