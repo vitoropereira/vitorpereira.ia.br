@@ -245,8 +245,7 @@ See [.env.example](.env.example) for configuration template.
 3. Tailwind loaded from CDN (not optimized/purged)
 4. No automated testing
 5. FTP credentials committed to repository (security concern)
-6. Social media links in contact page are placeholder (#)
-7. WhatsApp API token hardcoded in source (use environment variables in production)
+6. WhatsApp API token hardcoded in source (use environment variables in production)
 
 ## Common Tasks
 

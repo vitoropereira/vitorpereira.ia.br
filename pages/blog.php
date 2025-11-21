@@ -149,14 +149,19 @@ $categories = array_unique(array_column($posts, 'category'));
                 </p>
             </div>
 
+            <?php
+            $shareUrl = urlencode('https://vitorpereira.ia.br/?page=blog&post=' . $post['id']);
+            $shareTitle = urlencode($post['title']);
+            $shareText = urlencode($post['excerpt']);
+            ?>
             <div class="mt-12 pt-8 border-t border-gray-200 fade-in">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-gray-500 mb-2">Compartilhar artigo:</p>
                         <div class="flex gap-4">
-                            <a href="#" class="text-gray-600 hover:text-primary">Twitter</a>
-                            <a href="#" class="text-gray-600 hover:text-primary">LinkedIn</a>
-                            <a href="#" class="text-gray-600 hover:text-primary">Facebook</a>
+                            <a href="https://twitter.com/intent/tweet?url=<?= $shareUrl ?>&text=<?= $shareTitle ?>" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-primary">X (Twitter)</a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= $shareUrl ?>" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-primary">LinkedIn</a>
+                            <a href="https://api.whatsapp.com/send?text=<?= $shareTitle ?>%20<?= $shareUrl ?>" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-primary">WhatsApp</a>
                         </div>
                     </div>
                     <a href="?page=contact" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors">
