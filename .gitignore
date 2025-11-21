@@ -3,6 +3,8 @@
 .vscode/testesftp.json
 .vscode/settings.json
 *.code-workspace
+.clauderc
+.claude/settings.local.json
 
 # OS files
 .DS_Store

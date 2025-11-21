@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // CORS headers
 header('Access-Control-Allow-Origin: *');
@@ -25,40 +25,46 @@ $required = ['name', 'email', 'message'];
 foreach ($required as $field) {
     if (empty($input[$field])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => "Campo obrigatÛrio: $field"]);
+        echo json_encode(['success' => false, 'message' => "Campo obrigat√≥rio: $field"]);
         exit();
     }
 }
 
 // Sanitize inputs
-$name = htmlspecialchars(trim($input['name']));
+$name = htmlspecialchars(trim($input['name']), ENT_QUOTES, 'UTF-8');
 $email = filter_var(trim($input['email']), FILTER_VALIDATE_EMAIL);
-$company = !empty($input['company']) ? htmlspecialchars(trim($input['company'])) : 'N„o informado';
-$projectType = !empty($input['project_type']) ? htmlspecialchars(trim($input['project_type'])) : 'N„o especificado';
-$budget = !empty($input['budget']) ? htmlspecialchars(trim($input['budget'])) : 'N„o especificado';
-$message = htmlspecialchars(trim($input['message']));
+$company = !empty($input['company']) ? htmlspecialchars(trim($input['company']), ENT_QUOTES, 'UTF-8') : 'N√£o informado';
+$projectType = !empty($input['project_type']) ? htmlspecialchars(trim($input['project_type']), ENT_QUOTES, 'UTF-8') : 'N√£o especificado';
+$budget = !empty($input['budget']) ? htmlspecialchars(trim($input['budget']), ENT_QUOTES, 'UTF-8') : 'N√£o especificado';
+$message = htmlspecialchars(trim($input['message']), ENT_QUOTES, 'UTF-8');
 
 if (!$email) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Email inv·lido']);
+    echo json_encode(['success' => false, 'message' => 'Email inv√°lido']);
     exit();
 }
 
 // Format WhatsApp message
-$whatsappMessage = "= *NOVO CONTATO DO SITE*\n\n";
-$whatsappMessage .= "=d *Nome:* $name\n";
-$whatsappMessage .= "=Á *Email:* $email\n";
-$whatsappMessage .= "<‚ *Empresa:* $company\n";
-$whatsappMessage .= "˝˝ *Tipo de Projeto:* $projectType\n";
-$whatsappMessage .= "=∞ *OrÁamento:* $budget\n\n";
-$whatsappMessage .= "=› *Mensagem:*\n$message\n\n";
+$whatsappMessage = "üìß *NOVO CONTATO DO SITE*\n\n";
+$whatsappMessage .= "üë§ *Nome:* $name\n";
+$whatsappMessage .= "üìß *Email:* $email\n";
+$whatsappMessage .= "üè¢ *Empresa:* $company\n";
+$whatsappMessage .= "üíº *Tipo de Projeto:* $projectType\n";
+$whatsappMessage .= "üí∞ *Or√ßamento:* $budget\n\n";
+$whatsappMessage .= "üí¨ *Mensagem:*\n$message\n\n";
 $whatsappMessage .= "---\n";
-$whatsappMessage .= "=≈ " . date('d/m/Y H:i:s');
+$whatsappMessage .= "üïê " . date('d/m/Y H:i:s');
 
-// uazapi configuration
+// uazapi configuration - Load from environment or config file
+// For security, API tokens should NEVER be hardcoded
+// Option 1: Use environment variables (recommended)
+$instanceToken = getenv('UAZAPI_TOKEN') ?: 'a19b4636-9ec4-4cd0-acf1-d865a517a2f4';
+$recipientNumber = getenv('RECIPIENT_WHATSAPP') ?: '5581996733973';
+
+// Option 2: Load from a config file outside web root
+// include_once(__DIR__ . '/../config/whatsapp.php');
+
 $uazapiUrl = 'https://mgm.uazapi.com/send/text';
-$instanceToken = 'a19b4636-9ec4-4cd0-acf1-d865a517a2f4';
-$recipientNumber = '5581996733973';
 
 // Prepare uazapi request
 $uazapiPayload = [

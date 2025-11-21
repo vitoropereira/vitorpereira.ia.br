@@ -164,13 +164,56 @@ Blog posts are currently hardcoded in [pages/blog.php](pages/blog.php). Add new 
 ### Contact Form
 The contact page ([pages/contact.php](pages/contact.php)) includes a form that submits to `/api/send-contact.php`:
 - Form uses JavaScript fetch API for async submission
-- Expected endpoint: `/api/send-contact.php` (needs to be created)
+- Backend: [api/send-contact.php](api/send-contact.php) - sends messages via WhatsApp using uazapi
 - Form data: name, email, company, project_type, budget, message
 - Response format: JSON with `success` boolean and `message` string
+- Environment variables (optional): `UAZAPI_TOKEN`, `RECIPIENT_WHATSAPP`
+- Falls back to hardcoded values if env vars not set (see `.env.example`)
 - WhatsApp contact: +55 81 99673-3973
 
 ### SEO Management
 Meta tags are set dynamically in [index.php](index.php:2-23) based on the `$page` variable. Update the switch statement to modify titles and descriptions.
+
+## API Endpoints
+
+### Contact Form API
+**Endpoint:** `/api/send-contact.php`
+
+**Method:** POST
+
+**Request Body (JSON):**
+```json
+{
+    "name": "string (required)",
+    "email": "string (required, valid email)",
+    "company": "string (optional)",
+    "project_type": "string (optional)",
+    "budget": "string (optional)",
+    "message": "string (required)"
+}
+```
+
+**Response (JSON):**
+```json
+{
+    "success": boolean,
+    "message": "string"
+}
+```
+
+**Implementation Details:**
+- Validates required fields (name, email, message)
+- Sanitizes all inputs to prevent XSS
+- Sends formatted message via WhatsApp using uazapi API
+- Uses environment variables for sensitive data (recommended)
+- Falls back to hardcoded values if env vars not set
+- Returns appropriate HTTP status codes (200, 400, 405, 500)
+
+**Environment Variables:**
+- `UAZAPI_TOKEN` - API token for uazapi service
+- `RECIPIENT_WHATSAPP` - WhatsApp number to receive messages (format: 5581996733973)
+
+See [.env.example](.env.example) for configuration template.
 
 ## Code Preferences
 
@@ -202,8 +245,8 @@ Meta tags are set dynamically in [index.php](index.php:2-23) based on the `$page
 3. Tailwind loaded from CDN (not optimized/purged)
 4. No automated testing
 5. FTP credentials committed to repository (security concern)
-6. Contact form endpoint (`/api/send-contact.php`) needs to be implemented
-7. Social media links in contact page are placeholder (#)
+6. Social media links in contact page are placeholder (#)
+7. WhatsApp API token hardcoded in source (use environment variables in production)
 
 ## Common Tasks
 
