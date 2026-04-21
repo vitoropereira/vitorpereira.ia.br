@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Footer } from "@/components/layout/Footer";
@@ -5,6 +6,15 @@ import { Header } from "@/components/layout/Header";
 import { CommandPalette } from "@/components/search/CommandPalette";
 import { buildSearchIndex } from "@/features/blog/lib/searchIndex";
 import type { Locale } from "@/lib/i18n/config";
+import { siteConfig } from "@/lib/siteConfig";
+
+export const metadata: Metadata = {
+  alternates: {
+    types: {
+      "application/rss+xml": `${siteConfig.url}/rss.xml`,
+    },
+  },
+};
 
 export default async function SiteLayout({
   children,
