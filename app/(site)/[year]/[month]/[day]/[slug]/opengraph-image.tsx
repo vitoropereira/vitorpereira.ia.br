@@ -24,33 +24,31 @@ export default async function Image({
     : "";
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "80px",
+        background: "#0f172a",
+        color: "white",
+      }}
+    >
+      <div style={{ fontSize: 28, color: "#94a3b8" }}>{siteConfig.name}</div>
       <div
         style={{
-          height: "100%",
-          width: "100%",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "80px",
-          background: "#0f172a",
-          color: "white",
+          fontSize: 60,
+          fontWeight: 700,
+          lineHeight: 1.1,
         }}
       >
-        <div style={{ fontSize: 28, color: "#94a3b8" }}>{siteConfig.name}</div>
-        <div
-          style={{
-            display: "flex",
-            fontSize: 60,
-            fontWeight: 700,
-            lineHeight: 1.1,
-          }}
-        >
-          {title}
-        </div>
-        <div style={{ fontSize: 26, color: "#94a3b8" }}>{date}</div>
+        {title}
       </div>
-    ),
+      <div style={{ fontSize: 26, color: "#94a3b8" }}>{date}</div>
+    </div>,
     size,
   );
 }

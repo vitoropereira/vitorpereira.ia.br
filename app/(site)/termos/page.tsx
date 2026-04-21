@@ -22,7 +22,8 @@ export function generateMetadata(): Metadata {
   const page = getPage();
   return buildMetadata({
     title: page?.title ?? "Termos de Uso",
-    description: page?.description ?? "Regras de uso do site vitorpereira.ia.br.",
+    description:
+      page?.description ?? "Regras de uso do site vitorpereira.ia.br.",
     path: "/termos",
     locale: "pt",
     alternatePath: "/en/terms",
