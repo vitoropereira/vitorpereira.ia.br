@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { siteConfig } from "@/lib/siteConfig";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -60,18 +59,15 @@ export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
     };
   }
 
-  // Escape forward-slash in `</script>` so a string value can never
-  // close the script tag prematurely. next/script renders children
-  // without passing through React text escaping (so JSON stays intact).
+  // Escape `<` so a string value can never close the script tag early.
+  // Safe: `json` is built from siteConfig + typed props — no user HTML.
   const body = JSON.stringify(json).replace(/</g, "\\u003c");
 
   return (
-    <Script
+    <script
       id={id ?? `jsonld-${data.type.toLowerCase()}`}
       type="application/ld+json"
-      strategy="afterInteractive"
-    >
-      {body}
-    </Script>
+      dangerouslySetInnerHTML={{ __html: body }}
+    />
   );
 }

@@ -33,12 +33,20 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
     "x-default": siteConfig.url,
   };
 
+  const rssUrl =
+    locale === "pt"
+      ? `${siteConfig.url}/rss.xml`
+      : `${siteConfig.url}/en/rss.xml`;
+
   return {
     title: title ? `${title} — ${siteConfig.name}` : siteConfig.name,
     description,
     alternates: {
       canonical: url,
       languages,
+      types: {
+        "application/rss+xml": rssUrl,
+      },
     },
     openGraph: {
       type,
