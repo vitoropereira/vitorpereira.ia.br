@@ -1,9 +1,14 @@
+import type { MDXRemoteProps } from "next-mdx-remote/rsc";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
-export const mdxOptions = {
+type MDXOptions = NonNullable<
+  NonNullable<MDXRemoteProps["options"]>["mdxOptions"]
+>;
+
+export const mdxOptions: MDXOptions = {
   remarkPlugins: [remarkGfm],
   rehypePlugins: [
     rehypeSlug,
@@ -25,4 +30,4 @@ export const mdxOptions = {
       },
     ],
   ],
-} as const;
+};
