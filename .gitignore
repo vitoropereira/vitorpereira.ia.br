@@ -1,31 +1,77 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Claude Code (local config, not tracked)
+.claude/
+.clauderc
+
 # IDE and Editor files
 .vscode/sftp.json
 .vscode/testesftp.json
 .vscode/settings.json
 *.code-workspace
-.clauderc
-.claude/settings.local.json
 
 # OS files
 .DS_Store
 Thumbs.db
 *.tmp
+*.pem
+
+# dependencies
+/node_modules
+/.pnpm
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+/.pnpm-store/
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc / debug
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Dependencies
-node_modules/
-vendor/
-
-# Build files
-assets/css/output.css
-*.map
-
-# Environment files
+# env files
 .env
 .env.local
 .env.production
+.env*.local
 
-# Temporary files
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Velite (content layer build output)
+.velite/
+
+# Temporary scaffolding
+.scaffold/
+
+# Build artifacts
+assets/css/output.css
+*.map
+
+# Swap/backup
 *.bak
 *.swp
 *~
+
+# vendor (legacy PHP)
+vendor/
