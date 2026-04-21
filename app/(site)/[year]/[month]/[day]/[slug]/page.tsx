@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPostsByLocale } from "@/features/blog/lib/queries";
 import { PostBody } from "@/features/blog/components/PostBody";
@@ -7,12 +8,47 @@ import { RelatedPosts } from "@/features/blog/components/RelatedPosts";
 import { GiscusComments } from "@/features/blog/components/GiscusComments";
 import { DraftBadge } from "@/features/blog/components/DraftBadge";
 import { extractToc } from "@/features/blog/lib/toc";
+import { buildMetadata } from "@/components/seo/buildMetadata";
+import { siteConfig } from "@/lib/siteConfig";
 
 export async function generateStaticParams() {
   const posts = getPostsByLocale("pt", { includeDrafts: false });
   return posts.map((p) => {
     const [year, month, day, slug] = p.permalink.split("/").filter(Boolean);
     return { year, month, day, slug };
+  });
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ year: string; month: string; day: string; slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPostBySlug("pt", slug);
+  if (!post) return {};
+  const cover =
+    post.cover && typeof post.cover === "object" && "src" in post.cover
+      ? (post.cover as { src: string; width: number; height: number })
+      : null;
+  return buildMetadata({
+    title: post.title,
+    description: post.description,
+    path: post.permalink,
+    locale: "pt",
+    alternatePath: post.translationSlug ?? undefined,
+    type: "article",
+    noIndex: post.draft,
+    images: cover
+      ? [
+          {
+            url: `${siteConfig.url}${cover.src}`,
+            width: cover.width,
+            height: cover.height,
+            alt: post.title,
+          },
+        ]
+      : undefined,
   });
 }
 
