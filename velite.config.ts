@@ -48,9 +48,7 @@ export default defineConfig({
         })
         .transform((data, { meta }) => {
           const filePath = (meta.path ?? "").replace(/\\/g, "/");
-          const match = filePath.match(
-            /content\/pages\/([^/]+?)(\.en)?\.mdx$/,
-          );
+          const match = filePath.match(/content\/pages\/([^/]+?)(\.en)?\.mdx$/);
           if (!match) {
             throw new Error(`Unexpected page path: ${filePath}`);
           }
