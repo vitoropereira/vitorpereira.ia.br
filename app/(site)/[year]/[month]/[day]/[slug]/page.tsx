@@ -9,6 +9,7 @@ import { GiscusComments } from "@/features/blog/components/GiscusComments";
 import { DraftBadge } from "@/features/blog/components/DraftBadge";
 import { extractToc } from "@/features/blog/lib/toc";
 import { buildMetadata } from "@/components/seo/buildMetadata";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/siteConfig";
 
 export async function generateStaticParams() {
@@ -61,10 +62,29 @@ export default async function PostPage({
   const post = getPostBySlug("pt", slug);
   if (!post) notFound();
   const toc = extractToc(post.body);
+  const cover =
+    post.cover && typeof post.cover === "object" && "src" in post.cover
+      ? (post.cover as { src: string })
+      : null;
 
   return (
     <div className="mx-auto flex max-w-[88rem] gap-8 px-6 py-12 lg:grid lg:grid-cols-[1fr_220px]">
       <article className="mx-auto w-full max-w-6xl">
+        <JsonLd
+          data={{
+            type: "BlogPosting",
+            title: post.title,
+            description: post.description,
+            url: `${siteConfig.url}${post.permalink}`,
+            datePublished: new Date(post.date).toISOString(),
+            dateModified: post.updated
+              ? new Date(post.updated).toISOString()
+              : new Date(post.date).toISOString(),
+            tags: post.tags,
+            locale: post.locale,
+            ...(cover ? { image: `${siteConfig.url}${cover.src}` } : {}),
+          }}
+        />
         <header className="text-center">
           {post.draft && (
             <div className="mb-2">

@@ -4,6 +4,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { CommandPalette } from "@/components/search/CommandPalette";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { buildSearchIndex } from "@/features/blog/lib/searchIndex";
 import type { Locale } from "@/lib/i18n/config";
 import { siteConfig } from "@/lib/siteConfig";
@@ -27,6 +28,7 @@ export default async function SiteLayout({
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
+      <JsonLd data={{ type: "WebSite", locale }} />
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1">{children}</main>

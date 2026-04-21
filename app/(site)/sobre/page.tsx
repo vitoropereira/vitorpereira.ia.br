@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { pages } from "@/content";
 import { MdxPage } from "@/features/blog/components/MdxPage";
 import { buildMetadata } from "@/components/seo/buildMetadata";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 type Page = {
   slug: string;
@@ -36,10 +37,13 @@ export default function SobrePage() {
   const page = getPage();
   if (!page) notFound();
   return (
-    <MdxPage
-      title={page.title}
-      description={page.description}
-      body={page.body}
-    />
+    <>
+      <JsonLd data={{ type: "Person" }} />
+      <MdxPage
+        title={page.title}
+        description={page.description}
+        body={page.body}
+      />
+    </>
   );
 }
