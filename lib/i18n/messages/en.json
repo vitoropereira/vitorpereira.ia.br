@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "home": "Home",
+    "posts": "Blog",
+    "portfolio": "Portfolio",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "blog": {
+    "readingTime": "{minutes} min read",
+    "relatedPosts": "Related posts",
+    "tags": "Tags",
+    "draft": "DRAFT"
+  },
+  "footer": {
+    "copyright": "© {year} Vitor Pereira",
+    "manageCookies": "Manage cookies"
+  },
+  "langToggle": {
+    "switchToEnglish": "English version",
+    "switchToPortuguese": "Portuguese version",
+    "translationMissing": "Translation not available"
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  }
+}
