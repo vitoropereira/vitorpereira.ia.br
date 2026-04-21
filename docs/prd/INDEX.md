@@ -10,10 +10,10 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 
 ## PRDs
 
-| #   | PRD                                              | Tema                                                                                            | Status | Progresso |
-| --- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------ | --------- |
-| 01  | [Deploy & go-live](./01_deploy-e-go-live.md)     | Fechar Phase 7: Giscus + Vercel + DNS cutover + pós-ship                                        | Draft  | 0/5 US    |
-| 02  | [Tech-debt pós-ship](./02_tech-debt-pos-ship.md) | Migração `middleware.ts` → `proxy.ts` (Next 16); scrub de credenciais do histórico `legacy-php` | Draft  | 0/2 US    |
+| #   | PRD                                              | Tema                                                                                            | Status       | Progresso |
+| --- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------ | --------- |
+| 01  | [Deploy & go-live](./01_deploy-e-go-live.md)     | Fechar Phase 7: Giscus + Vercel + DNS cutover + pós-ship                                        | Em andamento | 0/5 US    |
+| 02  | [Tech-debt pós-ship](./02_tech-debt-pos-ship.md) | Migração `middleware.ts` → `proxy.ts` (Next 16); scrub de credenciais do histórico `legacy-php` | Em andamento | 0/2 US    |
 
 ## Moments em que o INDEX deve ser atualizado
 
@@ -25,3 +25,24 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 | US concluída             | Incrementar contador de progresso (ex: `2/5 US`)        |
 | Todas as US concluídas   | Mudar status para `Concluído`                           |
 | PRD engavetado           | Mudar status para `Cancelado`                           |
+
+---
+
+## PRD 01: Deploy & go-live
+
+| US     | Título                                          | Status   | Branch/PR |
+| ------ | ----------------------------------------------- | -------- | --------- |
+| US-001 | Giscus configurado contra o repo real           | Pendente | —         |
+| US-002 | Vercel bootstrap (link + env vars)              | Pendente | —         |
+| US-003 | Deploy provisório passando aceite completo      | Pendente | —         |
+| US-004 | DNS cutover para domínio real                   | Pendente | —         |
+| US-005 | Pós-ship — Search Console + validators + uptime | Pendente | —         |
+
+---
+
+## PRD 02: Tech-debt pós-ship
+
+| US     | Título                                                           | Status   | Branch/PR |
+| ------ | ---------------------------------------------------------------- | -------- | --------- |
+| US-001 | Migrar `middleware.ts` → `proxy.ts` (Next 16)                    | Pendente | —         |
+| US-002 | Decisão (ADR) sobre scrub de credenciais do histórico legacy-php | Pendente | —         |
