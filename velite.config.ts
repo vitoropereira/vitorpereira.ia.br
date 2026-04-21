@@ -35,6 +35,35 @@ export default defineConfig({
     clean: true,
   },
   collections: {
+    pages: {
+      name: "Page",
+      pattern: "pages/**/*.mdx",
+      schema: s
+        .object({
+          title: s.string(),
+          description: s.string().optional(),
+          body: s.string().default(""),
+          slug: s.string().default(""),
+          locale: s.enum(locales).default("pt"),
+        })
+        .transform((data, { meta }) => {
+          const filePath = (meta.path ?? "").replace(/\\/g, "/");
+          const match = filePath.match(
+            /content\/pages\/([^/]+?)(\.en)?\.mdx$/,
+          );
+          if (!match) {
+            throw new Error(`Unexpected page path: ${filePath}`);
+          }
+          const [, slug, enFlag] = match;
+          const locale: Locale = enFlag ? "en" : "pt";
+          return {
+            ...data,
+            slug,
+            locale,
+            body: (meta.content ?? "") as string,
+          };
+        }),
+    },
     posts: {
       name: "Post",
       pattern: "posts/**/index{,.en}.mdx",
