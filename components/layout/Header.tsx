@@ -12,7 +12,7 @@ export async function Header() {
     institutionalRoutes[key][locale as "pt" | "en"];
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link href={r("home")} className="font-serif text-lg font-bold">
           {siteConfig.name}

@@ -1,7 +1,4 @@
-export const institutionalRoutes: Record<
-  string,
-  { pt: string; en: string }
-> = {
+export const institutionalRoutes: Record<string, { pt: string; en: string }> = {
   home: { pt: "/", en: "/en" },
   about: { pt: "/sobre", en: "/en/about" },
   portfolio: { pt: "/portfolio", en: "/en/portfolio" },
@@ -18,7 +15,8 @@ export function swapLocale(path: string, target: "pt" | "en"): string {
   }
   // Posts share slug between locales: /YYYY/MM/DD/slug  <->  /en/YYYY/MM/DD/slug
   if (target === "en" && !path.startsWith("/en")) return `/en${path}`;
-  if (target === "pt" && path.startsWith("/en/")) return path.replace(/^\/en/, "");
+  if (target === "pt" && path.startsWith("/en/"))
+    return path.replace(/^\/en/, "");
   if (target === "pt" && path === "/en") return "/";
   return path;
 }

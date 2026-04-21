@@ -27,6 +27,7 @@ proven stable.
 ## Task 1: Push repo to GitHub
 
 **Files:**
+
 - None (git operations only)
 
 - [ ] **Step 1: Verify local branch status**
@@ -73,6 +74,7 @@ Expected: both branches visible on GitHub.
 ## Task 2: Set up Giscus against the real repo
 
 **Files:**
+
 - None (Giscus configuration is on giscus.app)
 
 - [ ] **Step 1: Enable Discussions on the GitHub repo**
@@ -85,6 +87,7 @@ Features → enable **Discussions**.
 
 Visit `https://github.com/vitoropereira/vitorpereira.ia.br/discussions` →
 click the gear icon next to "Categories" → **New category** →
+
 - Name: `Comments`
 - Description: `Blog post comments powered by Giscus`
 - Format: **Announcement** (only maintainers can post; Giscus bypasses
@@ -93,6 +96,7 @@ click the gear icon next to "Categories" → **New category** →
 - [ ] **Step 3: Get configuration values**
 
 Visit `https://giscus.app`. Enter the repo name. The page produces:
+
 - `data-repo` (e.g., `vitoropereira/vitorpereira.ia.br`)
 - `data-repo-id` (`R_kgDO...`)
 - `data-category` (`Comments`)
@@ -130,6 +134,7 @@ Stop server.
 ## Task 3: Create Vercel project (provisional URL)
 
 **Files:**
+
 - None (Vercel dashboard operations)
 
 - [ ] **Step 1: Install the Vercel CLI (optional)**
@@ -155,6 +160,7 @@ vercel link
 ```
 
 Prompts:
+
 - Set up project? Yes
 - Scope: your team/personal account
 - Existing project? No, create new
@@ -182,6 +188,7 @@ git commit -m "chore: link Vercel project" # skip if clean
 ## Task 4: Configure Vercel environment variables
 
 **Files:**
+
 - None (Vercel dashboard or CLI)
 
 - [ ] **Step 1: Add variables via CLI**
@@ -239,6 +246,7 @@ Expected: all variables listed for the correct environments.
 ## Task 5: First deploy (provisional URL)
 
 **Files:**
+
 - None
 
 - [ ] **Step 1: Deploy to production URL on Vercel**
@@ -282,18 +290,19 @@ git push  # Vercel auto-deploys
 ## Task 6: Run acceptance checklist against spec
 
 **Files:**
+
 - None (verification)
 
 The spec's §15 has 11 success criteria. Check each:
 
 - [ ] **(1)** Site builds and deploys on Vercel without errors
 - [ ] **(2)** Home, listing of posts, post individual, sobre, portfolio,
-  contact, privacy, terms all work in PT and EN
+      contact, privacy, terms all work in PT and EN
 - [ ] **(3)** Language toggle works; disables with tooltip when
-  translation missing
+      translation missing
 - [ ] **(4)** At least 1 example post renders correctly in both languages
-  with TOC, syntax highlighting, Giscus (since `comments: true`), related
-  posts
+      with TOC, syntax highlighting, Giscus (since `comments: true`), related
+      posts
 - [ ] **(5)** Dark mode works (persistence, transition)
 - [ ] **(6)** RSS, sitemap, robots, Schema.org, OG, Twitter Cards validate:
   - Paste an EN post URL into https://search.google.com/test/rich-results
@@ -303,13 +312,13 @@ The spec's §15 has 11 success criteria. Check each:
   - Paste `https://<provisional-url>/rss.xml` into https://validator.w3.org/feed/
     — expect valid RSS 2.0
 - [ ] **(7)** Consent banner appears first visit; Clarity and GA4 only
-  load after accepting; Vercel Analytics always on
+      load after accepting; Vercel Analytics always on
 - [ ] **(8)** Command palette ⌘K opens and finds posts
 - [ ] **(9)** Drafts visible in dev, invisible in prod (verify on
-  provisional URL — hello-world visible, draft-only-example-post NOT
-  visible)
+      provisional URL — hello-world visible, draft-only-example-post NOT
+      visible)
 - [ ] **(10)** Lighthouse Performance ≥90, SEO ≥95, Accessibility ≥90 on
-  `/` and `/2026/04/21/hello-world` in incognito mode, mobile preset
+      `/` and `/2026/04/21/hello-world` in incognito mode, mobile preset
 - [ ] **(11)** Domain migration (Task 8) — pending until user approval
 
 Document pass/fail for each. If any fail, fix and redeploy before Task 8.
@@ -325,6 +334,7 @@ is therefore in the git history. That file contained production FTP
 credentials for the old PHP server.
 
 **Action required from user (can't be automated):**
+
 - Log into the old hosting provider's control panel
 - Change the FTP password for the account used in `sftp.json`
 - Confirm with the agent when done
@@ -408,7 +418,7 @@ Now that the site is publicly reachable at the real domain:
 - [ ] Twitter Card Validator on a post URL — summary_large_image preview
 - [ ] W3C Feed Validator on `https://vitorpereira.ia.br/rss.xml` — valid
 - [ ] Lighthouse Mobile scores on real domain (Performance, SEO,
-  Accessibility, Best Practices) all ≥90
+      Accessibility, Best Practices) all ≥90
 
 - [ ] **Step 2: Configure Google Search Console**
 
@@ -495,11 +505,11 @@ The project is live. The PHP legacy stays accessible via the
 - [ ] Repository on GitHub with `main` and `legacy-php` branches
 - [ ] Vercel project linked, env vars set for production (and preview)
 - [ ] Deployment live on provisional Vercel URL and passing all 11
-  spec success criteria
+      spec success criteria
 - [ ] Giscus working against real GitHub Discussions
 - [ ] Old FTP password rotated
 - [ ] Domain `vitorpereira.ia.br` cut over to Vercel (with user
-  approval)
+      approval)
 - [ ] SEO validators (Google, Twitter, W3C) pass
 - [ ] Google Search Console property verified and sitemap submitted
 - [ ] Lighthouse scores ≥90 on production

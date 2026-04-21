@@ -6,7 +6,7 @@ export async function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 text-sm text-muted-foreground md:flex-row">
+      <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 text-sm md:flex-row">
         <span>{t("copyright", { year })}</span>
         <SocialLinks />
       </div>

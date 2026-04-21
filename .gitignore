@@ -8,6 +8,7 @@
 .vscode/sftp.json
 .vscode/testesftp.json
 .vscode/settings.json
+.idea/
 *.code-workspace
 
 # OS files

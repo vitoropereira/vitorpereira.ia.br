@@ -24,6 +24,7 @@ rehype-pretty-code, Shiki, react-tweet.
 — spec sections 5 (content pipeline) and 2 (Akita conventions).
 
 **Akita references:**
+
 - Post frontmatter: `/Users/vop12/projects/akitaonrails.github.io/content/2026/04/18/omarchy-no-thinkpad-t14-gen-6/index.md` (read first ~15 lines)
 - YouTube shortcode: `/Users/vop12/projects/akitaonrails.github.io/layouts/shortcodes/youtube.html`
 - Custom CSS for code blocks, embed containers, typography: `/Users/vop12/projects/akitaonrails.github.io/layouts/partials/custom/head-end.html`
@@ -69,6 +70,7 @@ vitorpereira.ia.br/
 ## Task 1: Install Velite, next-mdx-remote, and MDX plugin deps
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Install production dependencies**
@@ -98,6 +100,7 @@ git commit -m "chore: install Velite, next-mdx-remote, and Vitest for content pi
 ## Task 2: Create shared MDX plugin options
 
 **Files:**
+
 - Create: `lib/mdx/mdx-options.ts`
 
 - [ ] **Step 1: Write shared remark/rehype config**
@@ -147,40 +150,40 @@ git commit -m "feat: add shared MDX remark/rehype plugin options"
 ## Task 3: Configure Velite with post schema
 
 **Files:**
+
 - Create: `velite.config.ts`
 
 - [ ] **Step 1: Write config**
 
 Create `velite.config.ts`:
 
-```ts
+````ts
 import { defineConfig, s } from "velite";
 import readingTime from "reading-time";
 
 const locales = ["pt", "en"] as const;
 type Locale = (typeof locales)[number];
 
-const postsSchema = s
-  .object({
-    title: s.string().max(200),
-    description: s.string().max(300),
-    date: s.isodate(),
-    updated: s.isodate().optional(),
-    draft: s.boolean().default(false),
-    tags: s.array(s.string()).default([]),
-    cover: s.image().optional(),
-    comments: s.boolean().default(false),
-    // Raw MDX body. We render via next-mdx-remote at request time,
-    // so we keep the source string here instead of compiling.
-    body: s.string().default(""),
-    // Derived fields (filled by transform / prepare below)
-    locale: s.enum(locales).default("pt"),
-    slug: s.string().default(""),
-    permalink: s.string().default(""),
-    readingTime: s.number().default(0),
-    excerpt: s.string().default(""),
-    translationSlug: s.string().optional(),
-  });
+const postsSchema = s.object({
+  title: s.string().max(200),
+  description: s.string().max(300),
+  date: s.isodate(),
+  updated: s.isodate().optional(),
+  draft: s.boolean().default(false),
+  tags: s.array(s.string()).default([]),
+  cover: s.image().optional(),
+  comments: s.boolean().default(false),
+  // Raw MDX body. We render via next-mdx-remote at request time,
+  // so we keep the source string here instead of compiling.
+  body: s.string().default(""),
+  // Derived fields (filled by transform / prepare below)
+  locale: s.enum(locales).default("pt"),
+  slug: s.string().default(""),
+  permalink: s.string().default(""),
+  readingTime: s.number().default(0),
+  excerpt: s.string().default(""),
+  translationSlug: s.string().optional(),
+});
 
 export default defineConfig({
   root: "content",
@@ -247,12 +250,11 @@ export default defineConfig({
     }
     for (const p of posts) {
       const sib = bySlug[p.slug];
-      p.translationSlug =
-        p.locale === "pt" ? sib?.en : sib?.pt;
+      p.translationSlug = p.locale === "pt" ? sib?.en : sib?.pt;
     }
   },
 });
-```
+````
 
 Note on `meta.content`: Velite exposes the raw body (frontmatter-stripped)
 as `meta.content` inside the transform function. If the runtime version
@@ -271,6 +273,7 @@ git commit -m "feat: configure Velite with raw-body post schema and bilingual li
 ## Task 4: Wire Velite into Next build and Vitest
 
 **Files:**
+
 - Modify: `next.config.ts`, `package.json`
 - Create: `vitest.config.ts`
 
@@ -288,7 +291,9 @@ class VelitePlugin {
   static started = false;
   apply(compiler: {
     hooks: {
-      beforeCompile: { tapPromise: (name: string, cb: () => Promise<void>) => void };
+      beforeCompile: {
+        tapPromise: (name: string, cb: () => Promise<void>) => void;
+      };
     };
     options: { mode?: "development" | "production" | "none" };
   }) {
@@ -372,6 +377,7 @@ git commit -m "chore: wire Velite into Next build pipeline and Vitest"
 ## Task 5: Create the example hello-world post (PT + EN)
 
 **Files:**
+
 - Create: `content/posts/2026/04/21/hello-world/index.mdx`
 - Create: `content/posts/2026/04/21/hello-world/index.en.mdx`
 
@@ -394,7 +400,7 @@ MDX, Shiki, componentes React dentro do markdown, e a tradução bilíngue.
 
 ## Um heading nível 2
 
-Parágrafo depois de um heading. O *TOC* deve capturar isso na barra lateral.
+Parágrafo depois de um heading. O _TOC_ deve capturar isso na barra lateral.
 
 ### Um heading nível 3
 
@@ -424,7 +430,7 @@ Uma lista:
 - Item 2
 - Item 3
 
-E **negrito**, *itálico*, `código inline`.
+E **negrito**, _itálico_, `código inline`.
 ````
 
 - [ ] **Step 2: Create EN post**
@@ -447,7 +453,7 @@ translations.
 
 ## A level-2 heading
 
-Paragraph after a heading. The *TOC* should capture this in the sidebar.
+Paragraph after a heading. The _TOC_ should capture this in the sidebar.
 
 ### A level-3 heading
 
@@ -477,7 +483,7 @@ A list:
 - Item 2
 - Item 3
 
-And **bold**, *italic*, `inline code`.
+And **bold**, _italic_, `inline code`.
 ````
 
 - [ ] **Step 3: Commit**
@@ -492,6 +498,7 @@ git commit -m "content: add hello-world example post in PT and EN"
 ## Task 6: Implement Callout component
 
 **Files:**
+
 - Create: `features/blog/mdx/Callout.tsx`
 
 - [ ] **Step 1: Write component**
@@ -508,19 +515,23 @@ type CalloutType = "info" | "warn" | "success" | "note";
 const STYLES: Record<CalloutType, { icon: typeof Info; classes: string }> = {
   info: {
     icon: Info,
-    classes: "border-blue-500/30 bg-blue-500/10 text-blue-950 dark:text-blue-100",
+    classes:
+      "border-blue-500/30 bg-blue-500/10 text-blue-950 dark:text-blue-100",
   },
   warn: {
     icon: TriangleAlert,
-    classes: "border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-100",
+    classes:
+      "border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-100",
   },
   success: {
     icon: CheckCircle2,
-    classes: "border-emerald-500/30 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100",
+    classes:
+      "border-emerald-500/30 bg-emerald-500/10 text-emerald-950 dark:text-emerald-100",
   },
   note: {
     icon: AlertCircle,
-    classes: "border-slate-500/30 bg-slate-500/10 text-slate-950 dark:text-slate-100",
+    classes:
+      "border-slate-500/30 bg-slate-500/10 text-slate-950 dark:text-slate-100",
   },
 };
 
@@ -533,9 +544,16 @@ export function Callout({
 }) {
   const { icon: Icon, classes } = STYLES[type];
   return (
-    <aside className={cn("my-6 flex gap-3 rounded-lg border px-4 py-3 text-sm", classes)}>
+    <aside
+      className={cn(
+        "my-6 flex gap-3 rounded-lg border px-4 py-3 text-sm",
+        classes,
+      )}
+    >
       <Icon className="mt-0.5 h-4 w-4 flex-shrink-0" />
-      <div className="flex-1 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">{children}</div>
+      <div className="flex-1 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0">
+        {children}
+      </div>
     </aside>
   );
 }
@@ -553,6 +571,7 @@ git commit -m "feat(blog): add Callout MDX component with 4 variants"
 ## Task 7: Implement Video component
 
 **Files:**
+
 - Create: `features/blog/mdx/Video.tsx`
 
 Reference: `/Users/vop12/projects/akitaonrails.github.io/layouts/shortcodes/youtube.html`
@@ -604,6 +623,7 @@ git commit -m "feat(blog): add Video (YouTube) MDX component"
 ## Task 8: Implement ImageWithBlur and Tweet
 
 **Files:**
+
 - Create: `features/blog/mdx/ImageWithBlur.tsx`, `features/blog/mdx/Tweet.tsx`
 
 - [ ] **Step 1: Write ImageWithBlur**
@@ -676,6 +696,7 @@ git commit -m "feat(blog): add ImageWithBlur and Tweet MDX components"
 ## Task 9: Create MDX components registry
 
 **Files:**
+
 - Create: `features/blog/mdx/MDXComponents.tsx`
 
 - [ ] **Step 1: Write registry**
@@ -687,12 +708,7 @@ import { Callout } from "./Callout";
 import { Video } from "./Video";
 import { ImageWithBlur } from "./ImageWithBlur";
 import { Tweet } from "./Tweet";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const mdxComponents = {
   Callout,
@@ -718,6 +734,7 @@ git commit -m "feat(blog): add MDX component registry"
 ## Task 10: Create PostBody renderer (no runtime eval)
 
 **Files:**
+
 - Create: `features/blog/components/PostBody.tsx`
 
 - [ ] **Step 1: Write renderer**
@@ -759,6 +776,7 @@ git commit -m "feat(blog): render MDX via next-mdx-remote/rsc (server, no eval)"
 ## Task 11: Create blog types
 
 **Files:**
+
 - Create: `features/blog/types.ts`
 
 - [ ] **Step 1: Write types**
@@ -784,6 +802,7 @@ git commit -m "feat(blog): export Post type from Velite collection"
 ## Task 12: Write queries (TDD) — failing tests first
 
 **Files:**
+
 - Create: `features/blog/lib/queries.test.ts`
 
 - [ ] **Step 1: Write tests**
@@ -835,7 +854,9 @@ describe("filterPublishedByLocale", () => {
       make({ slug: "c", locale: "pt", draft: true }),
     ];
     expect(
-      filterPublishedByLocale(all, "pt", true).map((p) => p.slug).sort(),
+      filterPublishedByLocale(all, "pt", true)
+        .map((p) => p.slug)
+        .sort(),
     ).toEqual(["a", "c"]);
   });
 });
@@ -896,6 +917,7 @@ Expected: fails — `./queries` not found.
 ## Task 13: Implement queries to pass tests
 
 **Files:**
+
 - Create: `features/blog/lib/queries.ts`
 
 - [ ] **Step 1: Implement queries**
@@ -926,10 +948,7 @@ export function sortByDateDesc<T extends { date: string | Date }>(
   );
 }
 
-export function getAllTags(
-  posts: readonly Post[],
-  locale: Locale,
-): string[] {
+export function getAllTags(posts: readonly Post[], locale: Locale): string[] {
   const tags = new Set<string>();
   for (const p of posts) {
     if (p.locale !== locale || p.draft) continue;
@@ -972,17 +991,12 @@ export function getPostsByLocale(
   return opts.limit ? sorted.slice(0, opts.limit) : sorted;
 }
 
-export function getPostBySlug(
-  locale: Locale,
-  slug: string,
-): Post | undefined {
+export function getPostBySlug(locale: Locale, slug: string): Post | undefined {
   return all.find((p) => p.locale === locale && p.slug === slug);
 }
 
 export function getAllSlugs(locale: Locale): string[] {
-  return all
-    .filter((p) => p.locale === locale && !p.draft)
-    .map((p) => p.slug);
+  return all.filter((p) => p.locale === locale && !p.draft).map((p) => p.slug);
 }
 ```
 
@@ -1014,6 +1028,7 @@ git commit -m "feat(blog): add TDD-covered queries for filter/sort/tags/related"
 ## Task 14: Add prose styles for MDX
 
 **Files:**
+
 - Modify: `app/globals.css`
 
 - [ ] **Step 1: Append styles**
@@ -1044,13 +1059,13 @@ Append to `app/globals.css`:
     @apply my-4 list-decimal pl-6;
   }
   .prose-post blockquote {
-    @apply my-6 border-l-4 border-muted pl-4 italic text-muted-foreground;
+    @apply border-muted text-muted-foreground my-6 border-l-4 pl-4 italic;
   }
   .prose-post a {
     @apply text-primary underline underline-offset-4 hover:opacity-80;
   }
   .prose-post code:not(pre code) {
-    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-sm;
+    @apply bg-muted rounded px-1.5 py-0.5 font-mono text-sm;
   }
   .prose-post pre {
     @apply my-6 overflow-x-auto rounded-lg bg-[#0d1117] p-4 text-sm;
@@ -1062,13 +1077,13 @@ Append to `app/globals.css`:
     @apply px-4;
   }
   .prose-post [data-rehype-pretty-code-title] {
-    @apply mb-0 rounded-t-lg bg-[#0d1117] px-4 py-2 text-xs text-muted-foreground;
+    @apply text-muted-foreground mb-0 rounded-t-lg bg-[#0d1117] px-4 py-2 text-xs;
   }
   .prose-post [data-rehype-pretty-code-title] + pre {
     @apply mt-0 rounded-t-none;
   }
   .prose-post .heading-anchor {
-    @apply ml-2 text-muted-foreground opacity-0 transition-opacity;
+    @apply text-muted-foreground ml-2 opacity-0 transition-opacity;
   }
   .prose-post h2:hover .heading-anchor,
   .prose-post h3:hover .heading-anchor,
@@ -1124,11 +1139,13 @@ export default function Debug() {
 ```
 
 Run:
+
 ```bash
 pnpm dev
 ```
 
 Visit `http://localhost:3000/__debug`. Verify:
+
 - [ ] Title, paragraphs render correctly
 - [ ] Code block is Shiki-highlighted (GitHub light theme)
 - [ ] Callout renders with blue info styling
@@ -1164,12 +1181,12 @@ git commit -m "fix: adjustments after end-to-end content pipeline test" # skip i
 ## Definition of Done — Phase 2
 
 - [ ] Velite config validates frontmatter; transform derives locale, slug,
-  permalink, readingTime, excerpt; prepare fills translationSlug
+      permalink, readingTime, excerpt; prepare fills translationSlug
 - [ ] Raw MDX body stored in the collection (consumed by MDXRemote)
 - [ ] Example `hello-world` post exists in PT and EN
 - [ ] MDX custom components: Callout, Video, ImageWithBlur, Tweet, Tabs
 - [ ] `features/blog/lib/queries.ts` has 6 functions with TDD coverage for
-  the 4 pure ones
+      the 4 pure ones
 - [ ] `pnpm build` produces static pages + Velite output
 - [ ] `pnpm dev` watches and regenerates on content changes
 - [ ] `pnpm test`, `pnpm typecheck`, `pnpm lint` pass

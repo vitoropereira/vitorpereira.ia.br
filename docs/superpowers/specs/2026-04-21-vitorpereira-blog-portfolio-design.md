@@ -70,21 +70,21 @@ o Vitor quiser divergir do Akita em algum momento.
 
 ## 3. Stack técnica
 
-| Camada | Escolha | Por quê |
-|---|---|---|
-| Runtime e framework | Next.js 15 App Router, TypeScript strict | Stack padrão moderna, SSG/ISR nativos |
-| Styling | Tailwind CSS v4 + shadcn/ui | Componentes copiados (não dependência), Radix primitives, dark mode pronto |
-| Conteúdo | Velite + MDX | Zod validando frontmatter, tipagem gerada automaticamente, watch rápido em dev |
-| i18n | `next-intl` 3.x | Suporta padrão "default locale sem prefixo", maduro pro App Router |
-| Dark mode | `next-themes` | Padrão do ecossistema, integra com shadcn |
-| Syntax highlighting | Shiki + `rehype-pretty-code` | Build time (zero JS no cliente), fidelidade de cor do VS Code |
-| Comentários | Giscus (GitHub Discussions) | Grátis, sem tracking, sem ads, lazy-loaded |
-| Busca | `cmdk` (shadcn Command) + Fuse.js client-side | Command palette ⌘K, index pequeno |
-| Analytics qualitativo | Microsoft Clarity | Heatmap + session recording, free ilimitado |
-| Analytics quantitativo | Google Analytics 4 | Aquisição + funnels |
-| Web vitals | Vercel Analytics | Plano Hobby grátis, sem cookies, não precisa consent |
-| Deploy | Vercel (Hobby tier) | Push-to-deploy, preview branches, ISR, OG dynamic |
-| Testes | Vitest (unit), TypeScript strict, ESLint, Prettier | Typecheck e lint bloqueiam deploy via Vercel build step |
+| Camada                 | Escolha                                            | Por quê                                                                        |
+| ---------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Runtime e framework    | Next.js 15 App Router, TypeScript strict           | Stack padrão moderna, SSG/ISR nativos                                          |
+| Styling                | Tailwind CSS v4 + shadcn/ui                        | Componentes copiados (não dependência), Radix primitives, dark mode pronto     |
+| Conteúdo               | Velite + MDX                                       | Zod validando frontmatter, tipagem gerada automaticamente, watch rápido em dev |
+| i18n                   | `next-intl` 3.x                                    | Suporta padrão "default locale sem prefixo", maduro pro App Router             |
+| Dark mode              | `next-themes`                                      | Padrão do ecossistema, integra com shadcn                                      |
+| Syntax highlighting    | Shiki + `rehype-pretty-code`                       | Build time (zero JS no cliente), fidelidade de cor do VS Code                  |
+| Comentários            | Giscus (GitHub Discussions)                        | Grátis, sem tracking, sem ads, lazy-loaded                                     |
+| Busca                  | `cmdk` (shadcn Command) + Fuse.js client-side      | Command palette ⌘K, index pequeno                                              |
+| Analytics qualitativo  | Microsoft Clarity                                  | Heatmap + session recording, free ilimitado                                    |
+| Analytics quantitativo | Google Analytics 4                                 | Aquisição + funnels                                                            |
+| Web vitals             | Vercel Analytics                                   | Plano Hobby grátis, sem cookies, não precisa consent                           |
+| Deploy                 | Vercel (Hobby tier)                                | Push-to-deploy, preview branches, ISR, OG dynamic                              |
+| Testes                 | Vitest (unit), TypeScript strict, ESLint, Prettier | Typecheck e lint bloqueiam deploy via Vercel build step                        |
 
 ## 4. Arquitetura e estrutura de pastas
 
@@ -211,13 +211,13 @@ posts: {
 Registrados em `features/blog/mdx/MDXComponents.tsx`, expostos globalmente no
 renderizador MDX:
 
-| Componente | Uso | Notas |
-|---|---|---|
-| `<Callout type="info\|warn\|success\|note">` | Caixa destacada | |
-| `<Video id="..." />` | YouTube embed 16:9 responsivo | [Akita] |
-| `<Tweet id="..." />` | Embed via `react-tweet` | |
-| `<Image />` | Wrapper de `next/image` com blur placeholder | |
-| `<Tabs>`, `<TabsList>`, `<TabsTrigger>`, `<TabsContent>` | shadcn Tabs | Multi-linguagem no código, p.ex. |
+| Componente                                               | Uso                                          | Notas                            |
+| -------------------------------------------------------- | -------------------------------------------- | -------------------------------- |
+| `<Callout type="info\|warn\|success\|note">`             | Caixa destacada                              |                                  |
+| `<Video id="..." />`                                     | YouTube embed 16:9 responsivo                | [Akita]                          |
+| `<Tweet id="..." />`                                     | Embed via `react-tweet`                      |                                  |
+| `<Image />`                                              | Wrapper de `next/image` com blur placeholder |                                  |
+| `<Tabs>`, `<TabsList>`, `<TabsTrigger>`, `<TabsContent>` | shadcn Tabs                                  | Multi-linguagem no código, p.ex. |
 
 Blocos de código suportam sintaxe estendida via rehype-pretty-code:
 ` ```ts title="foo.ts" {2,5-7} showLineNumbers `
@@ -270,26 +270,27 @@ Em `features/blog/lib/queries.ts` (server-only, build-time):
 ### 6.1 Biblioteca
 
 `next-intl` 3.x. Configuração:
+
 - `defaultLocale: "pt"` (sem prefixo)
 - `locales: ["pt", "en"]`
 - `localePrefix: "as-needed"` (PT sem prefixo, EN com `/en/`)
 
 ### 6.2 Tabela de URLs
 
-| Rota | PT | EN |
-|---|---|---|
-| Home | `/` | `/en/` |
-| Sobre | `/sobre` | `/en/about` |
-| Portfólio | `/portfolio` | `/en/portfolio` |
-| Contato | `/contato` | `/en/contact` |
-| Privacidade | `/privacidade` | `/en/privacy` |
-| Termos | `/termos` | `/en/terms` |
-| Listagem posts | `/posts` | `/en/posts` |
-| Post individual | `/YYYY/MM/DD/slug/` | `/en/YYYY/MM/DD/slug/` |
-| Tag | `/tags/{tag}` | `/en/tags/{tag}` |
-| Categoria | `/{slug}` | `/en/{slug}` |
-| RSS | `/rss.xml` | `/en/rss.xml` |
-| Sitemap | `/sitemap.xml` (único, com hreflang) |
+| Rota            | PT                                   | EN                     |
+| --------------- | ------------------------------------ | ---------------------- |
+| Home            | `/`                                  | `/en/`                 |
+| Sobre           | `/sobre`                             | `/en/about`            |
+| Portfólio       | `/portfolio`                         | `/en/portfolio`        |
+| Contato         | `/contato`                           | `/en/contact`          |
+| Privacidade     | `/privacidade`                       | `/en/privacy`          |
+| Termos          | `/termos`                            | `/en/terms`            |
+| Listagem posts  | `/posts`                             | `/en/posts`            |
+| Post individual | `/YYYY/MM/DD/slug/`                  | `/en/YYYY/MM/DD/slug/` |
+| Tag             | `/tags/{tag}`                        | `/en/tags/{tag}`       |
+| Categoria       | `/{slug}`                            | `/en/{slug}`           |
+| RSS             | `/rss.xml`                           | `/en/rss.xml`          |
+| Sitemap         | `/sitemap.xml` (único, com hreflang) |
 
 Slugs de páginas institucionais traduzidos (SEO melhor). Slugs de posts e
 tags iguais nos dois idiomas (consistência com Akita e simplicidade).
@@ -297,6 +298,7 @@ tags iguais nos dois idiomas (consistência com Akita e simplicidade).
 ### 6.3 Middleware
 
 `middleware.ts` na raiz:
+
 - Detecta idioma na primeira visita via `Accept-Language` + cookie
   `NEXT_LOCALE`.
 - Redirecionamento `307` de `/` para `/en/` quando locale preferido é EN.
@@ -404,24 +406,31 @@ da entrega do pipeline de conteúdo (passo do plano).
 
 ```ts
 type Project = {
-  id: string
-  title: string
-  excerpt: { pt: string; en: string }
-  description: { pt: string; en: string }
-  category: ProjectCategory
-  technologies: string[]
-  year: string
-  status: "completed" | "ongoing" | "mvp"
-  featured: boolean
-  client: string | null
-  url: string | null
-  results: { pt: string[]; en: string[] }
-  cover: string | null            // relativo a /public/images/projects/
-}
+  id: string;
+  title: string;
+  excerpt: { pt: string; en: string };
+  description: { pt: string; en: string };
+  category: ProjectCategory;
+  technologies: string[];
+  year: string;
+  status: "completed" | "ongoing" | "mvp";
+  featured: boolean;
+  client: string | null;
+  url: string | null;
+  results: { pt: string[]; en: string[] };
+  cover: string | null; // relativo a /public/images/projects/
+};
 
 type ProjectCategory =
-  | "web" | "mobile" | "ai" | "automation"
-  | "analytics" | "saas" | "education" | "fintech" | "business"
+  | "web"
+  | "mobile"
+  | "ai"
+  | "automation"
+  | "analytics"
+  | "saas"
+  | "education"
+  | "fintech"
+  | "business";
 ```
 
 ### 8.2 Projetos a migrar
@@ -443,6 +452,7 @@ PT; Vitor revisa conforme tempo.
 ### 8.3 Home (`/` e `/en/`)
 
 Seções:
+
 1. Hero — nome, título, tagline
 2. Especialidades (3-4 cards com ícones: AI, Automation, Web/SaaS, …)
 3. Projetos em destaque (`featured: true`, até 4 em grid)
@@ -509,6 +519,7 @@ Fonte única de verdade:
 ### 9.1 Metadata API (Next.js 15)
 
 Cada página exporta `generateMetadata()` ou `metadata`. Tags geradas:
+
 - `<title>` no padrão `{pageTitle} — {siteName}`
 - `<meta description>`
 - Canonical por página, no idioma correto
@@ -529,11 +540,11 @@ Cada página exporta `generateMetadata()` ou `metadata`. Tags geradas:
 
 Componente `<JsonLd>` em `components/seo/`:
 
-| Tipo de página | Schema |
-|---|---|
-| Post | `BlogPosting` (headline, author, datePublished, dateModified, image, publisher, mainEntityOfPage, inLanguage) |
-| Home / resto | `WebSite` (name, url, potentialAction=SearchAction, inLanguage) |
-| Sobre | `WebSite` + `Person` (author com `sameAs` pras 6 redes sociais) |
+| Tipo de página | Schema                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Post           | `BlogPosting` (headline, author, datePublished, dateModified, image, publisher, mainEntityOfPage, inLanguage) |
+| Home / resto   | `WebSite` (name, url, potentialAction=SearchAction, inLanguage)                                               |
+| Sobre          | `WebSite` + `Person` (author com `sameAs` pras 6 redes sociais)                                               |
 
 Autor = publisher (blog pessoal).
 
@@ -558,7 +569,7 @@ Autor = publisher (blog pessoal).
 - `app/robots.ts`
 - Allow all em produção
 - **Disallow all** quando `NODE_ENV !== "production"` ou `VERCEL_ENV !==
-  "production"` — bloqueia indexação de previews da Vercel
+"production"` — bloqueia indexação de previews da Vercel
 
 ### 9.7 Performance
 
@@ -573,11 +584,11 @@ Autor = publisher (blog pessoal).
 
 ### 10.1 Ferramentas
 
-| Ferramenta | Papel | Consent obrigatório |
-|---|---|---|
-| Vercel Analytics | Web Vitals, page views agregadas | Não (sem cookies) |
-| Microsoft Clarity | Heatmap, session recording | **Sim** |
-| Google Analytics 4 | Aquisição, funnels | **Sim** |
+| Ferramenta         | Papel                            | Consent obrigatório |
+| ------------------ | -------------------------------- | ------------------- |
+| Vercel Analytics   | Web Vitals, page views agregadas | Não (sem cookies)   |
+| Microsoft Clarity  | Heatmap, session recording       | **Sim**             |
+| Google Analytics 4 | Aquisição, funnels               | **Sim**             |
 
 Vercel Analytics sempre ligado. Clarity e GA4 carregam **apenas após
 consentimento explícito**.
@@ -625,15 +636,15 @@ consentimento explícito**.
 
 ### 11.2 Variáveis de ambiente
 
-| Variável | Escopo | Pra que |
-|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Production + Preview | Canonical URLs, OG |
-| `NEXT_PUBLIC_GA_ID` | Production | Google Analytics 4 ID |
-| `NEXT_PUBLIC_CLARITY_ID` | Production | Microsoft Clarity ID |
-| `NEXT_PUBLIC_GISCUS_REPO` | Production | Repositório do Giscus |
-| `NEXT_PUBLIC_GISCUS_REPO_ID` | Production | |
-| `NEXT_PUBLIC_GISCUS_CATEGORY` | Production | Categoria "Comments" |
-| `NEXT_PUBLIC_GISCUS_CATEGORY_ID` | Production | |
+| Variável                         | Escopo               | Pra que               |
+| -------------------------------- | -------------------- | --------------------- |
+| `NEXT_PUBLIC_SITE_URL`           | Production + Preview | Canonical URLs, OG    |
+| `NEXT_PUBLIC_GA_ID`              | Production           | Google Analytics 4 ID |
+| `NEXT_PUBLIC_CLARITY_ID`         | Production           | Microsoft Clarity ID  |
+| `NEXT_PUBLIC_GISCUS_REPO`        | Production           | Repositório do Giscus |
+| `NEXT_PUBLIC_GISCUS_REPO_ID`     | Production           |                       |
+| `NEXT_PUBLIC_GISCUS_CATEGORY`    | Production           | Categoria "Comments"  |
+| `NEXT_PUBLIC_GISCUS_CATEGORY_ID` | Production           |                       |
 
 Todas `NEXT_PUBLIC_` porque são consumidas no client. Valores são públicos
 por natureza.

@@ -11,9 +11,14 @@ export default getRequestConfig(async () => {
     | undefined;
   const pathname = headerStore.get("x-pathname") ?? "";
 
-  const pathLocale = locales.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
+  const pathLocale = locales.find(
+    (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`,
+  );
   const locale: Locale =
-    pathLocale ?? (cookieLocale && locales.includes(cookieLocale) ? cookieLocale : defaultLocale);
+    pathLocale ??
+    (cookieLocale && locales.includes(cookieLocale)
+      ? cookieLocale
+      : defaultLocale);
 
   return {
     locale,

@@ -23,6 +23,7 @@ pipeline.
 — section 8 (portfolio and institutional) and spec appendix on LGPD.
 
 **Legacy references (on `legacy-php` branch of this repo):**
+
 - Projects JSON: `git show legacy-php:data/projects.json`
 - About page: `git show legacy-php:pages/about.php`
 - Home page: `git show legacy-php:pages/home.php`
@@ -82,6 +83,7 @@ public/images/projects/               # (empty — you add covers manually)
 ## Task 1: Portfolio types
 
 **Files:**
+
 - Create: `features/portfolio/types.ts`
 
 - [ ] **Step 1: Write types**
@@ -134,6 +136,7 @@ git commit -m "feat(portfolio): add Project types"
 ## Task 2: Migrate projects from legacy-php
 
 **Files:**
+
 - Create: `features/portfolio/data/projects.ts`
 
 Reference data: `git show legacy-php:data/projects.json`
@@ -255,7 +258,13 @@ export const projects: Project[] = [
       en: "Complete management and analytics tool for WhatsApp communities, offering daily summaries, engagement reports, hot-topic identification, message scheduling, and detailed member activity analysis.",
     },
     category: "automation",
-    technologies: ["WhatsApp API", "N8N", "Analytics", "Bot", "Data Visualization"],
+    technologies: [
+      "WhatsApp API",
+      "N8N",
+      "Analytics",
+      "Bot",
+      "Data Visualization",
+    ],
     year: "2024",
     status: "completed",
     featured: true,
@@ -287,7 +296,12 @@ export const projects: Project[] = [
       en: "Educational platform and community focused on teaching entrepreneurs how to build, launch, and scale Micro-SaaS. Offers practical courses, mentorship, networking, and full support from idea to launch.",
     },
     category: "saas",
-    technologies: ["Next.js", "Community Platform", "Educational Content", "SaaS"],
+    technologies: [
+      "Next.js",
+      "Community Platform",
+      "Educational Content",
+      "SaaS",
+    ],
     year: "2024",
     status: "ongoing",
     featured: true,
@@ -409,9 +423,12 @@ export function getFeaturedProjects(): Project[] {
   return projects.filter((p) => p.featured);
 }
 
-export function getProjectsByStatus(status: "all" | "current" | "past"): Project[] {
+export function getProjectsByStatus(
+  status: "all" | "current" | "past",
+): Project[] {
   if (status === "all") return projects;
-  if (status === "current") return projects.filter((p) => p.status !== "completed");
+  if (status === "current")
+    return projects.filter((p) => p.status !== "completed");
   return projects.filter((p) => p.status === "completed");
 }
 ```
@@ -428,6 +445,7 @@ git commit -m "feat(portfolio): migrate 8 real projects from legacy PHP to typed
 ## Task 3: ProjectCard
 
 **Files:**
+
 - Create: `features/portfolio/components/ProjectCard.tsx`
 
 - [ ] **Step 1: Write component**
@@ -454,7 +472,7 @@ export function ProjectCard({
   locale: Locale;
 }) {
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md">
+    <article className="bg-card flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
       {project.cover && (
         <Image
           src={`/images/projects/${project.cover}`}
@@ -466,22 +484,23 @@ export function ProjectCard({
       )}
       <div className="flex flex-1 flex-col p-6">
         <header className="flex items-start justify-between gap-2">
-          <h3 className="font-serif text-lg font-bold leading-tight">
+          <h3 className="font-serif text-lg leading-tight font-bold">
             {project.title}
           </h3>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
             {STATUS_LABEL[project.status][locale]}
           </span>
         </header>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {project.year}{project.client ? ` · ${project.client}` : ""}
+        <p className="text-muted-foreground mt-1 text-xs">
+          {project.year}
+          {project.client ? ` · ${project.client}` : ""}
         </p>
         <p className="mt-3 text-sm leading-relaxed">
           {project.excerpt[locale]}
         </p>
-        <ul className="mt-4 flex flex-wrap gap-1.5 text-xs text-muted-foreground">
+        <ul className="text-muted-foreground mt-4 flex flex-wrap gap-1.5 text-xs">
           {project.technologies.slice(0, 6).map((tech) => (
-            <li key={tech} className="rounded bg-muted px-2 py-0.5">
+            <li key={tech} className="bg-muted rounded px-2 py-0.5">
               {tech}
             </li>
           ))}
@@ -492,7 +511,7 @@ export function ProjectCard({
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+            className="text-primary mt-4 inline-flex items-center gap-1 text-sm hover:underline"
           >
             {locale === "pt" ? "Visitar projeto" : "Visit project"}
             <ExternalLink className="h-3 w-3" />
@@ -516,6 +535,7 @@ git commit -m "feat(portfolio): add ProjectCard component"
 ## Task 4: ProjectFilter and ProjectGrid
 
 **Files:**
+
 - Create: `features/portfolio/components/ProjectFilter.tsx`,
   `features/portfolio/components/ProjectGrid.tsx`
 
@@ -533,10 +553,7 @@ Create `features/portfolio/components/ProjectGrid.tsx`:
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ProjectCard } from "./ProjectCard";
 import type { Project, ProjectCategory } from "../types";
 import type { Locale } from "@/lib/i18n/config";
@@ -605,8 +622,10 @@ export function ProjectGrid({
         </ToggleGroup>
       </div>
       {filtered.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          {locale === "pt" ? "Nenhum projeto encontrado." : "No projects found."}
+        <p className="text-muted-foreground py-12 text-center">
+          {locale === "pt"
+            ? "Nenhum projeto encontrado."
+            : "No projects found."}
         </p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -632,6 +651,7 @@ git commit -m "feat(portfolio): add ProjectGrid with category and status filters
 ## Task 5: Portfolio pages (PT + EN)
 
 **Files:**
+
 - Create: `app/(site)/portfolio/page.tsx`,
   `app/(site)/en/portfolio/page.tsx`
 
@@ -651,7 +671,7 @@ export default async function PortfolioPage() {
       <h1 className="mb-2 font-serif text-4xl font-bold tracking-tight">
         {t("portfolio")}
       </h1>
-      <p className="mb-8 max-w-2xl text-muted-foreground">
+      <p className="text-muted-foreground mb-8 max-w-2xl">
         Projetos que construí ao longo dos últimos 10+ anos — SaaS próprios,
         produtos em que colaborei e trabalhos com clientes.
       </p>
@@ -677,9 +697,9 @@ export default async function PortfolioPageEn() {
       <h1 className="mb-2 font-serif text-4xl font-bold tracking-tight">
         {t("portfolio")}
       </h1>
-      <p className="mb-8 max-w-2xl text-muted-foreground">
-        Projects I have built over the past 10+ years — my own SaaS, products
-        I collaborated on, and client work.
+      <p className="text-muted-foreground mb-8 max-w-2xl">
+        Projects I have built over the past 10+ years — my own SaaS, products I
+        collaborated on, and client work.
       </p>
       <ProjectGrid projects={projects} locale="en" />
     </section>
@@ -699,6 +719,7 @@ git commit -m "feat(portfolio): add portfolio pages PT and EN"
 ## Task 6: About pages in MDX
 
 **Files:**
+
 - Create: `content/pages/sobre.mdx`, `content/pages/sobre.en.mdx`
 
 Source: `git show legacy-php:pages/about.php` on the `legacy-php` branch.
@@ -853,6 +874,7 @@ git commit -m "content: migrate about page from legacy PHP to MDX (PT + EN) and 
 ## Task 7: About page routes
 
 **Files:**
+
 - Create: `app/(site)/sobre/page.tsx`, `app/(site)/en/about/page.tsx`
 
 - [ ] **Step 1: Create a shared page renderer**
@@ -879,7 +901,7 @@ export function MdxPage({
         {title}
       </h1>
       {description && (
-        <p className="mb-8 text-muted-foreground">{description}</p>
+        <p className="text-muted-foreground mb-8">{description}</p>
       )}
       <article className="prose-post">
         <MDXRemote
@@ -967,6 +989,7 @@ git commit -m "feat: add about pages PT and EN rendered from MDX"
 ## Task 8: Contact pages (social links only)
 
 **Files:**
+
 - Create: `app/(site)/contato/page.tsx`,
   `app/(site)/en/contact/page.tsx`
 
@@ -1034,9 +1057,9 @@ export default function ContactPage() {
       <h1 className="mb-4 font-serif text-4xl font-bold tracking-tight">
         Vamos conversar
       </h1>
-      <p className="mb-10 max-w-2xl text-muted-foreground">
-        Sou mais ativo nas redes abaixo. Escolha a que preferir —
-        respondo em todas.
+      <p className="text-muted-foreground mb-10 max-w-2xl">
+        Sou mais ativo nas redes abaixo. Escolha a que preferir — respondo em
+        todas.
       </p>
       <ul className="grid gap-4 md:grid-cols-2">
         {items.map((item) => (
@@ -1045,14 +1068,14 @@ export default function ContactPage() {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-4 rounded-lg border p-5 transition hover:border-primary hover:bg-accent"
+              className="hover:border-primary hover:bg-accent flex items-start gap-4 rounded-lg border p-5 transition"
             >
-              <div className="mt-0.5 text-muted-foreground">
+              <div className="text-muted-foreground mt-0.5">
                 <item.icon />
               </div>
               <div>
                 <h2 className="font-sans font-semibold">{item.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{item.pt}</p>
+                <p className="text-muted-foreground mt-1 text-sm">{item.pt}</p>
               </div>
             </Link>
           </li>
@@ -1073,16 +1096,46 @@ import { Github, Instagram, Linkedin, Youtube } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 
 const items = [
-  { name: "LinkedIn", href: siteConfig.social.linkedin, icon: Linkedin, desc: "Professional content, projects, and work history." },
-  { name: "GitHub", href: siteConfig.social.github, icon: Github, desc: "Code, open source projects, and experiments." },
-  { name: "X (Twitter)", href: siteConfig.social.x, icon: () => (
+  {
+    name: "LinkedIn",
+    href: siteConfig.social.linkedin,
+    icon: Linkedin,
+    desc: "Professional content, projects, and work history.",
+  },
+  {
+    name: "GitHub",
+    href: siteConfig.social.github,
+    icon: Github,
+    desc: "Code, open source projects, and experiments.",
+  },
+  {
+    name: "X (Twitter)",
+    href: siteConfig.social.x,
+    icon: () => (
       <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
       </svg>
-    ), desc: "Quick takes on tech, SaaS, and dev." },
-  { name: "Instagram", href: siteConfig.social.instagram, icon: Instagram, desc: "Behind the scenes, daily life, and quick ideas." },
-  { name: "YouTube", href: siteConfig.social.youtube, icon: Youtube, desc: "Videos on dev, SaaS, and product." },
-  { name: "TabNews", href: siteConfig.social.tabnews, icon: () => <span className="text-sm font-bold">TN</span>, desc: "Articles and discussions in the Brazilian dev community." },
+    ),
+    desc: "Quick takes on tech, SaaS, and dev.",
+  },
+  {
+    name: "Instagram",
+    href: siteConfig.social.instagram,
+    icon: Instagram,
+    desc: "Behind the scenes, daily life, and quick ideas.",
+  },
+  {
+    name: "YouTube",
+    href: siteConfig.social.youtube,
+    icon: Youtube,
+    desc: "Videos on dev, SaaS, and product.",
+  },
+  {
+    name: "TabNews",
+    href: siteConfig.social.tabnews,
+    icon: () => <span className="text-sm font-bold">TN</span>,
+    desc: "Articles and discussions in the Brazilian dev community.",
+  },
 ];
 
 export default function ContactPageEn() {
@@ -1091,9 +1144,9 @@ export default function ContactPageEn() {
       <h1 className="mb-4 font-serif text-4xl font-bold tracking-tight">
         Let's talk
       </h1>
-      <p className="mb-10 max-w-2xl text-muted-foreground">
-        I'm most active on the networks below. Pick the one you prefer —
-        I answer on all of them.
+      <p className="text-muted-foreground mb-10 max-w-2xl">
+        I'm most active on the networks below. Pick the one you prefer — I
+        answer on all of them.
       </p>
       <ul className="grid gap-4 md:grid-cols-2">
         {items.map((item) => (
@@ -1102,14 +1155,16 @@ export default function ContactPageEn() {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-4 rounded-lg border p-5 transition hover:border-primary hover:bg-accent"
+              className="hover:border-primary hover:bg-accent flex items-start gap-4 rounded-lg border p-5 transition"
             >
-              <div className="mt-0.5 text-muted-foreground">
+              <div className="text-muted-foreground mt-0.5">
                 <item.icon />
               </div>
               <div>
                 <h2 className="font-sans font-semibold">{item.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  {item.desc}
+                </p>
               </div>
             </Link>
           </li>
@@ -1132,6 +1187,7 @@ git commit -m "feat: add contact pages (social links only) PT and EN"
 ## Task 9: Marketing blocks (Hero, Specialties, FeaturedProjects, LatestPosts, CTA)
 
 **Files:**
+
 - Create: `features/marketing/components/Hero.tsx`, `Specialties.tsx`,
   `FeaturedProjects.tsx`, `LatestPosts.tsx`, `ContactCTA.tsx`
 
@@ -1149,7 +1205,7 @@ export function Hero({ locale }: { locale: Locale }) {
       <h1 className="font-serif text-5xl font-bold tracking-tight md:text-6xl">
         {siteConfig.name}
       </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
+      <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-lg md:text-xl">
         {siteConfig.tagline[locale]}
       </p>
     </section>
@@ -1168,23 +1224,47 @@ import type { Locale } from "@/lib/i18n/config";
 const items = [
   {
     icon: Bot,
-    pt: { title: "Produtos com IA", desc: "LLMs, agentes, RAG, automação inteligente aplicada a negócios." },
-    en: { title: "AI products", desc: "LLMs, agents, RAG, intelligent automation applied to business." },
+    pt: {
+      title: "Produtos com IA",
+      desc: "LLMs, agentes, RAG, automação inteligente aplicada a negócios.",
+    },
+    en: {
+      title: "AI products",
+      desc: "LLMs, agents, RAG, intelligent automation applied to business.",
+    },
   },
   {
     icon: Workflow,
-    pt: { title: "Automação & SaaS", desc: "N8N, integrações, Micro-SaaS escaláveis e eficientes." },
-    en: { title: "Automation & SaaS", desc: "N8N, integrations, scalable and efficient Micro-SaaS." },
+    pt: {
+      title: "Automação & SaaS",
+      desc: "N8N, integrações, Micro-SaaS escaláveis e eficientes.",
+    },
+    en: {
+      title: "Automation & SaaS",
+      desc: "N8N, integrations, scalable and efficient Micro-SaaS.",
+    },
   },
   {
     icon: Layers,
-    pt: { title: "Full-Stack moderno", desc: "React, Next.js, Node.js, TypeScript end-to-end." },
-    en: { title: "Modern full-stack", desc: "React, Next.js, Node.js, TypeScript end-to-end." },
+    pt: {
+      title: "Full-Stack moderno",
+      desc: "React, Next.js, Node.js, TypeScript end-to-end.",
+    },
+    en: {
+      title: "Modern full-stack",
+      desc: "React, Next.js, Node.js, TypeScript end-to-end.",
+    },
   },
   {
     icon: Cpu,
-    pt: { title: "Análise de dados", desc: "OCR, NLP, pipelines para insights acionáveis." },
-    en: { title: "Data analysis", desc: "OCR, NLP, pipelines for actionable insights." },
+    pt: {
+      title: "Análise de dados",
+      desc: "OCR, NLP, pipelines para insights acionáveis.",
+    },
+    en: {
+      title: "Data analysis",
+      desc: "OCR, NLP, pipelines for actionable insights.",
+    },
   },
 ];
 
@@ -1197,9 +1277,9 @@ export function Specialties({ locale }: { locale: Locale }) {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {items.map(({ icon: Icon, ...it }) => (
           <div key={it[locale].title} className="rounded-lg border p-5">
-            <Icon className="h-5 w-5 text-primary" />
+            <Icon className="text-primary h-5 w-5" />
             <h3 className="mt-3 font-sans font-semibold">{it[locale].title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               {it[locale].desc}
             </p>
           </div>
@@ -1231,7 +1311,7 @@ export function FeaturedProjects({ locale }: { locale: Locale }) {
         </h2>
         <Link
           href={institutionalRoutes.portfolio[locale]}
-          className="text-sm text-primary hover:underline"
+          className="text-primary text-sm hover:underline"
         >
           {locale === "pt" ? "Ver todos →" : "See all →"}
         </Link>
@@ -1267,7 +1347,7 @@ export function LatestPosts({ locale }: { locale: Locale }) {
         </h2>
         <Link
           href={institutionalRoutes.postsList[locale]}
-          className="text-sm text-primary hover:underline"
+          className="text-primary text-sm hover:underline"
         >
           {locale === "pt" ? "Ver todos →" : "See all →"}
         </Link>
@@ -1277,10 +1357,10 @@ export function LatestPosts({ locale }: { locale: Locale }) {
           <li key={p.permalink}>
             <Link
               href={p.permalink}
-              className="flex items-baseline justify-between gap-4 p-4 hover:bg-accent"
+              className="hover:bg-accent flex items-baseline justify-between gap-4 p-4"
             >
               <span className="font-serif font-semibold">{p.title}</span>
-              <time className="text-xs text-muted-foreground">
+              <time className="text-muted-foreground text-xs">
                 {new Date(p.date).toLocaleDateString(
                   locale === "pt" ? "pt-BR" : "en-US",
                   { year: "numeric", month: "short", day: "numeric" },
@@ -1311,7 +1391,7 @@ export function ContactCTA({ locale }: { locale: Locale }) {
       <h2 className="font-serif text-3xl font-bold tracking-tight">
         {locale === "pt" ? "Vamos conversar?" : "Let's talk?"}
       </h2>
-      <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+      <p className="text-muted-foreground mx-auto mt-3 max-w-xl">
         {locale === "pt"
           ? "Tem um projeto em mente, uma ideia de SaaS, ou só quer trocar ideia? Me chama."
           : "Got a project in mind, a SaaS idea, or just want to chat? Reach out."}
@@ -1338,6 +1418,7 @@ git commit -m "feat(marketing): add Hero, Specialties, FeaturedProjects, LatestP
 ## Task 10: Home pages (rewrite)
 
 **Files:**
+
 - Modify: `app/(site)/page.tsx`, `app/(site)/en/page.tsx`
 
 - [ ] **Step 1: Rewrite PT home**
@@ -1400,6 +1481,7 @@ git commit -m "feat: assemble home pages PT and EN from marketing blocks"
 ## Task 11: Privacy policy MDX templates
 
 **Files:**
+
 - Create: `content/pages/privacidade.mdx`,
   `content/pages/privacidade.en.mdx`
 
@@ -1598,6 +1680,7 @@ git commit -m "content: add privacy policy templates (PT + EN) — LGPD/GDPR dra
 ## Task 12: Terms of service MDX templates
 
 **Files:**
+
 - Create: `content/pages/termos.mdx`, `content/pages/termos.en.mdx`
 
 - [ ] **Step 1: Write termos.mdx**
@@ -1756,6 +1839,7 @@ git commit -m "content: add terms of service templates (PT + EN)"
 ## Task 13: Privacy and terms pages
 
 **Files:**
+
 - Create: `app/(site)/privacidade/page.tsx`, `app/(site)/termos/page.tsx`
 - Create: `app/(site)/en/privacy/page.tsx`, `app/(site)/en/terms/page.tsx`
 
@@ -1772,7 +1856,11 @@ import { pages } from "@/content";
 import { MdxPage } from "@/features/blog/components/MdxPage";
 
 type Page = {
-  slug: string; locale: "pt" | "en"; title: string; description?: string; body: string;
+  slug: string;
+  locale: "pt" | "en";
+  title: string;
+  description?: string;
+  body: string;
 };
 
 export default function Page() {
@@ -1780,11 +1868,18 @@ export default function Page() {
     (p) => p.slug === "privacidade" && p.locale === "pt",
   );
   if (!page) notFound();
-  return <MdxPage title={page.title} description={page.description} body={page.body} />;
+  return (
+    <MdxPage
+      title={page.title}
+      description={page.description}
+      body={page.body}
+    />
+  );
 }
 ```
 
 Create analogous:
+
 - `app/(site)/termos/page.tsx` — slug "termos", locale "pt"
 - `app/(site)/en/privacy/page.tsx` — slug "privacidade", locale "en"
 - `app/(site)/en/terms/page.tsx` — slug "termos", locale "en"
@@ -1806,19 +1901,27 @@ export async function Footer() {
   const l = locale as "pt" | "en";
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+      <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 text-sm md:flex-row md:items-center md:justify-between">
         <span>{t("copyright", { year })}</span>
         <div className="flex flex-wrap items-center gap-4">
-          <Link href={institutionalRoutes.privacy[l]} className="hover:text-foreground">
+          <Link
+            href={institutionalRoutes.privacy[l]}
+            className="hover:text-foreground"
+          >
             {locale === "pt" ? "Privacidade" : "Privacy"}
           </Link>
-          <Link href={institutionalRoutes.terms[l]} className="hover:text-foreground">
+          <Link
+            href={institutionalRoutes.terms[l]}
+            className="hover:text-foreground"
+          >
             {locale === "pt" ? "Termos" : "Terms"}
           </Link>
           <button
             type="button"
             className="hover:text-foreground"
-            onClick={() => window.dispatchEvent(new CustomEvent("consent:reopen"))}
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("consent:reopen"))
+            }
           >
             {t("manageCookies")}
           </button>
@@ -1849,19 +1952,27 @@ export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+      <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 text-sm md:flex-row md:items-center md:justify-between">
         <span>{t("copyright", { year })}</span>
         <div className="flex flex-wrap items-center gap-4">
-          <Link href={institutionalRoutes.privacy[locale]} className="hover:text-foreground">
+          <Link
+            href={institutionalRoutes.privacy[locale]}
+            className="hover:text-foreground"
+          >
             {locale === "pt" ? "Privacidade" : "Privacy"}
           </Link>
-          <Link href={institutionalRoutes.terms[locale]} className="hover:text-foreground">
+          <Link
+            href={institutionalRoutes.terms[locale]}
+            className="hover:text-foreground"
+          >
             {locale === "pt" ? "Termos" : "Terms"}
           </Link>
           <button
             type="button"
             className="hover:text-foreground"
-            onClick={() => window.dispatchEvent(new CustomEvent("consent:reopen"))}
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("consent:reopen"))
+            }
           >
             {t("manageCookies")}
           </button>
@@ -1949,7 +2060,7 @@ If `swapLocale` needs an extra case (e.g., the new `privacidade` ↔
 ## Definition of Done — Phase 4
 
 - [ ] `features/portfolio/data/projects.ts` has all 8 projects with
-  bilingual excerpt/description/results
+      bilingual excerpt/description/results
 - [ ] `/portfolio` (PT and EN) renders a filterable grid
 - [ ] `/sobre` and `/en/about` render MDX from `content/pages/`
 - [ ] `/contato` and `/en/contact` show all 6 social links

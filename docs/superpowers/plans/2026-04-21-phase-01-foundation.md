@@ -25,6 +25,7 @@ shadcn/ui, next-intl 3.x, next-themes, pnpm, ESLint, Prettier.
 — spec sections 3 (stack), 4 (folder structure), 6 (rotas, i18n, layouts).
 
 **Akita references for inspiration:**
+
 - Language toggle: `/Users/vop12/projects/akitaonrails.github.io/layouts/partials/custom/lang-toggle.html`
 - Header and auto-redirect: `/Users/vop12/projects/akitaonrails.github.io/layouts/partials/custom/head-end.html`
 
@@ -77,11 +78,13 @@ vitorpereira.ia.br/
 ## Task 1: Verify prerequisites and scaffold Next.js
 
 **Files:**
+
 - Create: entire `vitorpereira.ia.br/` scaffold via `create-next-app`
 
 - [ ] **Step 1: Verify Node and pnpm are installed**
 
 Run:
+
 ```bash
 node --version
 pnpm --version || npm i -g pnpm
@@ -92,6 +95,7 @@ Expected: Node ≥20.x, pnpm ≥9.x. If pnpm missing, install it globally.
 - [ ] **Step 2: Verify cwd is clean and on main**
 
 Run:
+
 ```bash
 cd /Users/vop12/projects/vitorpereira.ia.br
 git status
@@ -109,6 +113,7 @@ pre-phase is the latest), only `.claude/`, `.clauderc`, `.env.example`,
 a temp scratch dir and move files in, so the `.git/` history is preserved.
 
 Run:
+
 ```bash
 cd /Users/vop12/projects/vitorpereira.ia.br
 pnpm create next-app@latest ./.scaffold \
@@ -122,6 +127,7 @@ Expected: folder `.scaffold/` created with a full Next.js app.
 - [ ] **Step 4: Merge scaffold into project root**
 
 Run:
+
 ```bash
 cd /Users/vop12/projects/vitorpereira.ia.br
 # Move everything, including dotfiles, avoiding clobber of .git / .claude
@@ -160,6 +166,7 @@ Manual merge — open both files and add any missing lines from
 `next-env.d.ts`. Also ensure we add `.velite/` and `.scaffold/`.
 
 Run:
+
 ```bash
 # After manual merge, remove scaffold leftovers:
 rm -f .gitignore.scaffold .env.example.scaffold
@@ -171,6 +178,7 @@ Expected: a single `.gitignore` with Next.js defaults plus `.velite/`.
 - [ ] **Step 6: Verify pnpm install and dev server**
 
 Run:
+
 ```bash
 pnpm install
 pnpm dev
@@ -182,6 +190,7 @@ Stop with Ctrl+C.
 - [ ] **Step 7: Commit scaffold**
 
 Run:
+
 ```bash
 git add -A
 git status
@@ -193,6 +202,7 @@ git commit -m "chore: scaffold Next.js 15 App Router with Tailwind and TypeScrip
 ## Task 2: Harden tsconfig and add path aliases
 
 **Files:**
+
 - Modify: `tsconfig.json`
 
 - [ ] **Step 1: Enable strict mode and extra aliases**
@@ -240,6 +250,7 @@ Replace `compilerOptions` in `tsconfig.json` with:
 - [ ] **Step 2: Verify typecheck passes**
 
 Run:
+
 ```bash
 pnpm exec tsc --noEmit
 ```
@@ -258,6 +269,7 @@ git commit -m "chore: enable TS strict and add path aliases for features/lib/con
 ## Task 3: Install and configure shadcn/ui
 
 **Files:**
+
 - Modify: `tailwind.config.ts`, `app/globals.css`
 - Create: `components.json`, `components/ui/button.tsx` (+ others),
   `lib/utils.ts`
@@ -265,11 +277,13 @@ git commit -m "chore: enable TS strict and add path aliases for features/lib/con
 - [ ] **Step 1: Initialize shadcn**
 
 Run:
+
 ```bash
 pnpm dlx shadcn@latest init
 ```
 
 When prompted:
+
 - Style: **Default**
 - Base color: **Slate**
 - CSS variables: **Yes**
@@ -281,6 +295,7 @@ Accept defaults otherwise. This creates `components.json`, writes
 - [ ] **Step 2: Install initial shadcn primitives we will need**
 
 Run:
+
 ```bash
 pnpm dlx shadcn@latest add button dropdown-menu sheet toggle tabs dialog command
 ```
@@ -291,6 +306,7 @@ Radix dependency via pnpm.
 - [ ] **Step 3: Verify typecheck**
 
 Run:
+
 ```bash
 pnpm exec tsc --noEmit
 ```
@@ -309,12 +325,14 @@ git commit -m "chore: install shadcn/ui with initial primitives"
 ## Task 4: Install next-themes and wire ThemeProvider
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 - Create: `components/layout/ThemeProvider.tsx`
 
 - [ ] **Step 1: Install next-themes**
 
 Run:
+
 ```bash
 pnpm add next-themes
 ```
@@ -419,6 +437,7 @@ git commit -m "feat: add next-themes with ThemeProvider and bilingual fonts"
 ## Task 5: Install and configure next-intl
 
 **Files:**
+
 - Create: `lib/i18n/config.ts`, `lib/i18n/routing.ts`,
   `lib/i18n/messages/pt.json`, `lib/i18n/messages/en.json`, `middleware.ts`,
   `i18n/request.ts`
@@ -427,6 +446,7 @@ git commit -m "feat: add next-themes with ThemeProvider and bilingual fonts"
 - [ ] **Step 1: Install next-intl**
 
 Run:
+
 ```bash
 pnpm add next-intl
 ```
@@ -544,9 +564,14 @@ export default getRequestConfig(async () => {
     | undefined;
   const pathname = headerStore.get("x-pathname") ?? "";
 
-  const pathLocale = locales.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
+  const pathLocale = locales.find(
+    (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`,
+  );
   const locale: Locale =
-    pathLocale ?? (cookieLocale && locales.includes(cookieLocale) ? cookieLocale : defaultLocale);
+    pathLocale ??
+    (cookieLocale && locales.includes(cookieLocale)
+      ? cookieLocale
+      : defaultLocale);
 
   return {
     locale,
@@ -663,6 +688,7 @@ git commit -m "feat: configure next-intl with PT default and EN prefix routing"
 ## Task 6: Create siteConfig and routeMap
 
 **Files:**
+
 - Create: `lib/siteConfig.ts`, `lib/i18n/routeMap.ts`
 
 - [ ] **Step 1: Create siteConfig**
@@ -706,10 +732,7 @@ export type SiteConfig = typeof siteConfig;
 Create `lib/i18n/routeMap.ts`:
 
 ```ts
-export const institutionalRoutes: Record<
-  string,
-  { pt: string; en: string }
-> = {
+export const institutionalRoutes: Record<string, { pt: string; en: string }> = {
   home: { pt: "/", en: "/en" },
   about: { pt: "/sobre", en: "/en/about" },
   portfolio: { pt: "/portfolio", en: "/en/portfolio" },
@@ -726,7 +749,8 @@ export function swapLocale(path: string, target: "pt" | "en"): string {
   }
   // Posts share slug between locales: /YYYY/MM/DD/slug  <->  /en/YYYY/MM/DD/slug
   if (target === "en" && !path.startsWith("/en")) return `/en${path}`;
-  if (target === "pt" && path.startsWith("/en/")) return path.replace(/^\/en/, "");
+  if (target === "pt" && path.startsWith("/en/"))
+    return path.replace(/^\/en/, "");
   if (target === "pt" && path === "/en") return "/";
   return path;
 }
@@ -744,6 +768,7 @@ git commit -m "feat: add siteConfig source-of-truth and bilingual route map"
 ## Task 7: Create `(site)` route group layout
 
 **Files:**
+
 - Create: `app/(site)/layout.tsx`
 - Modify: `app/layout.tsx` (remove page-specific stuff, already done in Task 4)
 
@@ -779,6 +804,7 @@ export default async function SiteLayout({
 - [ ] **Step 2: Delete existing `app/page.tsx` (Next.js boilerplate)**
 
 Run:
+
 ```bash
 rm app/page.tsx
 ```
@@ -796,10 +822,10 @@ export default function HomePage() {
       <h1 className="font-serif text-4xl font-bold tracking-tight md:text-6xl">
         {siteConfig.name}
       </h1>
-      <p className="mt-6 text-xl text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-xl">
         {siteConfig.tagline.pt}
       </p>
-      <p className="mt-8 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-8 text-sm">
         Site em construção — blog técnico + portfólio.
       </p>
     </section>
@@ -822,6 +848,7 @@ will error until then — ignore briefly or inline placeholders.
 ## Task 8: Create EN route with locale provider
 
 **Files:**
+
 - Create: `app/(site)/en/layout.tsx`, `app/(site)/en/page.tsx`
 
 - [ ] **Step 1: Create EN layout**
@@ -860,10 +887,10 @@ export default function HomePageEn() {
       <h1 className="font-serif text-4xl font-bold tracking-tight md:text-6xl">
         {siteConfig.name}
       </h1>
-      <p className="mt-6 text-xl text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-xl">
         {siteConfig.tagline.en}
       </p>
-      <p className="mt-8 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-8 text-sm">
         Site under construction — technical blog + portfolio.
       </p>
     </section>
@@ -883,6 +910,7 @@ git commit -m "feat: add EN route layout and home placeholder"
 ## Task 9: Create Header, Footer, LangToggle, ThemeToggle, SocialLinks
 
 **Files:**
+
 - Create: `components/layout/Header.tsx`, `components/layout/Footer.tsx`,
   `components/layout/LangToggle.tsx`,
   `components/layout/ThemeToggle.tsx`,
@@ -891,6 +919,7 @@ git commit -m "feat: add EN route layout and home placeholder"
 - [ ] **Step 1: Install lucide-react (icons)**
 
 Run:
+
 ```bash
 pnpm add lucide-react
 ```
@@ -921,8 +950,8 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label={t("toggle")}>
-          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
           <span className="sr-only">{t("toggle")}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -991,11 +1020,7 @@ import { Github, Instagram, Linkedin, Youtube } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 
 const XIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    className="h-4 w-4 fill-current"
-    aria-hidden="true"
-  >
+  <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
@@ -1004,7 +1029,11 @@ const TabNewsIcon = () => (
   <span className="text-xs font-bold tracking-tight">TN</span>
 );
 
-export function SocialLinks({ variant = "footer" }: { variant?: "footer" | "inline" }) {
+export function SocialLinks({
+  variant = "footer",
+}: {
+  variant?: "footer" | "inline";
+}) {
   const items = [
     { href: siteConfig.social.linkedin, icon: Linkedin, label: "LinkedIn" },
     { href: siteConfig.social.github, icon: Github, label: "GitHub" },
@@ -1026,7 +1055,7 @@ export function SocialLinks({ variant = "footer" }: { variant?: "footer" | "inli
     <ul
       className={
         variant === "footer"
-          ? "flex items-center gap-4 text-muted-foreground"
+          ? "text-muted-foreground flex items-center gap-4"
           : "flex items-center gap-3"
       }
     >
@@ -1037,7 +1066,7 @@ export function SocialLinks({ variant = "footer" }: { variant?: "footer" | "inli
             target="_blank"
             rel="noopener noreferrer"
             aria-label={label}
-            className="transition-colors hover:text-foreground"
+            className="hover:text-foreground transition-colors"
           >
             <Icon />
           </a>
@@ -1067,22 +1096,34 @@ export async function Header() {
     institutionalRoutes[key][locale as "pt" | "en"];
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link href={r("home")} className="font-serif text-lg font-bold">
           {siteConfig.name}
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          <Link href={r("postsList")} className="hover:text-foreground text-muted-foreground">
+          <Link
+            href={r("postsList")}
+            className="hover:text-foreground text-muted-foreground"
+          >
             {t("posts")}
           </Link>
-          <Link href={r("portfolio")} className="hover:text-foreground text-muted-foreground">
+          <Link
+            href={r("portfolio")}
+            className="hover:text-foreground text-muted-foreground"
+          >
             {t("portfolio")}
           </Link>
-          <Link href={r("about")} className="hover:text-foreground text-muted-foreground">
+          <Link
+            href={r("about")}
+            className="hover:text-foreground text-muted-foreground"
+          >
             {t("about")}
           </Link>
-          <Link href={r("contact")} className="hover:text-foreground text-muted-foreground">
+          <Link
+            href={r("contact")}
+            className="hover:text-foreground text-muted-foreground"
+          >
             {t("contact")}
           </Link>
         </nav>
@@ -1109,7 +1150,7 @@ export async function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 text-sm text-muted-foreground md:flex-row">
+      <div className="text-muted-foreground mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 text-sm md:flex-row">
         <span>{t("copyright", { year })}</span>
         <SocialLinks />
       </div>
@@ -1121,6 +1162,7 @@ export async function Footer() {
 - [ ] **Step 7: Install any missing shadcn primitives**
 
 If dropdown-menu isn't present yet, run:
+
 ```bash
 pnpm dlx shadcn@latest add dropdown-menu
 ```
@@ -1132,6 +1174,7 @@ pnpm dev
 ```
 
 Visit:
+
 - `http://localhost:3000/` — shows PT home with "Site em construção — blog técnico + portfólio."
 - `http://localhost:3000/en` — shows EN home with "Site under construction — technical blog + portfolio."
 - Click PT/EN toggle — navigates between them.
@@ -1160,6 +1203,7 @@ git commit -m "feat: add header, footer, language toggle, theme toggle, and soci
 ## Task 10: Ensure .gitignore, .env.example, and .prettierrc are correct
 
 **Files:**
+
 - Modify: `.gitignore`, `.env.example`
 - Create: `.prettierrc`
 
@@ -1224,6 +1268,7 @@ Create `.prettierrc`:
 - [ ] **Step 4: Install prettier plugin**
 
 Run:
+
 ```bash
 pnpm add -D prettier prettier-plugin-tailwindcss
 ```
@@ -1277,14 +1322,14 @@ Open in browser:
 
 - [ ] `/` loads PT home
 - [ ] Click nav "Blog", "Portfólio", "Sobre", "Contato" — 404 is acceptable
-  for now (routes added in later phases)
+      for now (routes added in later phases)
 - [ ] Theme toggle in header cycles through Light → Dark → System, with
-  colors updating live
+      colors updating live
 - [ ] Language toggle shows "EN" when on PT; clicking navigates to `/en`
 - [ ] Once on `/en`, language toggle shows "PT"; clicking navigates to `/`
 - [ ] Language preference persists across reloads (cookie set)
 - [ ] Refresh with `localStorage.clear()` and no cookie — arriving at `/`,
-  if browser language is English, you get redirected to `/en`
+      if browser language is English, you get redirected to `/en`
 - [ ] Console has no hydration warnings
 
 Document any issues. Stop server.
@@ -1314,9 +1359,9 @@ git commit -m "fix: <describe what you fixed>"
 - [ ] `pnpm dev` starts with no errors and serves `/` (PT) and `/en` (EN)
 - [ ] Theme toggle works (light/dark/system)
 - [ ] Language toggle navigates between `/` and `/en` and sets
-  `NEXT_LOCALE` cookie
+      `NEXT_LOCALE` cookie
 - [ ] Browser language detection on first visit redirects to `/en` when
-  `Accept-Language` starts with `en`
+      `Accept-Language` starts with `en`
 - [ ] `pnpm build` succeeds
 - [ ] `pnpm typecheck` succeeds
 - [ ] `pnpm lint` succeeds

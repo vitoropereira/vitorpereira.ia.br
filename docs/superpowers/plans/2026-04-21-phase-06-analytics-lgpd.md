@@ -26,6 +26,7 @@ nodes only when `consent === "accepted"`.
 ## Task 1: Install Vercel Analytics
 
 **Files:**
+
 - Modify: `package.json`, `app/layout.tsx`
 
 - [ ] **Step 1: Install**
@@ -64,6 +65,7 @@ git commit -m "feat(analytics): add Vercel Analytics and Speed Insights (no cons
 ## Task 2: Consent cookie helper
 
 **Files:**
+
 - Create: `lib/consent.ts`
 
 - [ ] **Step 1: Write helper**
@@ -107,6 +109,7 @@ git commit -m "feat(consent): add cookie helpers for LGPD consent"
 ## Task 3: ConsentBanner component
 
 **Files:**
+
 - Create: `components/analytics/ConsentBanner.tsx`
 
 - [ ] **Step 1: Write**
@@ -169,14 +172,14 @@ export function ConsentBanner() {
       role="dialog"
       aria-live="polite"
       aria-label={copy.title}
-      className="fixed inset-x-0 bottom-0 z-50 border-t bg-background p-4 shadow-lg"
+      className="bg-background fixed inset-x-0 bottom-0 z-50 border-t p-4 shadow-lg"
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {copy.body}{" "}
           <Link
             href={institutionalRoutes.privacy[locale]}
-            className="underline hover:text-foreground"
+            className="hover:text-foreground underline"
           >
             {copy.privacy}
           </Link>
@@ -207,6 +210,7 @@ git commit -m "feat(consent): add LGPD consent banner with Accept/Reject and reo
 ## Task 4: ClarityScript component
 
 **Files:**
+
 - Create: `components/analytics/ClarityScript.tsx`
 
 - [ ] **Step 1: Write**
@@ -257,6 +261,7 @@ git commit -m "feat(analytics): add Clarity script gated by consent cookie"
 ## Task 5: GAScript component
 
 **Files:**
+
 - Create: `components/analytics/GAScript.tsx`
 
 - [ ] **Step 1: Write**
@@ -310,6 +315,7 @@ git commit -m "feat(analytics): add Google Analytics 4 script gated by consent c
 ## Task 6: Wire analytics and banner into root layout
 
 **Files:**
+
 - Modify: `app/layout.tsx`
 
 - [ ] **Step 1: Add imports and mount**
@@ -480,7 +486,7 @@ git commit -m "docs: clarify analytics env var behavior in .env.example"
 - [ ] Consent banner appears on first visit in PT or EN
 - [ ] Accept/Reject buttons work, cookie is persisted for 1 year
 - [ ] "Gerenciar cookies" / "Manage cookies" link in footer re-opens
-  banner
+      banner
 - [ ] Clarity script loads only after Accept AND env var is set
 - [ ] GA4 script loads only after Accept AND env var is set
 - [ ] Reject path keeps analytics off but allows normal site use

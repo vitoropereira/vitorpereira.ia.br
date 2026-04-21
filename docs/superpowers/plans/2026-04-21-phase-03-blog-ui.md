@@ -22,6 +22,7 @@ next-mdx-remote, rehype-slug, Fuse.js, cmdk, Giscus.
 — sections 6 (routes), 7 (blog features).
 
 **Akita references:**
+
 - Post template: `/Users/vop12/projects/akitaonrails.github.io/layouts/single.html`
   (TOC partial, max-w-6xl container, centered title, date line)
 - Comments reference (Disqus iframe, we use Giscus instead):
@@ -67,6 +68,7 @@ components/search/
 ## Task 1: TOC extraction utility
 
 **Files:**
+
 - Create: `features/blog/lib/toc.ts`, `features/blog/lib/toc.test.ts`
 
 - [ ] **Step 1: Write tests**
@@ -124,7 +126,7 @@ pnpm test features/blog/lib/toc.test.ts
 
 Create `features/blog/lib/toc.ts`:
 
-```ts
+````ts
 export type TocItem = { level: 2 | 3 | 4; slug: string; text: string };
 
 function slugify(s: string): string {
@@ -155,7 +157,7 @@ export function extractToc(raw: string): TocItem[] {
   }
   return items;
 }
-```
+````
 
 - [ ] **Step 4: Run test — expect PASS**
 
@@ -175,6 +177,7 @@ git commit -m "feat(blog): add TOC extraction utility with tests"
 ## Task 2: PostMeta component
 
 **Files:**
+
 - Create: `features/blog/components/PostMeta.tsx`
 
 - [ ] **Step 1: Write component**
@@ -193,11 +196,10 @@ export async function PostMeta({ post }: { post: Post }) {
     locale === "pt" ? "pt-BR" : "en-US",
     { year: "numeric", month: "long", day: "numeric" },
   );
-  const tagBase =
-    locale === "pt" ? "/tags" : "/en/tags";
+  const tagBase = locale === "pt" ? "/tags" : "/en/tags";
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+    <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
       <em>{date}</em>
       <span>·</span>
       <span>{t("readingTime", { minutes: post.readingTime })}</span>
@@ -235,6 +237,7 @@ git commit -m "feat(blog): add PostMeta component (date + reading time + tags)"
 ## Task 3: DraftBadge and PostToc components
 
 **Files:**
+
 - Create: `features/blog/components/DraftBadge.tsx`,
   `features/blog/components/PostToc.tsx`
 
@@ -300,7 +303,7 @@ export function PostToc({ items }: { items: TocItem[] }) {
           <li
             key={it.slug}
             className={cn(
-              "text-muted-foreground transition-colors hover:text-foreground",
+              "text-muted-foreground hover:text-foreground transition-colors",
               it.level === 3 && "pl-3",
               it.level === 4 && "pl-6",
               active === it.slug && "text-foreground",
@@ -327,6 +330,7 @@ git commit -m "feat(blog): add DraftBadge and PostToc components"
 ## Task 4: GiscusComments component (lazy, opt-in)
 
 **Files:**
+
 - Create: `features/blog/components/GiscusComments.tsx`
 
 - [ ] **Step 1: Install giscus React component**
@@ -377,7 +381,12 @@ export function GiscusComments() {
     return () => io.disconnect();
   }, []);
 
-  if (!GISCUS_REPO || !GISCUS_REPO_ID || !GISCUS_CATEGORY || !GISCUS_CATEGORY_ID) {
+  if (
+    !GISCUS_REPO ||
+    !GISCUS_REPO_ID ||
+    !GISCUS_CATEGORY ||
+    !GISCUS_CATEGORY_ID
+  ) {
     return null;
   }
 
@@ -417,6 +426,7 @@ git commit -m "feat(blog): add Giscus comments (lazy, opt-in via frontmatter)"
 ## Task 5: RelatedPosts component
 
 **Files:**
+
 - Create: `features/blog/components/RelatedPosts.tsx`
 
 - [ ] **Step 1: Write component**
@@ -444,10 +454,7 @@ export async function RelatedPosts({ post }: { post: Post }) {
       <ul className="space-y-2">
         {related.map((rp) => (
           <li key={rp.permalink}>
-            <Link
-              href={rp.permalink}
-              className="text-primary hover:underline"
-            >
+            <Link href={rp.permalink} className="text-primary hover:underline">
               {rp.title}
             </Link>
           </li>
@@ -470,6 +477,7 @@ git commit -m "feat(blog): add RelatedPosts component"
 ## Task 6: PostCard and PostList
 
 **Files:**
+
 - Create: `features/blog/components/PostCard.tsx`,
   `features/blog/components/PostList.tsx`
 
@@ -513,7 +521,7 @@ export async function PostCard({ post }: { post: Post }) {
         <div className="hidden md:block" />
       )}
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-xs">
           <time>{date}</time>
           <span>·</span>
           <span>{t("readingTime", { minutes: post.readingTime })}</span>
@@ -524,21 +532,21 @@ export async function PostCard({ post }: { post: Post }) {
             </>
           )}
         </div>
-        <h2 className="mt-2 font-serif text-2xl font-bold leading-tight">
+        <h2 className="mt-2 font-serif text-2xl leading-tight font-bold">
           <Link href={post.permalink} className="hover:text-primary">
             {post.title}
           </Link>
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>
+        <p className="text-muted-foreground mt-2 text-sm">{post.excerpt}</p>
         {post.tags && post.tags.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <ul className="text-muted-foreground mt-3 flex flex-wrap gap-2 text-xs">
             {post.tags.slice(0, 3).map((tag) => (
-              <li key={tag} className="rounded bg-muted px-2 py-0.5">
+              <li key={tag} className="bg-muted rounded px-2 py-0.5">
                 #{tag}
               </li>
             ))}
             {post.tags.length > 3 && (
-              <li className="rounded bg-muted px-2 py-0.5">
+              <li className="bg-muted rounded px-2 py-0.5">
                 +{post.tags.length - 3}
               </li>
             )}
@@ -561,9 +569,7 @@ import type { Post } from "../types";
 export function PostList({ posts }: { posts: Post[] }) {
   if (posts.length === 0) {
     return (
-      <p className="py-12 text-center text-muted-foreground">
-        No posts yet.
-      </p>
+      <p className="text-muted-foreground py-12 text-center">No posts yet.</p>
     );
   }
   return (
@@ -588,6 +594,7 @@ git commit -m "feat(blog): add PostCard and PostList components"
 ## Task 7: Pagination component
 
 **Files:**
+
 - Create: `features/blog/components/Pagination.tsx`
 
 - [ ] **Step 1: Write component**
@@ -613,7 +620,9 @@ export function Pagination({
     <nav aria-label="Pagination" className="mt-8 flex items-center gap-1">
       {current > 1 && (
         <Button variant="outline" size="sm" asChild>
-          <Link href={current === 2 ? basePath : `${basePath}?page=${current - 1}`}>
+          <Link
+            href={current === 2 ? basePath : `${basePath}?page=${current - 1}`}
+          >
             ←
           </Link>
         </Button>
@@ -650,6 +659,7 @@ git commit -m "feat(blog): add Pagination component"
 ## Task 8: Listing page `/posts` (PT)
 
 **Files:**
+
 - Create: `app/(site)/posts/page.tsx`
 
 - [ ] **Step 1: Write page**
@@ -700,6 +710,7 @@ git commit -m "feat(blog): add /posts listing page (PT)"
 ## Task 9: Listing page `/en/posts`
 
 **Files:**
+
 - Create: `app/(site)/en/posts/page.tsx`
 
 - [ ] **Step 1: Write page**
@@ -751,6 +762,7 @@ git commit -m "feat(blog): add /en/posts listing page"
 ## Task 10: Post detail page PT `/[year]/[month]/[day]/[slug]`
 
 **Files:**
+
 - Create: `app/(site)/[year]/[month]/[day]/[slug]/page.tsx`
 
 - [ ] **Step 1: Write page**
@@ -802,7 +814,7 @@ export default async function PostPage({
             <PostMeta post={post} />
           </div>
         </header>
-        <div className="my-12 h-px bg-border" />
+        <div className="bg-border my-12 h-px" />
         <PostBody post={post} />
         <RelatedPosts post={post} />
         {post.comments && <GiscusComments />}
@@ -827,6 +839,7 @@ git commit -m "feat(blog): add post detail page PT with TOC and related"
 ## Task 11: Post detail page EN
 
 **Files:**
+
 - Create: `app/(site)/en/[year]/[month]/[day]/[slug]/page.tsx`
 
 - [ ] **Step 1: Write page**
@@ -880,7 +893,7 @@ export default async function PostPageEn({
             <PostMeta post={post} />
           </div>
         </header>
-        <div className="my-12 h-px bg-border" />
+        <div className="bg-border my-12 h-px" />
         <PostBody post={post} />
         <RelatedPosts post={post} />
         {post.comments && <GiscusComments />}
@@ -905,6 +918,7 @@ git commit -m "feat(blog): add post detail page EN"
 ## Task 12: Tag pages `/tags/[tag]` (PT + EN)
 
 **Files:**
+
 - Create: `app/(site)/tags/[tag]/page.tsx`, `app/(site)/en/tags/[tag]/page.tsx`
 
 - [ ] **Step 1: Write PT**
@@ -991,6 +1005,7 @@ git commit -m "feat(blog): add tag pages for PT and EN"
 ## Task 13: Build search index
 
 **Files:**
+
 - Create: `features/blog/lib/searchIndex.ts`
 
 - [ ] **Step 1: Write search index builder**
@@ -1036,6 +1051,7 @@ git commit -m "feat(search): add build-time search index generator"
 ## Task 14: CommandPalette component
 
 **Files:**
+
 - Create: `components/search/CommandPalette.tsx`,
   `components/search/CommandPaletteTrigger.tsx`
 
@@ -1099,7 +1115,10 @@ export function CommandPalette({ index }: { index: SearchItem[] }) {
   }, []);
 
   const results = q
-    ? fuse.search(q).slice(0, 10).map((r) => r.item)
+    ? fuse
+        .search(q)
+        .slice(0, 10)
+        .map((r) => r.item)
     : index.slice(0, 10);
 
   return (
@@ -1125,8 +1144,11 @@ export function CommandPalette({ index }: { index: SearchItem[] }) {
             >
               <span className="truncate">{item.title}</span>
               {item.tags.length > 0 && (
-                <span className="ml-auto truncate text-xs text-muted-foreground">
-                  {item.tags.slice(0, 2).map((t) => `#${t}`).join(" ")}
+                <span className="text-muted-foreground ml-auto truncate text-xs">
+                  {item.tags
+                    .slice(0, 2)
+                    .map((t) => `#${t}`)
+                    .join(" ")}
                 </span>
               )}
             </CommandItem>
@@ -1148,18 +1170,9 @@ Create `components/search/CommandPaletteTrigger.tsx`:
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function CommandPaletteTrigger({
-  onOpen,
-}: {
-  onOpen: () => void;
-}) {
+export function CommandPaletteTrigger({ onOpen }: { onOpen: () => void }) {
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label="Search"
-      onClick={onOpen}
-    >
+    <Button variant="ghost" size="icon" aria-label="Search" onClick={onOpen}>
       <Search className="h-4 w-4" />
     </Button>
   );
@@ -1182,6 +1195,7 @@ git commit -m "feat(search): add CommandPalette with Fuse.js"
 ## Task 15: Wire CommandPalette into site layout
 
 **Files:**
+
 - Modify: `app/(site)/layout.tsx`, `app/(site)/en/layout.tsx`
 
 - [ ] **Step 1: Inject index into layout**
@@ -1266,6 +1280,7 @@ pnpm dev
 ```
 
 Visit:
+
 - `http://localhost:3000/posts` — lists "Olá, mundo"
 - `http://localhost:3000/2026/04/21/hello-world` — PT post with TOC on the
   right, Shiki code highlighting, Callout, Video
@@ -1372,7 +1387,7 @@ build via `pnpm start`.
 - [ ] TOC appears in right sidebar on desktop, syncs with scroll
 - [ ] Related posts section shows up to 3
 - [ ] Giscus only appears when `comments: true` in frontmatter AND env
-  vars are set
+      vars are set
 - [ ] Drafts visible in dev with badge, hidden in prod
 - [ ] `/tags/[tag]` and `/en/tags/[tag]` work for each tag
 - [ ] ⌘K opens command palette, searches titles/tags, Enter navigates

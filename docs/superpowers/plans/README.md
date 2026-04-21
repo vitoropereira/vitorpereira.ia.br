@@ -31,15 +31,15 @@ For simplicity, execute sequentially 1 → 2 → 3 → 4 → 5 → 6 → 7.
 
 ## Phase list
 
-| # | File | Goal | Est. tasks |
-|---|---|---|---|
-| 1 | `2026-04-21-phase-01-foundation.md` | Scaffold Next.js 15 + Tailwind + shadcn + next-intl + next-themes, bilingual route skeleton | 15 |
-| 2 | `2026-04-21-phase-02-content-pipeline.md` | Velite + MDX + Shiki + bilingual conventions + MDX components | 15 |
-| 3 | `2026-04-21-phase-03-blog-ui.md` | Blog listing, post page with TOC, tags, related posts, drafts, Giscus opt-in, command palette search | 20 |
-| 4 | `2026-04-21-phase-04-portfolio-pages.md` | `projects.ts` migration from legacy, portfolio grid, home, sobre, contato, privacy, terms | 15 |
-| 5 | `2026-04-21-phase-05-seo.md` | Metadata API, Schema.org, OG dynamic, RSS, sitemap, robots, canonicals, hreflang | 12 |
-| 6 | `2026-04-21-phase-06-analytics-lgpd.md` | Vercel Analytics, consent banner + manage link, Clarity + GA4 gated by consent | 10 |
-| 7 | `2026-04-21-phase-07-deploy.md` | Vercel deploy, env vars, Giscus real setup, domain migration, acceptance checklist | 8 |
+| #   | File                                      | Goal                                                                                                 | Est. tasks |
+| --- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------- |
+| 1   | `2026-04-21-phase-01-foundation.md`       | Scaffold Next.js 15 + Tailwind + shadcn + next-intl + next-themes, bilingual route skeleton          | 15         |
+| 2   | `2026-04-21-phase-02-content-pipeline.md` | Velite + MDX + Shiki + bilingual conventions + MDX components                                        | 15         |
+| 3   | `2026-04-21-phase-03-blog-ui.md`          | Blog listing, post page with TOC, tags, related posts, drafts, Giscus opt-in, command palette search | 20         |
+| 4   | `2026-04-21-phase-04-portfolio-pages.md`  | `projects.ts` migration from legacy, portfolio grid, home, sobre, contato, privacy, terms            | 15         |
+| 5   | `2026-04-21-phase-05-seo.md`              | Metadata API, Schema.org, OG dynamic, RSS, sitemap, robots, canonicals, hreflang                     | 12         |
+| 6   | `2026-04-21-phase-06-analytics-lgpd.md`   | Vercel Analytics, consent banner + manage link, Clarity + GA4 gated by consent                       | 10         |
+| 7   | `2026-04-21-phase-07-deploy.md`           | Vercel deploy, env vars, Giscus real setup, domain migration, acceptance checklist                   | 8          |
 
 Total: ~95 tasks.
 
