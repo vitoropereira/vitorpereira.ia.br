@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { readConsent, writeConsent } from "@/lib/consent";
@@ -24,28 +24,36 @@ const copyByLocale = {
   },
 } as const;
 
+const subscribeToConsent = () => () => {};
+const getCookieAbsentSnapshot = () => readConsent() === null;
+const getServerCookieAbsentSnapshot = () => false;
+
 export function ConsentBanner() {
   const locale = useLocale() as "pt" | "en";
-  const [visible, setVisible] = useState(false);
+  const cookieAbsent = useSyncExternalStore(
+    subscribeToConsent,
+    getCookieAbsentSnapshot,
+    getServerCookieAbsentSnapshot,
+  );
+  const [reopened, setReopened] = useState(false);
 
   useEffect(() => {
-    setVisible(readConsent() === null);
-    const handler = () => setVisible(true);
+    const handler = () => setReopened(true);
     window.addEventListener("consent:reopen", handler);
     return () => window.removeEventListener("consent:reopen", handler);
   }, []);
 
-  if (!visible) return null;
+  if (!cookieAbsent && !reopened) return null;
 
   const accept = () => {
     writeConsent("accepted");
-    setVisible(false);
+    setReopened(false);
     window.location.reload();
   };
 
   const reject = () => {
     writeConsent("rejected");
-    setVisible(false);
+    setReopened(false);
   };
 
   const copy = copyByLocale[locale];

@@ -1,17 +1,21 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { readConsent } from "@/lib/consent";
 
 const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID;
 
-export function ClarityScript() {
-  const [allowed, setAllowed] = useState(false);
+const subscribeToConsent = () => () => {};
+const getConsentSnapshot = () => readConsent() === "accepted";
+const getServerConsentSnapshot = () => false;
 
-  useEffect(() => {
-    setAllowed(readConsent() === "accepted");
-  }, []);
+export function ClarityScript() {
+  const allowed = useSyncExternalStore(
+    subscribeToConsent,
+    getConsentSnapshot,
+    getServerConsentSnapshot,
+  );
 
   if (!CLARITY_ID || !allowed) return null;
 

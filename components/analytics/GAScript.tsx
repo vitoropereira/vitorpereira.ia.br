@@ -1,17 +1,21 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { readConsent } from "@/lib/consent";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
-export function GAScript() {
-  const [allowed, setAllowed] = useState(false);
+const subscribeToConsent = () => () => {};
+const getConsentSnapshot = () => readConsent() === "accepted";
+const getServerConsentSnapshot = () => false;
 
-  useEffect(() => {
-    setAllowed(readConsent() === "accepted");
-  }, []);
+export function GAScript() {
+  const allowed = useSyncExternalStore(
+    subscribeToConsent,
+    getConsentSnapshot,
+    getServerConsentSnapshot,
+  );
 
   if (!GA_ID || !allowed) return null;
 

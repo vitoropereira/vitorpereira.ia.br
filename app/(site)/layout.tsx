@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { ClarityScript } from "@/components/analytics/ClarityScript";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
+import { GAScript } from "@/components/analytics/GAScript";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { CommandPalette } from "@/components/search/CommandPalette";
@@ -35,6 +38,9 @@ export default async function SiteLayout({
         <Footer />
         <CommandPalette index={index} />
       </div>
+      <ConsentBanner />
+      <ClarityScript />
+      <GAScript />
     </NextIntlClientProvider>
   );
 }
