@@ -1,0 +1,7 @@
+.next/
+.velite/
+node_modules/
+public/static/
+coverage/
+pnpm-lock.yaml
+tsconfig.tsbuildinfo
