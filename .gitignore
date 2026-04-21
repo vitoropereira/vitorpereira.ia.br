@@ -61,6 +61,7 @@ yarn-error.log*
 
 # Velite (content layer build output)
 .velite/
+/public/static/
 
 # Temporary scaffolding
 .scaffold/
