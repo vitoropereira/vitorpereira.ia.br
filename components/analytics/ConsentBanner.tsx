@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { useLocale } from "next-intl";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { readConsent, writeConsent } from "@/lib/consent";
+import { writeConsent } from "@/lib/consent";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 
 const copyByLocale = {
@@ -24,36 +23,28 @@ const copyByLocale = {
   },
 } as const;
 
-const subscribeToConsent = () => () => {};
-const getCookieAbsentSnapshot = () => readConsent() === null;
-const getServerCookieAbsentSnapshot = () => false;
+type Props = { initiallyVisible: boolean; locale: "pt" | "en" };
 
-export function ConsentBanner() {
-  const locale = useLocale() as "pt" | "en";
-  const cookieAbsent = useSyncExternalStore(
-    subscribeToConsent,
-    getCookieAbsentSnapshot,
-    getServerCookieAbsentSnapshot,
-  );
-  const [reopened, setReopened] = useState(false);
+export function ConsentBanner({ initiallyVisible, locale }: Props) {
+  const [visible, setVisible] = useState(initiallyVisible);
 
   useEffect(() => {
-    const handler = () => setReopened(true);
+    const handler = () => setVisible(true);
     window.addEventListener("consent:reopen", handler);
     return () => window.removeEventListener("consent:reopen", handler);
   }, []);
 
-  if (!cookieAbsent && !reopened) return null;
+  if (!visible) return null;
 
   const accept = () => {
     writeConsent("accepted");
-    setReopened(false);
+    setVisible(false);
     window.location.reload();
   };
 
   const reject = () => {
     writeConsent("rejected");
-    setReopened(false);
+    setVisible(false);
   };
 
   const copy = copyByLocale[locale];
