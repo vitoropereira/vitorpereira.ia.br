@@ -1,8 +1,20 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getPostsByLocale } from "@/features/blog/lib/queries";
 import { Pagination } from "@/features/blog/components/Pagination";
 import { PostList } from "@/features/blog/components/PostList";
 import { siteConfig } from "@/lib/siteConfig";
+import { buildMetadata } from "@/components/seo/buildMetadata";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Posts",
+  description:
+    "Articles on development, AI, SaaS, and product — by Vitor Pereira.",
+  path: "/en/posts",
+  locale: "en",
+  alternatePath: "/posts",
+  type: "website",
+});
 
 export default async function PostsPageEn({
   searchParams,

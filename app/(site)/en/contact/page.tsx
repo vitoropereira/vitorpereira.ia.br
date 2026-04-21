@@ -1,5 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
+import { buildMetadata } from "@/components/seo/buildMetadata";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Contact",
+  description:
+    "I'm most active on social networks. LinkedIn, GitHub, X, Instagram, YouTube and TabNews — pick the one you prefer.",
+  path: "/en/contact",
+  locale: "en",
+  alternatePath: "/contato",
+  type: "website",
+});
 
 const LinkedinIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">

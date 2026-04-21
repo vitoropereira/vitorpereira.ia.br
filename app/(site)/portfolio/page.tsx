@@ -1,6 +1,18 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { projects } from "@/features/portfolio/data/projects";
 import { ProjectGrid } from "@/features/portfolio/components/ProjectGrid";
+import { buildMetadata } from "@/components/seo/buildMetadata";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Portfólio",
+  description:
+    "Projetos que construí ao longo dos últimos 10+ anos — SaaS próprios, produtos em que colaborei e trabalhos com clientes.",
+  path: "/portfolio",
+  locale: "pt",
+  alternatePath: "/en/portfolio",
+  type: "website",
+});
 
 export default async function PortfolioPage() {
   const t = await getTranslations("nav");
