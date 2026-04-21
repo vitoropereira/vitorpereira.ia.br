@@ -1,0 +1,46 @@
+---
+title: "Hello, world"
+description: "First post of the new blog, to validate the MDX pipeline, syntax highlighting, and custom components."
+date: 2026-04-21T10:00:00-03:00
+draft: false
+tags: [meta, blog]
+comments: true
+---
+
+This is the **first post** of the blog, written to exercise the full
+pipeline: MDX, Shiki, React components inside markdown, and bilingual
+translations.
+
+## A level-2 heading
+
+Paragraph after a heading. The _TOC_ should capture this in the sidebar.
+
+### A level-3 heading
+
+With a code block highlighted by Shiki:
+
+```ts title="example.ts" showLineNumbers
+function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+
+console.log(greet("world"));
+```
+
+And an inline callout:
+
+<Callout type="info">
+  This is a sample callout. The type controls color and icon.
+</Callout>
+
+A YouTube video:
+
+<Video id="dQw4w9WgXcQ" />
+
+A list:
+
+- Item 1
+- Item 2
+- Item 3
+
+And **bold**, _italic_, `inline code`.

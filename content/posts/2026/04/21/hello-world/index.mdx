@@ -1,0 +1,45 @@
+---
+title: "Olá, mundo"
+description: "Primeiro post do novo blog, pra validar o pipeline MDX, syntax highlighting e componentes customizados."
+date: 2026-04-21T10:00:00-03:00
+draft: false
+tags: [meta, blog]
+comments: true
+---
+
+Este é o **primeiro post** do blog, escrito pra exercitar todo o pipeline:
+MDX, Shiki, componentes React dentro do markdown, e a tradução bilíngue.
+
+## Um heading nível 2
+
+Parágrafo depois de um heading. O _TOC_ deve capturar isso na barra lateral.
+
+### Um heading nível 3
+
+Com um bloco de código destacado pelo Shiki:
+
+```ts title="exemplo.ts" showLineNumbers
+function greet(name: string): string {
+  return `Olá, ${name}!`;
+}
+
+console.log(greet("mundo"));
+```
+
+E um callout inline:
+
+<Callout type="info">
+  Este é um callout de exemplo. O tipo controla a cor e o ícone.
+</Callout>
+
+Um vídeo do YouTube:
+
+<Video id="dQw4w9WgXcQ" />
+
+Uma lista:
+
+- Item 1
+- Item 2
+- Item 3
+
+E **negrito**, _itálico_, `código inline`.
