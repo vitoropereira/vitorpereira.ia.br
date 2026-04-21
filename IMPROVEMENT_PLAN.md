@@ -28,6 +28,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 ### Projetos Próprios (Owner)
 
 #### 1. **DataClarity IA**
+
 - **URL:** https://www.dataclarityia.com.br
 - **Descrição:** Plataforma IA que analisa conversas WhatsApp para insights estratégicos
 - **Features:**
@@ -41,6 +42,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - **Categoria:** ai, automation
 
 #### 2. **Insight Video IA**
+
 - **URL:** https://www.insightvideoia.com.br
 - **Descrição:** Plataforma que transforma vídeos educacionais em recursos de aprendizagem
 - **Features:**
@@ -53,6 +55,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - **Categoria:** ai, automation
 
 #### 3. **Calvino**
+
 - **URL:** https://calvino.com.br
 - **Descrição:** Chatbot IA especializado para pastores e líderes de igreja
 - **Features:**
@@ -67,6 +70,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 ### Projetos que Trabalha Atualmente
 
 #### 4. **My Group Metrics**
+
 - **URL:** https://mygroupmetrics.com/
 - **Descrição:** Ferramenta de gestão e analytics para comunidades WhatsApp
 - **Features:**
@@ -83,6 +87,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - **Categoria:** automation, analytics
 
 #### 5. **Micro-SaaS Brasil**
+
 - **URL:** https://microsaas.com.br/
 - **Descrição:** Comunidade e educação sobre criação de Micro-SaaS
 - **Features:**
@@ -96,6 +101,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 ### Projetos Passados (Não Trabalha Mais)
 
 #### 6. **4trip Agência**
+
 - **URL:** https://4trip.com.br/
 - **Descrição:** Agência de turismo receptivo em Alagoas e Pernambuco
 - **Services:**
@@ -109,6 +115,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - **Categoria:** web, business
 
 #### 7. **AjudaJá**
+
 - **URL:** https://ajudaja.com.br/
 - **Descrição:** Plataforma de doações e crowdfunding online
 - **Metrics:**
@@ -120,6 +127,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - **Período:** Ago-Dez 2022
 
 #### 8. **SGCM - Sistema de Gestão de Condomínios Militares**
+
 - **URL:** https://sgcm.com.br/
 - **Descrição:** Sistema para gerenciamento de condomínios militares
 - **Features:**
@@ -141,6 +149,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 **Ação:** Substituir projetos fictícios por projetos reais acima
 
 **Estrutura de cada projeto:**
+
 ```json
 {
     "id": "project-slug",
@@ -169,16 +178,19 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 **Arquivo:** `pages/contact.php`
 
 **Integração:**
+
 - Substituir form action por JavaScript
 - Enviar dados via fetch para endpoint uazapi
 - Formato da mensagem WhatsApp personalizado
 
 **Endpoint necessário:**
+
 - URL da API uazapi
 - Token de autenticação
 - Número WhatsApp destino
 
 **Perguntas:**
+
 - [ ] Qual a URL do webhook/API da sua instância uazapi?
 - [ ] Qual seu número WhatsApp para receber as mensagens?
 - [ ] Quer validação de campos antes de enviar?
@@ -190,10 +202,12 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 **Arquivos:** `includes/header.php`
 
 **Implementação:**
+
 - Adicionar script do Clarity no `<head>`
 - Tracking ID necessário
 
 **Perguntas:**
+
 - [ ] Você já tem uma conta Microsoft Clarity?
 - [ ] Precisa criar projeto e pegar o Tracking ID?
 
@@ -202,17 +216,20 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 ### 4. Dark Mode
 
 **Arquivos:**
+
 - `includes/header.php` (toggle button)
 - `assets/css/custom.css` (dark mode styles)
 - `assets/js/main.js` (toggle logic + localStorage)
 
 **Implementação:**
+
 - Toggle button no header
 - Classes CSS para dark mode
 - Persistência via localStorage
 - Transição suave entre modos
 
 **Features:**
+
 - Ícone sol/lua
 - Cores dark mode: bg-gray-900, text-gray-100
 - Respeitando preferência do sistema (prefers-color-scheme)
@@ -222,6 +239,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 ### 5. Tailwind CSS Build Local
 
 **Arquivos novos:**
+
 - `package.json`
 - `tailwind.config.js`
 - `postcss.config.js`
@@ -229,6 +247,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 - `assets/css/output.css` (gerado)
 
 **Processo:**
+
 1. npm init -y
 2. npm install -D tailwindcss postcss autoprefixer
 3. npx tailwindcss init
@@ -236,11 +255,13 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 5. Gerar CSS otimizado (apenas classes usadas)
 
 **Benefícios:**
+
 - Redução de ~400KB para ~10-20KB
 - Customização total de cores/spacing
 - Classes personalizadas
 
 **Build script:**
+
 ```json
 "scripts": {
   "build:css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --minify",
@@ -257,6 +278,7 @@ Plano completo de melhorias do portfólio vitorpereira.ia.br baseado em análise
 **Arquivo novo:** `sitemap.php`
 
 Gerar XML com:
+
 - Páginas estáticas (home, about, portfolio, blog, contact)
 - Posts individuais do blog
 - Data de última modificação
@@ -267,6 +289,7 @@ Gerar XML com:
 **Arquivos:** `includes/header.php` ou páginas individuais
 
 **Schemas necessários:**
+
 - Person (página about)
 - WebSite (home)
 - BlogPosting (posts individuais)
@@ -294,16 +317,19 @@ Sitemap: https://vitorpereira.ia.br/sitemap.php
 ### 7. Segurança - Remover Credenciais FTP
 
 **Arquivos:**
+
 - `.vscode/sftp.json` (remover do git)
 - `.gitignore` (adicionar sftp.json)
 
 **Ações:**
+
 1. Adicionar `.vscode/sftp.json` ao `.gitignore`
 2. Remover arquivo do histórico git (git filter-branch ou BFG)
 3. Alterar senha FTP imediatamente
 4. Commit das mudanças
 
 **Comando para remover do histórico:**
+
 ```bash
 git filter-branch --force --index-filter \
   "git rm --cached --ignore-unmatch .vscode/sftp.json" \
@@ -343,6 +369,7 @@ Para cada projeto em projects.json:
 **Onde salvar:** `assets/images/projects/`
 
 **Nomeação sugerida:**
+
 - `dataclarityia-hero.jpg`
 - `insightvideoia-hero.jpg`
 - `calvino-hero.jpg`
@@ -353,20 +380,24 @@ Para cada projeto em projects.json:
 ## 🔄 Ordem de Implementação Sugerida
 
 ### Fase 1: Correções Críticas (Prioridade Alta)
+
 1. ✅ Remover credenciais FTP do git
 2. ✅ Atualizar projects.json com dados reais
 3. ✅ Implementar formulário WhatsApp (uazapi)
 
 ### Fase 2: Analytics e Performance (Prioridade Média)
+
 4. ✅ Adicionar Microsoft Clarity
 5. ✅ Setup Tailwind local (npm)
 6. ✅ Build CSS otimizado
 
 ### Fase 3: Features e UX (Prioridade Média)
+
 7. ✅ Implementar Dark Mode
 8. ✅ Adicionar imagens dos projetos
 
 ### Fase 4: SEO (Prioridade Baixa)
+
 9. ✅ Criar sitemap.php
 10. ✅ Adicionar Schema.org
 11. ✅ Criar robots.txt
@@ -377,21 +408,25 @@ Para cada projeto em projects.json:
 ## ❓ Perguntas Pendentes
 
 ### uazapi Integration
+
 - [ ] URL do webhook/API da instância uazapi?
 - [ ] Token de autenticação?
 - [ ] Número WhatsApp destino?
 - [ ] Formato preferido da mensagem?
 
 ### Microsoft Clarity
+
 - [ ] Já tem conta criada?
 - [ ] Precisa do Tracking ID?
 
 ### Imagens
+
 - [ ] Tem screenshots dos projetos ou precisa que eu capture?
 - [ ] Tem logo dos projetos?
 - [ ] Tem foto profissional para página About?
 
 ### Redes Sociais
+
 - [ ] LinkedIn atualizado?
 - [ ] GitHub público?
 - [ ] Twitter/X?
@@ -413,6 +448,7 @@ Para cada projeto em projects.json:
 ## 💾 Backup Recomendado
 
 Antes de começar:
+
 1. Commit atual: "Backup before major improvements"
 2. Export database (se houver)
 3. Download completo via FTP
@@ -422,6 +458,7 @@ Antes de começar:
 ## 📊 Métricas de Sucesso
 
 Após implementação, medir:
+
 - ✅ Lighthouse Score (Performance, SEO, Best Practices)
 - ✅ Page Load Time (< 2s)
 - ✅ CSS Size reduction (de ~400KB para ~20KB)

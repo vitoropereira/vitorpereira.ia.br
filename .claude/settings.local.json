@@ -5,7 +5,10 @@
       "Bash(mkdir:*)",
       "WebFetch(domain:github.com)",
       "Bash(php:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
