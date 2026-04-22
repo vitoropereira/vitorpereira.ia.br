@@ -58,6 +58,18 @@
 
 As US do PRD 01 são operacionais (ação externa: Discussions, giscus.app, Vercel Dashboard, DNS registrar). Não há código concorrente que possa ser particionado entre agents. Manter 1 agent por onda reduz coordenação e garante linearidade do checklist.
 
+## Regra de deploy (vale para Ondas 3+)
+
+**Deploy = PR → merge em `main`** via Git integration GitHub↔Vercel. **Não usamos Vercel CLI** neste PRD.
+
+- Bootstrap do projeto Vercel (Onda 2): Dashboard da Vercel, não `vercel link`.
+- Deploy provisório (Onda 3): PR em `main` → merge → Vercel deploya em `https://vitorpereira-ia-br.vercel.app`.
+- Fixes durante fix loop (Onda 3): sempre em branch separada → PR → merge.
+- DNS cutover (Onda 4): Dashboard + registrar + `dig`/`curl` para inspeção. Qualquer mudança de código/docs vai via PR.
+- Pós-ship (Onda 5): PRs para qualquer ajuste.
+
+Motivo: trilha de auditoria via PR, gate de CI/Preview antes de production, zero dependência de estado local do Vercel CLI.
+
 ## Após completar PRD 01
 
 O PRD 02 (tech-debt) libera e pode rodar. Ver `docs/prompts/prd-02/README.md`.

@@ -10,11 +10,13 @@ Como Vitor, quero o site rodando em URL Vercel provisória (`*.vercel.app`) vali
 
 ## Acceptance Criteria
 
-### Deploy
+### Deploy (via PR → merge em `main`, sem CLI)
 
-- [ ] `vercel --prod` executado a partir da raiz do repo
+- [ ] Git integration GitHub↔Vercel conectada (Dashboard → Settings → Git)
+- [ ] PR aberto em `main` (branch de deploy ou commit existente) — Vercel cria Preview deployment automaticamente
+- [ ] PR merged em `main` → Vercel cria Production deployment no alias `https://vitorpereira-ia-br.vercel.app`
 - [ ] Build na Vercel completa sem erros (logs: `pnpm install` → `pnpm build` = `velite build && next build`)
-- [ ] URL provisória anotada (formato: `https://vitorpereira-ia-br-<hash>.vercel.app` ou alias `https://vitorpereira-ia-br.vercel.app`)
+- [ ] URL production alias anotada: `https://vitorpereira-ia-br.vercel.app`
 
 ### Smoke test — 16 rotas (manual, em incognito)
 
@@ -53,10 +55,10 @@ Como Vitor, quero o site rodando em URL Vercel provisória (`*.vercel.app`) vali
 - [ ] URL direta de draft em prod → 404
 - [ ] Mesmo check em `/en/posts` (se houver draft EN)
 
-### SEO validators (URL provisória)
+### SEO validators (no alias production `vitorpereira-ia-br.vercel.app`)
 
-- [ ] `https://<provisional-url>/robots.txt` → `Disallow: /` (previews bloqueadas — cuidado aqui: se a URL for preview scope, robots.txt bloqueia)
-  - **NOTA**: se `vercel --prod` gerar URL de scope production (`*.vercel.app` alias), robots.txt retorna `Allow: /`. Se for preview, `Disallow: /`. Depende do scope — conferir `VERCEL_ENV` nos logs.
+- [ ] `https://vitorpereira-ia-br.vercel.app/robots.txt` → `Allow: /` (alias de production é `VERCEL_ENV=production`)
+  - **NOTA**: URLs efêmeras de Preview (`*-git-<branch>-*.vercel.app`) retornam `Disallow: /`. Rodar validators externos só no alias estável.
 - [ ] `/sitemap.xml` e `/en/rss.xml` respondem 200 com XML válido
 - [ ] Google Rich Results Test (https://search.google.com/test/rich-results) em URL de post → `BlogPosting` reconhecido
 - [ ] Twitter Card Validator (https://cards-dev.twitter.com/validator) em URL de post → `summary_large_image` preview renderiza
@@ -75,20 +77,23 @@ Como Vitor, quero o site rodando em URL Vercel provisória (`*.vercel.app`) vali
 
 ## Implementation Notes
 
-### Fix loop esperado
+### Fix loop esperado (PR → main, sem CLI)
 
-Bugs encontrados durante o smoke viram commits de fix. Pattern:
+Bugs encontrados durante o smoke viram PRs de fix em `main`. Regra do PRD: **deploy = PR merged**. Pattern:
 
 ```bash
 # exemplo: OG image quebrada em prod
 git checkout -b fix/og-image-prod
 # edit arquivo
-git commit -m "fix(og): handle missing cover image in production"
-git push origin fix/og-image-prod  # ou merge direto em main
-# Vercel auto-deploya; re-run smoke
+git add -A && git commit -m "fix(og): handle missing cover image in production"
+git push -u origin fix/og-image-prod
+gh pr create --fill --base main
+gh pr checks --watch          # aguarda Vercel Preview build passar
+gh pr merge --squash --delete-branch
+# Vercel auto-deploya Production a partir do merge em main; re-run smoke no alias
 ```
 
-Alternativamente, commits diretos em `main` (projeto solo, tolerável). Cada fix → novo build Vercel → re-validar item específico.
+**Não commitar direto em `main`** — mesmo sendo projeto solo, esta PRD padroniza PR para ter trilha de auditoria e gate via CI/Preview. Cada fix → PR → merge → novo deploy Production → re-validar item específico.
 
 ### Código de referência — robots.ts
 

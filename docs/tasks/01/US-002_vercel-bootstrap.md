@@ -2,7 +2,7 @@
 
 > **PRD**: `docs/prd/01_deploy-e-go-live.md`
 > **Task**: `docs/tasks/01/US-002_vercel-bootstrap.md`
-> **Status**: Pendente
+> **Status**: Concluída (via dashboard — sem CLI)
 
 ## Description
 

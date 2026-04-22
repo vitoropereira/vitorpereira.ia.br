@@ -2,7 +2,7 @@
 
 > **PRD**: `docs/prd/01_deploy-e-go-live.md`
 > **Task**: `docs/tasks/01/US-001_giscus-setup.md`
-> **Status**: Pendente
+> **Status**: Concluída
 
 ## Description
 

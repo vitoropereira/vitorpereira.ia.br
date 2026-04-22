@@ -12,7 +12,7 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 
 | #   | PRD                                              | Tema                                                                                            | Status       | Progresso |
 | --- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------ | --------- |
-| 01  | [Deploy & go-live](./01_deploy-e-go-live.md)     | Fechar Phase 7: Giscus + Vercel + DNS cutover + pós-ship                                        | Em andamento | 0/5 US    |
+| 01  | [Deploy & go-live](./01_deploy-e-go-live.md)     | Fechar Phase 7: Giscus + Vercel + DNS cutover + pós-ship                                        | Em andamento | 2/5 US    |
 | 02  | [Tech-debt pós-ship](./02_tech-debt-pos-ship.md) | Migração `middleware.ts` → `proxy.ts` (Next 16); scrub de credenciais do histórico `legacy-php` | Em andamento | 0/2 US    |
 
 ## Moments em que o INDEX deve ser atualizado
@@ -32,8 +32,8 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 
 | US     | Título                                          | Status   | Branch/PR |
 | ------ | ----------------------------------------------- | -------- | --------- |
-| US-001 | Giscus configurado contra o repo real           | Pendente | —         |
-| US-002 | Vercel bootstrap (link + env vars)              | Pendente | —         |
+| US-001 | Giscus configurado contra o repo real           | Concluída | local-only (env) |
+| US-002 | Vercel bootstrap (link + env vars)              | Concluída | dashboard (no CLI) |
 | US-003 | Deploy provisório passando aceite completo      | Pendente | —         |
 | US-004 | DNS cutover para domínio real                   | Pendente | —         |
 | US-005 | Pós-ship — Search Console + validators + uptime | Pendente | —         |
