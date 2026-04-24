@@ -84,7 +84,9 @@ export default async function PostPageEn({
               : new Date(post.date).toISOString(),
             tags: post.tags,
             locale: post.locale,
-            ...(cover ? { image: `${siteConfig.url}${cover.src}` } : {}),
+            image: cover
+              ? `${siteConfig.url}${cover.src}`
+              : `${siteConfig.url}/opengraph-image`,
           }}
         />
         <header className="text-center">
