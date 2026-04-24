@@ -13,6 +13,13 @@ export type BuildMetadataInput = {
   alternatePath?: string;
 };
 
+const DEFAULT_OG_IMAGE = {
+  url: `${siteConfig.url}/opengraph-image`,
+  width: 1200,
+  height: 630,
+  alt: siteConfig.name,
+};
+
 export function buildMetadata(input: BuildMetadataInput): Metadata {
   const {
     title,
@@ -38,6 +45,8 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
       ? `${siteConfig.url}/rss.xml`
       : `${siteConfig.url}/en/rss.xml`;
 
+  const effectiveImages = images ?? [DEFAULT_OG_IMAGE];
+
   return {
     title: title ? `${title} — ${siteConfig.name}` : siteConfig.name,
     description,
@@ -55,7 +64,7 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
       title: title || siteConfig.name,
       description,
       siteName: siteConfig.name,
-      images,
+      images: effectiveImages,
     },
     twitter: {
       card: "summary_large_image",
@@ -63,7 +72,7 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
       description,
       site: siteConfig.twitterHandle,
       creator: siteConfig.twitterHandle,
-      images: images?.map((i) => i.url),
+      images: effectiveImages.map((i) => i.url),
     },
     robots: noIndex ? { index: false, follow: false } : undefined,
   };
