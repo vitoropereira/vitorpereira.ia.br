@@ -55,15 +55,14 @@ Como Vitor, quero o site rodando em URL Vercel provisória (`*.vercel.app`) vali
 - [ ] URL direta de draft em prod → 404
 - [ ] Mesmo check em `/en/posts` (se houver draft EN)
 
-### SEO validators (no alias production `vitorpereira-ia-br.vercel.app`)
+### SEO sanity (no alias production `vitorpereira-ia-br.vercel.app`)
 
-- [ ] `https://vitorpereira-ia-br.vercel.app/robots.txt` → `Allow: /` (alias de production é `VERCEL_ENV=production`)
-  - **NOTA**: URLs efêmeras de Preview (`*-git-<branch>-*.vercel.app`) retornam `Disallow: /`. Rodar validators externos só no alias estável.
-- [ ] `/sitemap.xml` e `/en/rss.xml` respondem 200 com XML válido
-- [ ] Google Rich Results Test (https://search.google.com/test/rich-results) em URL de post → `BlogPosting` reconhecido
-- [ ] Twitter Card Validator (https://cards-dev.twitter.com/validator) em URL de post → `summary_large_image` preview renderiza
-- [ ] W3C Feed Validator (https://validator.w3.org/feed/) em `/rss.xml` → RSS 2.0 valid sem warnings críticos
-- [ ] Schema.org validator (https://validator.schema.org) em URL de post → estrutura JSON-LD OK
+- [x] `https://vitorpereira-ia-br.vercel.app/robots.txt` → `Allow: /` (alias de production é `VERCEL_ENV=production`)
+  - URLs efêmeras de Preview (`*-git-<branch>-*.vercel.app`) retornam `Disallow: /`.
+- [x] `/sitemap.xml`, `/rss.xml` e `/en/rss.xml` respondem 200 com XML válido (RSS 2.0, hreflang `pt-BR/en/x-default`)
+- [x] `og:image`, `twitter:image` e JSON-LD `image` presentes (fallback para `/opengraph-image` quando post não tem cover — fix em PR #4)
+
+> **Validators externos deslocados para US-005.** Canonical/og/JSON-LD apontam para `https://vitorpereira.ia.br/...` (domínio real ainda hospedando o site PHP legacy via DNS atual). Rodar validators agora capturaria o site antigo, não o novo. US-005 já cobre re-validação pós-cutover.
 
 ### Lighthouse (mobile, incognito)
 
@@ -120,7 +119,27 @@ URL `*.vercel.app` alias do production aceita validadores externos; preview URLs
 
 ## Testing
 
-- [ ] Manual: 16 rotas smoke-tested em incognito
+- [ ] Manual: 16 rotas smoke-tested em incognito (HTTP 200 já validado via curl no automated pass)
 - [ ] Manual: Lighthouse 2 páginas em mobile preset
-- [ ] Manual: 4 validators externos (Google, Twitter, W3C, Schema.org)
 - [ ] Manual: Consent flow Aceita/Recusa/Reabrir
+- [ ] Manual: Theme toggle, language toggle, ⌘K
+- [ ] Manual: Giscus scroll + comentário teste PT/EN
+
+> Validators externos (Google Rich Results, Twitter Card, W3C Feed, Schema.org) → **US-005** (pós-cutover).
+
+## Deploy log
+
+- **Production alias**: `https://vitorpereira-ia-br.vercel.app`
+- **Commit production deploy**: `8a20799` — PR [#3](https://github.com/vitoropereira/vitorpereira.ia.br/pull/3) `deploy: go-live provisional (US-003)`
+- **Fix follow-up**: PR [#4](https://github.com/vitoropereira/vitorpereira.ia.br/pull/4) `fix(seo): fallback og:image to /opengraph-image when post has no cover` (commit `878a662`)
+- **Automated checks pass** (curl + HTML inspection):
+  - 16 rotas → 200
+  - drafts → 404; ausentes do listing
+  - sitemap/rss → XML válido
+  - canonical, hreflang, JSON-LD (Person, WebSite, BlogPosting), og:image, twitter:image presentes
+  - GA + Clarity NÃO carregam pré-consent (correto)
+  - `/_vercel/insights/script.js` → 200
+- **Lighthouse mobile** (a preencher após Vitor rodar):
+  - `/` — Perf: __ / SEO: __ / A11y: __
+  - `/2026/04/21/hello-world` — Perf: __ / SEO: __ / A11y: __
+- **Issues conhecidos remanescentes**: nenhum bloqueador para US-004; validators externos pulados conforme nota acima.

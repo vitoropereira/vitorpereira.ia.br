@@ -64,13 +64,11 @@ Fechar a Phase 7 do rewrite — levar `vitorpereira.ia.br` do build local 100% v
 - [ ] Consent banner aparece primeira visita; após aceite, GA4 e Clarity carregam (verificar Network tab); Vercel Analytics sempre on
 - [ ] Giscus carrega no `hello-world` post
 - [ ] Drafts invisíveis (`draft-only-example-post` NÃO aparece; `hello-world` aparece)
-- [ ] Validators SEO na URL provisória:
-  - [ ] Google Rich Results Test em post URL → BlogPosting reconhecido
-  - [ ] Twitter Card Validator em post URL → `summary_large_image` preview renderiza
-  - [ ] W3C Feed Validator em `/rss.xml` e `/en/rss.xml` → RSS 2.0 valid
-  - [ ] Schema.org validator em post URL
+- [ ] `/sitemap.xml`, `/rss.xml` e `/en/rss.xml` respondem 200 com XML válido
 - [ ] Lighthouse mobile (incognito) em `/` e `/2026/04/21/hello-world`: Performance ≥ 90, SEO ≥ 95, Accessibility ≥ 90
-- [ ] `robots.txt` na preview URL retorna `Disallow: /` (bloqueia indexação de previews — já implementado em `app/robots.ts` via `VERCEL_ENV !== "production"`)
+- [ ] `robots.txt` no alias production retorna `Allow: /`; preview URLs retornam `Disallow: /` (já implementado em `app/robots.ts` via `VERCEL_ENV === "production"`)
+
+> **Nota:** Validators externos (Google Rich Results, Twitter Card, W3C Feed, Schema.org) **foram deslocados para US-005**. Razão: canonical, `og:image` e JSON-LD `image` apontam para `https://vitorpereira.ia.br/...` (domínio real, ainda hospedado pelo PHP legacy via DNS atual). Validators externos resolveriam essas URLs e pegariam o site antigo. Re-validar pós-cutover (US-004) onde já era ação prevista.
 
 ### US-004: DNS cutover para domínio real
 
@@ -98,10 +96,11 @@ Fechar a Phase 7 do rewrite — levar `vitorpereira.ia.br` do build local 100% v
 - [ ] Property `https://vitorpereira.ia.br` adicionada em https://search.google.com/search-console
 - [ ] Propriedade verificada (preferência: DNS TXT record — compatível com apex + subdomínios)
 - [ ] `https://vitorpereira.ia.br/sitemap.xml` submetido no Search Console e status "Success"
-- [ ] Re-validação SEO no domínio real (não mais na URL provisória):
-  - [ ] Google Rich Results Test → BlogPosting
-  - [ ] Twitter Card Validator → summary_large_image
-  - [ ] W3C Feed Validator → RSS válido
+- [ ] Re-validação SEO no domínio real (única passada — pulada em US-003 porque canonical apontava para domínio ainda hospedando o PHP legacy):
+  - [ ] Google Rich Results Test → BlogPosting reconhecido com `image`
+  - [ ] Twitter Card Validator → `summary_large_image` com imagem (fallback `/opengraph-image` quando post não tem cover)
+  - [ ] W3C Feed Validator em `/rss.xml` e `/en/rss.xml` → RSS 2.0 valid
+  - [ ] Schema.org validator em URL de post → estrutura JSON-LD OK
 - [ ] Lighthouse mobile no domínio real em `/` e post example: Performance ≥ 90, SEO ≥ 95, Accessibility ≥ 90, Best Practices ≥ 90
 - [ ] Uptime monitor configurado (UptimeRobot ou HealthChecks.io — free tier) pingando `https://vitorpereira.ia.br/` a cada 5 min, alerta por email para o endereço do Vitor
 - [ ] Vitor confirma explicitamente no chat que o projeto está shipado ("shipado", "projeto no ar", equivalente)
