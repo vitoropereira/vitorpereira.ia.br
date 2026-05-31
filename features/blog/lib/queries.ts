@@ -64,8 +64,17 @@ export function getPostsByLocale(
   return opts.limit ? sorted.slice(0, opts.limit) : sorted;
 }
 
-export function getPostBySlug(locale: Locale, slug: string): Post | undefined {
-  return all.find((p) => p.locale === locale && p.slug === slug);
+export function getPostBySlug(
+  locale: Locale,
+  slug: string,
+  opts: { includeDrafts?: boolean } = {},
+): Post | undefined {
+  const includeDrafts =
+    opts.includeDrafts ?? process.env.NODE_ENV !== "production";
+  return all.find(
+    (p) =>
+      p.locale === locale && p.slug === slug && (includeDrafts || !p.draft),
+  );
 }
 
 export function getAllSlugs(locale: Locale): string[] {
