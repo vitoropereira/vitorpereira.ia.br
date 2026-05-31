@@ -38,7 +38,7 @@ export function ProjectCard({
         </header>
         <p className="text-muted-foreground mt-1 text-xs">
           {project.year}
-          {project.client ? ` · ${project.client}` : ""}
+          {project.client ? ` · ${project.client[locale]}` : ""}
         </p>
         <p className="mt-3 text-sm leading-relaxed">
           {project.excerpt[locale]}
