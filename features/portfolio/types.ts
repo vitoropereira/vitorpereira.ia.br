@@ -24,7 +24,7 @@ export type Project = {
   year: string;
   status: ProjectStatus;
   featured: boolean;
-  client: string | null;
+  client: LocalizedText | null;
   url: string | null;
   results: LocalizedList;
   cover: string | null;

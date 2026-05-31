@@ -17,7 +17,7 @@ export const projects: Project[] = [
     year: "2024",
     status: "mvp",
     featured: true,
-    client: "Projeto Próprio",
+    client: { pt: "Projeto Próprio", en: "Personal Project" },
     url: "https://www.dataclarityia.com.br",
     results: {
       pt: [
@@ -49,7 +49,7 @@ export const projects: Project[] = [
     year: "2024",
     status: "completed",
     featured: true,
-    client: "Projeto Próprio",
+    client: { pt: "Projeto Próprio", en: "Personal Project" },
     url: "https://www.insightvideoia.com.br",
     results: {
       pt: [
@@ -81,7 +81,7 @@ export const projects: Project[] = [
     year: "2024",
     status: "completed",
     featured: true,
-    client: "Projeto Próprio",
+    client: { pt: "Projeto Próprio", en: "Personal Project" },
     url: "https://calvino.com.br",
     results: {
       pt: [
@@ -119,7 +119,7 @@ export const projects: Project[] = [
     year: "2024",
     status: "completed",
     featured: true,
-    client: "My Group Metrics (Desenvolvedor)",
+    client: { pt: "My Group Metrics (Desenvolvedor)", en: "My Group Metrics (Developer)" },
     url: "https://mygroupmetrics.com/",
     results: {
       pt: [
@@ -156,7 +156,7 @@ export const projects: Project[] = [
     year: "2024",
     status: "ongoing",
     featured: true,
-    client: "Micro-SaaS Brasil (Desenvolvedor)",
+    client: { pt: "Micro-SaaS Brasil (Desenvolvedor)", en: "Micro-SaaS Brasil (Developer)" },
     url: "https://microsaas.com.br/",
     results: {
       pt: [
@@ -188,7 +188,7 @@ export const projects: Project[] = [
     year: "2020-2024",
     status: "completed",
     featured: true,
-    client: "4trip Agência (Co-founder)",
+    client: { pt: "4trip Agência (Co-founder)", en: "4trip Agency (Co-founder)" },
     url: "https://4trip.com.br/",
     results: {
       pt: [
@@ -220,7 +220,10 @@ export const projects: Project[] = [
     year: "2022",
     status: "completed",
     featured: false,
-    client: "AjudaJá (Co-founder, Aug-Dec 2022)",
+    client: {
+      pt: "AjudaJá (Co-founder, Aug-Dec 2022)",
+      en: "AjudaJá (Co-founder, Aug-Dec 2022)",
+    },
     url: "https://ajudaja.com.br/",
     results: {
       pt: [
@@ -252,7 +255,10 @@ export const projects: Project[] = [
     year: "2015-2024",
     status: "completed",
     featured: false,
-    client: "I.V.Tecnologias Web Ltda",
+    client: {
+      pt: "I.V.Tecnologias Web Ltda",
+      en: "I.V.Tecnologias Web Ltda",
+    },
     url: "https://sgcm.com.br/",
     results: {
       pt: [
