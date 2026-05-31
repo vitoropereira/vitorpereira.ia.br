@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
 
-// Modern PNG favicon for browser tabs / Android. The legacy .ico
-// (app/favicon.ico) still covers older clients.
+// Single source for the favicon ("VP" on the brand slate), used for browser
+// tabs, Android and the web manifest. Replaces the create-next-app
+// favicon.ico (Vercel triangle), which was removed.
 export const size = { width: 512, height: 512 };
 export const contentType = "image/png";
 
