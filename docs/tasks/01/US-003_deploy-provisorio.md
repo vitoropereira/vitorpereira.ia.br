@@ -2,7 +2,9 @@
 
 > **PRD**: `docs/prd/01_deploy-e-go-live.md`
 > **Task**: `docs/tasks/01/US-003_deploy-provisorio.md`
-> **Status**: Pendente
+> **Status**: Concluída (2026-05-31)
+>
+> **Fechamento**: smoke manual feito (16 rotas, console, theme, language toggle, ⌘K, Giscus carrega, drafts não vazam, consent pré/Recusar). Bugs encontrados corrigidos via PRs **#7** (i18n cards), **#8** (⌘K crash), **#9** (draft vazava → 404), **#10/#11** (ícones/favicon). Itens residuais (consent "Aceitar", Lighthouse mobile, logs Vercel, comentário Giscus de teste, validators externos) migraram para **US-005**, rodando no domínio real pós-cutover. Ver `docs/HANDOFF.md`.
 
 ## Description
 
