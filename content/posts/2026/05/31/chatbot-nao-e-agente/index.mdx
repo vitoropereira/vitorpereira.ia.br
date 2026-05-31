@@ -1,0 +1,251 @@
+---
+title: "Chatbot não é agente: a diferença que realmente importa"
+description: "A diferença prática entre chatbots e agentes de IA, e por que essa distinção muda arquitetura, produto, risco e operação."
+date: 2026-05-31T10:00:00-03:00
+draft: false
+tags: [ia, agentes, produto, automacao]
+cover: "./assets/cover.webp"
+comments: true
+---
+
+Nos últimos meses, quase tudo que envolve IA começou a ser chamado de
+agente. Um chatbot com prompt melhor virou agente. Um fluxo com três chamadas
+para uma API virou agente. Um assistente que responde perguntas virou agente.
+
+Eu acho essa confusão perigosa porque ela atrapalha a decisão técnica. Se tudo
+é agente, então nada é agente. E quando a palavra perde precisão, a arquitetura
+também perde.
+
+Um chatbot conversa. Um agente executa.
+
+Essa é a diferença mais simples, mas ela abre várias outras: objetivo,
+ferramentas, memória, permissões, validação, logs, custo, risco e forma de
+medir qualidade.
+
+## Chatbot é interface
+
+Um chatbot é, antes de tudo, uma interface conversacional. Ele recebe uma
+mensagem, interpreta o contexto disponível e devolve uma resposta.
+
+Isso pode ser extremamente útil. Um bom chatbot ajuda no suporte, responde
+dúvidas frequentes, consulta uma base de conhecimento, resume documentos e
+reduz atrito para o usuário.
+
+Mas, na maioria dos casos, ele não é responsável por completar um trabalho do
+início ao fim. Ele orienta, responde, sugere ou encaminha.
+
+O limite aparece quando a conversa precisa virar execução.
+
+Por exemplo:
+
+- consultar um cliente no banco de dados;
+- verificar regras de negócio;
+- gerar uma proposta;
+- pedir aprovação;
+- registrar uma mudança;
+- enviar uma mensagem;
+- acompanhar o resultado;
+- corrigir o caminho se algo falhar.
+
+Quando o sistema começa a tomar ações usando ferramentas externas, a conversa
+deixa de ser o centro. A execução passa a ser o centro.
+
+## Agente é sistema de execução
+
+Um agente de IA não é apenas um modelo respondendo melhor. É um sistema que usa
+um modelo como parte de uma cadeia de decisão e ação.
+
+Um agente normalmente precisa de alguns elementos:
+
+| Elemento    | Pergunta que ele responde                 |
+| ----------- | ----------------------------------------- |
+| Objetivo    | O que precisa ser concluído?              |
+| Contexto    | O que o agente sabe agora?                |
+| Ferramentas | O que o agente pode fazer fora do modelo? |
+| Memória     | O que precisa ser lembrado entre etapas?  |
+| Critérios   | Como saber se a tarefa foi bem feita?     |
+| Limites     | O que ele não pode fazer sozinho?         |
+| Logs        | Como auditar o que aconteceu?             |
+
+Sem esses elementos, geralmente não estamos falando de agente. Estamos falando
+de chatbot, workflow, automação ou integração com IA.
+
+E isso não é um problema. O problema é escolher a arquitetura errada porque o
+nome parece mais moderno.
+
+<Callout type="note">
+  O ponto não é dizer que agente é sempre melhor. Muitas vezes, um fluxo
+  determinístico simples é mais barato, mais previsível e mais fácil de manter.
+</Callout>
+
+## A pergunta certa não é "tem IA?"
+
+Uma pergunta melhor é: qual parte do trabalho exige julgamento?
+
+Se o processo é previsível, com regras claras e poucas exceções, provavelmente
+um workflow resolve. Pode ser código, N8N, uma fila, uma rotina agendada ou uma
+integração direta entre sistemas.
+
+Se o processo exige interpretar linguagem natural, lidar com ambiguidade,
+escolher entre caminhos possíveis e acionar ferramentas diferentes conforme o
+caso, aí um agente começa a fazer sentido.
+
+Exemplo simples: responder "qual é o status do meu pedido?" pode ser um
+chatbot com consulta a banco.
+
+Agora imagine outro cenário: "meu pedido atrasou, preciso trocar o endereço,
+mas só consigo receber depois das 18h".
+
+Nesse caso, o sistema talvez precise:
+
+- identificar o pedido correto;
+- consultar regras de entrega;
+- verificar se a troca de endereço ainda é possível;
+- avaliar janela de entrega;
+- propor alternativas;
+- pedir confirmação;
+- registrar alteração;
+- avisar outro sistema;
+- explicar a decisão ao usuário.
+
+Esse é o tipo de situação em que a arquitetura começa a se aproximar de um
+agente.
+
+## O agente precisa de ferramentas
+
+Um modelo sozinho não faz muita coisa. Ele prevê texto.
+
+O que transforma uma resposta em execução é a capacidade de usar ferramentas:
+APIs, banco de dados, filas, sistemas internos, planilhas, webhooks, automações
+e serviços externos.
+
+Esse ponto muda a responsabilidade do projeto. Não basta escrever um prompt
+bonito. É preciso desenhar quais ferramentas existem, quais entradas elas
+aceitam, quais permissões o agente possui e quais ações exigem confirmação
+humana.
+
+Eu gosto de pensar nas ferramentas como contratos. Cada tool precisa deixar
+claro:
+
+- o que ela faz;
+- quais dados recebe;
+- quais dados devolve;
+- quais erros podem acontecer;
+- se a ação é reversível;
+- se precisa de aprovação antes de executar.
+
+Um agente com ferramentas mal definidas vira um operador confuso com acesso
+demais.
+
+## O maior risco é permissão demais
+
+Quando falamos de IA, muita gente pensa primeiro em alucinação. Ela é um risco
+real, mas em sistemas agentic existe outro risco ainda mais operacional:
+permissão sem controle.
+
+Um chatbot que responde errado gera uma resposta ruim. Um agente com permissão
+demais pode alterar dados, enviar mensagens, disparar cobranças, cancelar
+pedidos ou executar ações em sistemas reais.
+
+Por isso, eu separo ações em três níveis:
+
+| Nível      | Exemplo                                             | Comportamento esperado           |
+| ---------- | --------------------------------------------------- | -------------------------------- |
+| Leitura    | consultar pedido, buscar histórico, listar opções   | pode executar direto             |
+| Preparação | gerar proposta, montar resposta, simular alteração  | pode preparar, mas não finalizar |
+| Escrita    | alterar cadastro, enviar mensagem, cobrar, cancelar | exige regra forte ou aprovação   |
+
+Essa separação evita tratar toda ferramenta como se tivesse o mesmo risco.
+
+<Callout type="warn">
+  Quanto mais autônomo o agente, mais importante fica limitar escopo, registrar
+  decisões e criar pontos de confirmação.
+</Callout>
+
+## Agente sem avaliação vira demonstração
+
+Um erro comum é testar agente apenas com exemplos bonitos.
+
+O demo funciona. A gravação fica boa. A primeira conversa impressiona. Mas o
+produto real aparece nos casos ruins: dados incompletos, pedidos ambíguos,
+usuários irritados, APIs fora do ar, respostas conflitantes e regras de negócio
+que ninguém documentou.
+
+Para levar agente a sério, eu preciso avaliar pelo menos quatro coisas:
+
+- **resultado:** a tarefa foi concluída corretamente?
+- **trajeto:** o agente escolheu ferramentas adequadas?
+- **segurança:** ele respeitou limites e permissões?
+- **custo:** a execução valeu o preço em tokens, tempo e infraestrutura?
+
+Sem isso, o agente pode até parecer inteligente, mas não é confiável.
+
+Logs também são parte do produto. Não dá para operar agente em produção sem
+saber quais ferramentas foram chamadas, quais respostas o modelo recebeu, quais
+decisões tomou e onde falhou.
+
+## Quando eu não usaria agente
+
+Eu não usaria agente quando o processo é simples, repetitivo e totalmente
+determinístico.
+
+Também evitaria agente quando a empresa ainda não entende bem o próprio
+processo. Se ninguém consegue explicar a regra manualmente, colocar IA no meio
+normalmente só automatiza a confusão.
+
+Outro caso delicado é quando a ação tem alto impacto e baixa tolerância a erro:
+financeiro, jurídico, saúde, cancelamentos sensíveis ou alterações
+irreversíveis. Agentes podem participar desses fluxos, mas dificilmente devem
+começar com autonomia total.
+
+Nesses cenários, eu prefiro começar com:
+
+- uma automação tradicional;
+- um assistente que prepara decisões;
+- um copiloto interno;
+- um fluxo com aprovação humana;
+- logs detalhados antes de liberar ação direta.
+
+## Onde Hermes e OpenClaw entram
+
+Ferramentas como Hermes e OpenClaw entram nessa conversa como laboratórios
+práticos para sair da teoria.
+
+Mas eu não quero começar a série pela ferramenta. Quero começar pelo critério.
+Antes de perguntar "como uso Hermes?" ou "como uso OpenClaw?", a pergunta que
+importa é:
+
+> que tipo de trabalho eu quero que um agente execute, com quais ferramentas e
+> sob quais limites?
+
+Depois disso, a ferramenta vira consequência.
+
+Nos próximos textos, quero explorar agentes por esse caminho: primeiro a
+arquitetura mental, depois a implementação, depois a operação em cenários
+reais.
+
+## A distinção muda o produto
+
+Quando um sistema é apenas chatbot, a experiência principal é conversar.
+
+Quando o sistema é agente, a experiência principal é delegar trabalho.
+
+Essa mudança parece pequena, mas altera tudo:
+
+- o usuário espera progresso, não só resposta;
+- o sistema precisa saber quando parar;
+- a interface precisa mostrar estado;
+- o backend precisa registrar decisões;
+- o produto precisa lidar com falhas;
+- a equipe precisa medir qualidade de execução.
+
+Esse é o motivo pelo qual eu acho importante separar os termos.
+
+Chatbot é uma interface poderosa.
+
+Agente é uma arquitetura de execução.
+
+Um pode usar o outro, mas eles não são a mesma coisa.
+
+E quanto mais cedo essa diferença fica clara, melhor fica a decisão sobre o
+que construir.
