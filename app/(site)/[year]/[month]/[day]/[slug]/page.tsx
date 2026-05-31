@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPostsByLocale } from "@/features/blog/lib/queries";
 import { PostBody } from "@/features/blog/components/PostBody";
@@ -64,7 +65,12 @@ export default async function PostPage({
   const toc = extractToc(post.body);
   const cover =
     post.cover && typeof post.cover === "object" && "src" in post.cover
-      ? (post.cover as { src: string })
+      ? (post.cover as {
+          src: string;
+          width: number;
+          height: number;
+          blurDataURL?: string;
+        })
       : null;
 
   return (
@@ -87,6 +93,19 @@ export default async function PostPage({
               : `${siteConfig.url}/opengraph-image`,
           }}
         />
+        {cover && (
+          <Image
+            src={cover.src}
+            alt=""
+            width={cover.width}
+            height={cover.height}
+            priority
+            placeholder={cover.blurDataURL ? "blur" : undefined}
+            blurDataURL={cover.blurDataURL}
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="mb-10 aspect-video w-full rounded-xl object-cover"
+          />
+        )}
         <header className="text-center">
           {post.draft && (
             <div className="mb-2">

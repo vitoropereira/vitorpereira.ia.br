@@ -155,6 +155,15 @@
   .prose-post blockquote {
     @apply border-muted text-muted-foreground my-6 border-l-4 pl-4 italic;
   }
+  .prose-post table {
+    @apply my-6 block w-full border-collapse overflow-x-auto text-left font-sans text-[15px];
+  }
+  .prose-post th {
+    @apply border-border border-b-2 px-3 py-2 font-semibold;
+  }
+  .prose-post td {
+    @apply border-border border-t px-3 py-2 align-top;
+  }
   .prose-post a {
     @apply text-primary underline underline-offset-4 hover:opacity-80;
   }
