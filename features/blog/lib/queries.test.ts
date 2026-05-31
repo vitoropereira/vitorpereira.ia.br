@@ -1,11 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Post } from "../types";
 import {
   filterPublishedByLocale,
   getAllTags,
   sortByDateDesc,
   getRelatedPosts,
+  getPostBySlug,
 } from "./queries";
+
+vi.mock("@/content", () => ({
+  posts: [
+    { locale: "pt", slug: "published", draft: false },
+    { locale: "pt", slug: "secret", draft: true },
+  ],
+}));
 
 const make = (overrides: Partial<Post> = {}): Post =>
   ({
@@ -88,5 +96,20 @@ describe("getRelatedPosts", () => {
     expect(rel[0]).toBe("m2");
     expect(rel[1]).toBe("m1");
     expect(rel[2]).toBe("newer");
+  });
+});
+
+describe("getPostBySlug", () => {
+  it("excludes drafts when includeDrafts is false (production behavior)", () => {
+    expect(getPostBySlug("pt", "secret", { includeDrafts: false })).toBeUndefined();
+    expect(
+      getPostBySlug("pt", "published", { includeDrafts: false })?.slug,
+    ).toBe("published");
+  });
+
+  it("returns drafts when includeDrafts is true (dev behavior)", () => {
+    expect(getPostBySlug("pt", "secret", { includeDrafts: true })?.slug).toBe(
+      "secret",
+    );
   });
 });
