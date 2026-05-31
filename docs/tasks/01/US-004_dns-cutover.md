@@ -2,7 +2,9 @@
 
 > **PRD**: `docs/prd/01_deploy-e-go-live.md`
 > **Task**: `docs/tasks/01/US-004_dns-cutover.md`
-> **Status**: Pendente
+> **Status**: Concluída (verificado 2026-05-31)
+>
+> **Fechamento**: `vitorpereira.ia.br` serve o Next.js via **Cloudflare → Vercel** (não mais PHP/Apache). Verificado: `dig` → NS Cloudflare + IPs proxied (`172.67.209.28`, `104.21.66.232`); headers `x-vercel-id` + `x-powered-by: Next.js`; cert Let's Encrypt emitido 2026-05-31 01:55 GMT; 16 rotas + sitemap/rss → 200; `robots.txt` `Allow: /` + `Sitemap:`. Cutover efetivado via Cloudflare proxied (a "Opção Cloudflare" das notas abaixo). Pendências não bloqueantes: confirmar redirect de `www.` e a intencionalidade do bloqueio de bots de IA do Cloudflare.
 
 ## Description
 
