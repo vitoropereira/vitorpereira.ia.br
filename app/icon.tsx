@@ -16,14 +16,20 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0f172a",
-          color: "white",
-          fontSize: 270,
-          fontWeight: 700,
-          letterSpacing: -12,
+          background: "#070B12",
         }}
       >
-        VP
+        <svg width="340" height="340" viewBox="0 0 64 64">
+          <path
+            d="M23 21 L35 32 L23 43"
+            fill="none"
+            stroke="#24C8FF"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <rect x="30" y="40" width="14" height="5" rx="1.6" fill="#24C8FF" />
+        </svg>
       </div>
     ),
     size,
