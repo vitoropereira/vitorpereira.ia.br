@@ -14,7 +14,7 @@ export async function Header() {
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link href={r("home")} className="font-serif text-lg font-bold">
+        <Link href={r("home")} className="font-heading text-lg font-bold">
           {siteConfig.name}
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">

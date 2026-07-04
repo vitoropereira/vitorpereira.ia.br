@@ -114,7 +114,7 @@ export default async function PostPageEn({
               <DraftBadge />
             </div>
           )}
-          <h1 className="font-serif text-4xl font-bold tracking-tight md:text-5xl">
+          <h1 className="font-heading text-4xl font-bold tracking-tight md:text-5xl">
             {post.title}
           </h1>
           <div className="mt-4">

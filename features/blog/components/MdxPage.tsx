@@ -13,7 +13,7 @@ export function MdxPage({
 }) {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="mb-2 font-serif text-4xl font-bold tracking-tight">
+      <h1 className="mb-2 font-heading text-4xl font-bold tracking-tight">
         {title}
       </h1>
       {description && (

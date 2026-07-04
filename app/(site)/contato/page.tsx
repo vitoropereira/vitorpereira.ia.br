@@ -87,7 +87,7 @@ const items = [
 export default function ContactPage() {
   return (
     <section className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="mb-4 font-serif text-4xl font-bold tracking-tight">
+      <h1 className="mb-4 font-heading text-4xl font-bold tracking-tight">
         Vamos conversar
       </h1>
       <p className="text-muted-foreground mb-10 max-w-2xl">

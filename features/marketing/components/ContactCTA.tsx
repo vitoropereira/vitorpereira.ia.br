@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/config";
 export function ContactCTA({ locale }: { locale: Locale }) {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16 text-center">
-      <h2 className="font-serif text-3xl font-bold tracking-tight">
+      <h2 className="font-heading text-3xl font-bold tracking-tight">
         {locale === "pt" ? "Vamos conversar?" : "Let's talk?"}
       </h2>
       <p className="text-muted-foreground mx-auto mt-3 max-w-xl">

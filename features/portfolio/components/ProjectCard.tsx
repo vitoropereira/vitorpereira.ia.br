@@ -29,7 +29,7 @@ export function ProjectCard({
       )}
       <div className="flex flex-1 flex-col p-6">
         <header className="flex items-start justify-between gap-2">
-          <h3 className="font-serif text-lg leading-tight font-bold">
+          <h3 className="font-heading text-lg leading-tight font-bold">
             {project.title}
           </h3>
           <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">

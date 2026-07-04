@@ -51,7 +51,7 @@ const items = [
 export function Specialties({ locale }: { locale: Locale }) {
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
-      <h2 className="mb-8 text-center font-serif text-3xl font-bold tracking-tight">
+      <h2 className="mb-8 text-center font-heading text-3xl font-bold tracking-tight">
         {locale === "pt" ? "O que eu faço" : "What I do"}
       </h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
