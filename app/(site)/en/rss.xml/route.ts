@@ -45,7 +45,7 @@ export async function GET() {
   <channel>
     <title>${escapeXml(siteConfig.name)}</title>
     <link>${siteConfig.url}/en/</link>
-    <description>${escapeXml(siteConfig.tagline.en)}</description>
+    <description>${escapeXml(siteConfig.statement.en)}</description>
     <language>en</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteConfig.url}/en/rss.xml" rel="self" type="application/rss+xml"/>

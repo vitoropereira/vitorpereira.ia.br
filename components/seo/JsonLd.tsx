@@ -53,7 +53,7 @@ export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
       name: siteConfig.name,
       url: siteConfig.url,
       description:
-        data.locale === "pt" ? siteConfig.tagline.pt : siteConfig.tagline.en,
+        data.locale === "pt" ? siteConfig.statement.pt : siteConfig.statement.en,
       inLanguage: data.locale === "pt" ? "pt-BR" : "en",
       author,
     };
