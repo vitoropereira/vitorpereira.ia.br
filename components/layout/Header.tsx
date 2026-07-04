@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LangToggle } from "./LangToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { Logo } from "@/components/brand/Logo";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -14,8 +15,8 @@ export async function Header() {
   return (
     <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-        <Link href={r("home")} className="font-heading text-lg font-bold">
-          {siteConfig.name}
+        <Link href={r("home")} aria-label={siteConfig.name}>
+          <Logo variant="wordmark" />
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
           <Link
