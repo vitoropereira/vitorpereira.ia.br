@@ -32,11 +32,26 @@ export default async function Image({
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "80px",
-        background: "#0f172a",
-        color: "white",
+        background: "#070B12",
+        color: "#E9EEF7",
       }}
     >
-      <div style={{ fontSize: 28, color: "#94a3b8" }}>{siteConfig.name}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div
+          style={{
+            display: "flex",
+            fontFamily: "monospace",
+            fontSize: 34,
+            fontWeight: 700,
+            letterSpacing: -2,
+          }}
+        >
+          <span style={{ color: "#E9EEF7" }}>v</span>
+          <span style={{ color: "#24C8FF" }}>&gt;</span>
+          <span style={{ color: "#24C8FF" }}>_</span>
+        </div>
+        <div style={{ fontSize: 28, color: "#8593AB" }}>{siteConfig.name}</div>
+      </div>
       <div
         style={{
           display: "flex",
@@ -47,7 +62,10 @@ export default async function Image({
       >
         {title}
       </div>
-      <div style={{ fontSize: 26, color: "#94a3b8" }}>{date}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ width: 60, height: 6, background: "#24C8FF", borderRadius: 3 }} />
+        <div style={{ fontSize: 26, color: "#8593AB" }}>{date}</div>
+      </div>
     </div>,
     size,
   );

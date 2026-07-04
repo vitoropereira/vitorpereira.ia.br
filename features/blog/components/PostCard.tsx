@@ -44,7 +44,7 @@ export async function PostCard({ post }: { post: Post }) {
             </>
           )}
         </div>
-        <h2 className="mt-2 font-serif text-2xl leading-tight font-bold">
+        <h2 className="mt-2 font-heading text-2xl leading-tight font-bold">
           <Link href={post.permalink} className="hover:text-primary">
             {post.title}
           </Link>

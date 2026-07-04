@@ -4,8 +4,12 @@ export const siteConfig = {
   name: "Vitor Pereira",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://vitorpereira.ia.br",
   tagline: {
-    pt: "Dev full-stack com 10+ anos de experiência construindo SaaS, automação e produtos com IA.",
-    en: "Full-stack dev with 10+ years building SaaS, automation, and AI products.",
+    pt: "IA aplicada em sistemas reais.",
+    en: "Applied AI in real systems.",
+  },
+  statement: {
+    pt: "IA aplicada em sistemas reais. Sem hype, sem demo fake. Código, automação e produto funcionando de verdade — mostrados por quem constrói.",
+    en: "Applied AI in real systems. No hype, no fake demos. Code, automation, and products that actually work — shown by the person who builds them.",
   },
   author: {
     name: "Vitor Onofre Pereira",

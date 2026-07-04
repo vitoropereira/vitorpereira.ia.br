@@ -9,7 +9,7 @@ export function FeaturedProjects({ locale }: { locale: Locale }) {
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
       <div className="mb-6 flex items-end justify-between">
-        <h2 className="font-serif text-3xl font-bold tracking-tight">
+        <h2 className="font-heading text-3xl font-bold tracking-tight">
           {locale === "pt" ? "Projetos em destaque" : "Featured projects"}
         </h2>
         <Link

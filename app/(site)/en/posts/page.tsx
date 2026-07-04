@@ -31,7 +31,7 @@ export default async function PostsPageEn({
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="mb-8 font-serif text-4xl font-bold tracking-tight">
+      <h1 className="mb-8 font-heading text-4xl font-bold tracking-tight">
         {t("posts")}
       </h1>
       <PostList posts={pageItems} />

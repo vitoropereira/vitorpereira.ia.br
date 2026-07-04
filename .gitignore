@@ -77,3 +77,6 @@ assets/css/output.css
 
 # vendor (legacy PHP)
 vendor/
+
+# SDD execution ledger (scratch)
+.superpowers/

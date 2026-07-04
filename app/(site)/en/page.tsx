@@ -9,7 +9,7 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = buildMetadata({
   title: "",
-  description: siteConfig.tagline.en,
+  description: siteConfig.statement.en,
   path: "/en",
   locale: "en",
   alternatePath: "/",

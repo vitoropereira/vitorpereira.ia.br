@@ -14,14 +14,16 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0f172a",
-          color: "white",
-          fontSize: 96,
+          background: "#070B12",
+          fontFamily: "monospace",
+          fontSize: 80,
           fontWeight: 700,
-          letterSpacing: -4,
+          letterSpacing: -3,
         }}
       >
-        VP
+        <span style={{ color: "#E9EEF7" }}>v</span>
+        <span style={{ color: "#24C8FF" }}>&gt;</span>
+        <span style={{ color: "#24C8FF" }}>_</span>
       </div>
     ),
     size,

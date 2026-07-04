@@ -9,7 +9,7 @@ export function LatestPosts({ locale }: { locale: Locale }) {
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
       <div className="mb-6 flex items-end justify-between">
-        <h2 className="font-serif text-3xl font-bold tracking-tight">
+        <h2 className="font-heading text-3xl font-bold tracking-tight">
           {locale === "pt" ? "Últimos posts" : "Latest posts"}
         </h2>
         <Link
@@ -26,7 +26,7 @@ export function LatestPosts({ locale }: { locale: Locale }) {
               href={p.permalink}
               className="hover:bg-accent flex items-baseline justify-between gap-4 p-4"
             >
-              <span className="font-serif font-semibold">{p.title}</span>
+              <span className="font-heading font-semibold">{p.title}</span>
               <time className="text-muted-foreground text-xs">
                 {new Date(p.date).toLocaleDateString(
                   locale === "pt" ? "pt-BR" : "en-US",

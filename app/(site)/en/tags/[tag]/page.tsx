@@ -40,7 +40,7 @@ export default async function TagPageEn({
   if (posts.length === 0) notFound();
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="mb-8 font-serif text-3xl font-bold tracking-tight">
+      <h1 className="mb-8 font-heading text-3xl font-bold tracking-tight">
         Posts tagged <span className="text-primary">#{tag}</span>
       </h1>
       <PostList posts={posts} />

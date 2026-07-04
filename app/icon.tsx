@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-// Single source for the favicon ("VP" on the brand slate), used for browser
+// Single source for the favicon (the "v>_" mark on brand ink), used for browser
 // tabs, Android and the web manifest. Replaces the create-next-app
 // favicon.ico (Vercel triangle), which was removed.
 export const size = { width: 512, height: 512 };
@@ -16,14 +16,16 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0f172a",
-          color: "white",
-          fontSize: 270,
+          background: "#070B12",
+          fontFamily: "monospace",
+          fontSize: 230,
           fontWeight: 700,
-          letterSpacing: -12,
+          letterSpacing: -8,
         }}
       >
-        VP
+        <span style={{ color: "#E9EEF7" }}>v</span>
+        <span style={{ color: "#24C8FF" }}>&gt;</span>
+        <span style={{ color: "#24C8FF" }}>_</span>
       </div>
     ),
     size,

@@ -13,12 +13,15 @@ export type BuildMetadataInput = {
   alternatePath?: string;
 };
 
-const DEFAULT_OG_IMAGE = {
-  url: `${siteConfig.url}/opengraph-image`,
+// Locale-aware default OG card. Points at the stable /og route handler (not the
+// hashed opengraph-image file convention) so PT and EN pages get their own
+// localized statement.
+const defaultOgImage = (locale: Locale) => ({
+  url: `${siteConfig.url}/og?locale=${locale}`,
   width: 1200,
   height: 630,
   alt: siteConfig.name,
-};
+});
 
 export function buildMetadata(input: BuildMetadataInput): Metadata {
   const {
@@ -45,7 +48,7 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
       ? `${siteConfig.url}/rss.xml`
       : `${siteConfig.url}/en/rss.xml`;
 
-  const effectiveImages = images ?? [DEFAULT_OG_IMAGE];
+  const effectiveImages = images ?? [defaultOgImage(locale)];
 
   return {
     title: title ? `${title} — ${siteConfig.name}` : siteConfig.name,
