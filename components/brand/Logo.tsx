@@ -22,7 +22,7 @@ export function Logo({
         )}
       >
         <span className="text-foreground">v</span>
-        <span className="text-brand">&gt;</span>
+        <span className="text-primary">&gt;</span>
         <span aria-hidden className="brand-cursor" />
       </span>
     );
