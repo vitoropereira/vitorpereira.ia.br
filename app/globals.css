@@ -203,3 +203,26 @@
     @apply opacity-100;
   }
 }
+
+@layer components {
+  .brand-cursor {
+    display: inline-block;
+    width: 0.5ch;
+    height: 1em;
+    margin-left: 0.15em;
+    transform: translateY(0.1em);
+    border-radius: 1px;
+    background: var(--brand);
+    animation: brand-blink 1.15s steps(1) infinite;
+  }
+}
+@keyframes brand-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-cursor {
+    animation: none;
+  }
+}
