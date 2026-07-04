@@ -2,8 +2,9 @@
 
 **Data:** 2026-07-04
 **Autor:** Vitor + Claude (brainstorming)
-**Status:** Direção aprovada olhando o painel visual (logo A + azul elétrico + conceito) e refinada com o Vitor (tese builder-first, público, filtro editorial, Instagram no ciclo). Aguardando review final deste documento antes das ondas de execução.
+**Status:** Aprovado e em execução. **Onda 1 (fundação de marca + site) concluída e shipada** — PR [#14](https://github.com/vitoropereira/vitorpereira.ia.br/pull/14). Logo escolhido: símbolo mono `v>_` + wordmark two-tone `vitor pereira▮`. Próximas: Ondas 2-4 (YouTube/LinkedIn/Instagram), dependentes de foto.
 **Painel de direção (v1):** https://claude.ai/code/artifact/5d9eb85b-93c4-43c9-90d1-a966263c082b
+**Seletor de logo (5 variações):** https://claude.ai/code/artifact/d9d1d1a9-6437-4308-b94d-cf74968c9753
 
 > Este é o **documento mestre** (fonte da verdade). Cada onda de execução é gerada a partir daqui,
 > com **portão de validação** do Vitor entre as ondas — igual ao rebrand da ClearSeg.
@@ -78,19 +79,17 @@ em sistemas reais — sem hype, sem demo fake, sem depender só de ferramenta vi
 
 ## 3. Sistema de marca (Frente A)
 
-### 3.1 Logo — **Direção A: "o prompt" (cursor de terminal)** ✅ escolhida
+### 3.1 Logo — **Direção A: "o prompt"** ✅ escolhida e implementada
 
-Conceito aprovado. Precisa ficar **mais proprietário** (o `>_` puro pode soar genérico/dev-tool demais), então
-a Onda 1 renderiza **5 variações** pra escolher vendo:
+Das 5 variações renderizadas na Onda 1 (`>_` puro · `vp_` · `v>_` · tile+wordmark · `vitor pereira▮`),
+o Vitor escolheu a leitura **mono** em símbolo e wordmark:
 
-1. `>_` puro (tile)
-2. `vp_`
-3. `v>_`
-4. tile `>_` + **wordmark forte** ao lado
-5. cursor final no wordmark: `vitor pereira▮`
-
-- **Preferência provável do Vitor:** tile `>_` para **favicon/avatar** + wordmark `vitor pereira▮` para **aplicações maiores**.
-- **Símbolo:** chevron `>` + bloco de cursor, ciano elétrico, sobre tile escuro arredondado (raio ~24%).
+- **Símbolo (favicon/avatar):** `v>_` **monoespaçado** — `v` claro, `>` ciano, bloco de cursor. Fusão das
+  variações 01+03; casa com a fonte do site (JetBrains Mono). Implementado em `components/brand/Logo.tsx`
+  (`variant="mark"`) e nos ícones (`app/icon.tsx`, `app/apple-icon.tsx`, OG).
+- **Wordmark (aplicações maiores):** `vitor pereira▮` **two-tone** (`vitor` claro / `pereira` muted) + cursor
+  que pisca (`variant="wordmark"`, usado no header).
+- **Movimento:** o bloco de cursor **pisca** no digital; respeita `prefers-reduced-motion`.
 - **Movimento:** o bloco de cursor **pisca** no digital (header, intro de vídeo); estático em aplicação fixa/impressa. Respeitar `prefers-reduced-motion`.
 - **Entregáveis (Onda 1):** SVG do símbolo + as 5 variações; horizontal, empilhado; versão **1 cor**; **on-dark** e **on-light**; favicon + app-icons; OpenGraph.
 
@@ -204,8 +203,7 @@ Regra de decisão pra QUALQUER tema (vídeo, post, thread, blog):
 > Execução entra **só depois** deste documento aprovado. Cada onda tem portão do Vitor.
 
 - **Onda 0 — Documento mestre** (este). ✅
-- **Onda 1 — Fundação de marca + site:** 5 variações do logo A em SVG → **escolha do Vitor** → final (símbolo, wordmark, 1-cor, on-dark/on-light) + favicon/app-icons + tokens no `globals.css` (dark+light) + tagline/statement no `siteConfig` + home/hero no novo sistema.
-  - **Portão:** Vitor vê o site rodando em `http://localhost:3003` e aprova antes de commit/PR.
+- **Onda 1 — Fundação de marca + site:** ✅ **CONCLUÍDA** — logo `v>_` mono + wordmark two-tone, tokens elétricos (dark+light acessível), JetBrains Mono, favicon/app-icons/OG, tagline/statement PT-EN, home/hero. Plano: `docs/superpowers/plans/2026-07-04-onda-1-fundacao-marca-site.md`. PR [#14](https://github.com/vitoropereira/vitorpereira.ia.br/pull/14). Validada no navegador (dark/light/`/en`) + OG bilíngue verificado em produção + review adversarial (3 Important + 3 Minor corrigidos). *Nota: dev sobe em `:3000` (não `:3003`); drift de doc no CLAUDE.md.*
 - **Onda 2 — Kit YouTube:** banner + avatar + template de thumbnail (tela+bastidor) + specs. Foto reforça.
   - **Portão:** Vitor aprova os mocks antes de aplicar no canal.
 - **Onda 3 — Kit LinkedIn:** banner + headline + "sobre" + template de post. Foto reforça.
@@ -216,7 +214,10 @@ Regra de decisão pra QUALQUER tema (vídeo, post, thread, blog):
 
 ## 10. Pendências / decisões abertas
 - **Números de credibilidade** — coletar proof points concretos por venture (ClearSeg, Pixel, SARCORPS) na fase de copy. **Nunca inventar.**
-- **Foto do Vitor** — hoje só casual/selfie; design funciona sem, mas YouTube/LinkedIn/Instagram rendem muito mais com foto boa. Upgrade recomendado.
-- **Variação final do logo** — escolher entre as 5 na Onda 1 vendo renderizado.
-- **Setup de fontes do repo** — confirmar se Geist (Sans/Mono) já está carregado; reconciliar na Onda 1.
-- **Avatar (YouTube/Instagram)** — tile `>_` vs. foto tratada — decidir vendo os dois.
+- **Foto do Vitor** — Vitor mandou 1 foto (headshot, fundo cinza, camiseta azul royal, com watermark do Gemini no canto). Pendente confirmar: (a) é foto real tratada ou imagem gerada? (b) versão sem watermark? Recomendação: foto de **camiseta escura** (a azul royal briga com o índigo evitado). Bloqueia partes visuais das Ondas 2-4.
+- **Avatar (YouTube/Instagram)** — tile `v>_` vs. foto tratada — decidir vendo os dois na Onda 2.
+
+### Resolvido na Onda 1
+- ~~Variação final do logo~~ → **`v>_` mono + wordmark two-tone** (Vitor escolheu a leitura mono).
+- ~~Setup de fontes~~ → repo usava Inter+Source Serif; adicionado **JetBrains Mono** e aposentado o serif (Geist não estava carregado).
+- ~~Tagline/statement, tokens, favicon/OG, home~~ → implementados e shipados (PR #14).
