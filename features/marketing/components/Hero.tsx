@@ -11,6 +11,10 @@ export function Hero({ locale }: { locale: Locale }) {
     locale === "en"
       ? "No hype, no fake demos. Code, automation, and products that actually work — shown by the person who builds them."
       : "Sem hype, sem demo fake. Código, automação e produto funcionando de verdade — mostrados por quem constrói.";
+  const headline =
+    locale === "en"
+      ? { lead: "Applied AI in ", accent: "real systems" }
+      : { lead: "IA aplicada em ", accent: "sistemas reais" };
 
   return (
     <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
@@ -18,7 +22,8 @@ export function Hero({ locale }: { locale: Locale }) {
         vitor pereira
       </p>
       <h1 className="font-mono mt-6 text-4xl leading-tight font-semibold tracking-tight md:text-6xl">
-        IA aplicada em <span className="text-brand">sistemas reais</span>.
+        {headline.lead}
+        <span className="text-primary">{headline.accent}</span>.
       </h1>
       <p className="text-muted-foreground mt-6 max-w-2xl text-lg md:text-xl">
         {pitch}
