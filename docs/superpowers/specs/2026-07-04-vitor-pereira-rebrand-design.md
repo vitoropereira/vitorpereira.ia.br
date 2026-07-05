@@ -184,12 +184,16 @@ Regra de decisão pra QUALQUER tema (vídeo, post, thread, blog):
 - **Avatar** (800×800): tile `>_` **ou** foto tratada (decidir vendo os dois).
 - **Entrega:** template Canva (via Canva MCP) + specs de export.
 
-## 7. Kit LinkedIn — `/in/vitor-onofre-pereira` (Frente D)
-- **Banner** (1584×396): nome + statement + régua elétrica, dark.
-- **Headline sugerida:** *"Construo IA aplicada em sistemas reais — 13+ anos shippando software de verdade. CTO @ SARCORPS & ClearSeg."* (cargo como suporte, builder na frente).
-- **Seção "Sobre":** reescrita builder-first (tese central + prova pela obra + números reais a coletar).
-- **Template de post** (imagem única + carrossel) no sistema.
-- **Foto de perfil:** tratada no padrão.
+## 7. Kit LinkedIn — `/in/vitor-onofre-pereira` (Frente D) — 🅿️ DRAFT / EM ESPERA
+
+> **Idioma:** LinkedIn primário do Vitor é **inglês** → assets e copy em EN.
+> **Status:** banner + template de post (EN) produzidos; headline e "Sobre" (EN) rascunhados. **NÃO aplicado** — Vitor quer conversar mais sobre a estratégia de LinkedIn antes. Tudo anotado em [`docs/kit-linkedin/`](../../kit-linkedin/README.md) com as decisões em aberto.
+
+- **Banner** (1584×396): `v>_ vitor pereira` + statement EN + régua elétrica, dark; canto inf-esq livre pra foto. ✅ produzido.
+- **Template de post** (1080×1080): card de opinião ("A chatbot isn't an agent"). ✅ produzido.
+- **Headline / "Sobre" (EN):** rascunhados, com `[FILL: número]`/`[CONFIRM: anos DECEA]` (anti-invenção) — fechar na conversa.
+- **Foto de perfil:** reusar avatar do YouTube (recorte no ink).
+- **Pendências pra conversa:** estratégia do canal, escolha de headline, métricas reais, Scale AI/Rocketseat, carrossel.
 
 ## 8. Kit Instagram — `@vitorpereirasaas` (Frente E)
 - **Foto de perfil:** tile `>_` ou foto tratada (mesma decisão do avatar).
@@ -204,10 +208,10 @@ Regra de decisão pra QUALQUER tema (vídeo, post, thread, blog):
 
 - **Onda 0 — Documento mestre** (este). ✅
 - **Onda 1 — Fundação de marca + site:** ✅ **CONCLUÍDA** — logo `v>_` mono + wordmark two-tone, tokens elétricos (dark+light acessível), JetBrains Mono, favicon/app-icons/OG, tagline/statement PT-EN, home/hero. Plano: `docs/superpowers/plans/2026-07-04-onda-1-fundacao-marca-site.md`. PR [#14](https://github.com/vitoropereira/vitorpereira.ia.br/pull/14). Validada no navegador (dark/light/`/en`) + OG bilíngue verificado em produção + review adversarial (3 Important + 3 Minor corrigidos). *Nota: dev sobe em `:3000` (não `:3003`); drift de doc no CLAUDE.md.*
-- **Onda 2 — Kit YouTube:** banner + avatar + template de thumbnail (tela+bastidor) + specs. Foto reforça.
-  - **Portão:** Vitor aprova os mocks antes de aplicar no canal.
-- **Onda 3 — Kit LinkedIn:** banner + headline + "sobre" + template de post. Foto reforça.
-  - **Portão:** Vitor aprova antes de aplicar.
+- **Onda 2 — Kit YouTube:** ✅ **CONCLUÍDA** — banner 2560×1440, avatar 800×800 (foto com fundo removido via `rembg`), 2 thumbnails de exemplo 1280×720 (template reutilizável) + recorte transparente. Em `docs/kit-youtube/`. PR [#15](https://github.com/vitoropereira/vitorpereira.ia.br/pull/15). Pipeline: artboards HTML → Chrome headless → PNG.
+  - **Portão:** Vitor aprovou a direção vendo os mocks. Aplicação no canal = manual.
+- **Onda 3 — Kit LinkedIn:** 🅿️ **DRAFT / EM ESPERA** (EN) — banner 1584×396 + template de post 1080×1080 produzidos; headline + "Sobre" (EN) rascunhados. Em `docs/kit-linkedin/`. **Vitor quer conversar sobre a estratégia de LinkedIn antes de aplicar.** Não virou PR de aplicação — só assets/docs anotados.
+  - **Portão:** conversa de estratégia pendente antes de qualquer mudança no perfil real.
 - **Onda 4 — Kit Instagram:** foto/highlights/template de post + bio.
   - **Portão:** Vitor aprova antes de aplicar.
 - **(Futuro) Onda 5 — X / TabNews:** assets aplicando o sistema.
