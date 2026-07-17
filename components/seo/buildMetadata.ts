@@ -37,11 +37,15 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
   const url = `${siteConfig.url}${path}`;
   const altUrl = alternatePath ? `${siteConfig.url}${alternatePath}` : null;
 
-  const languages: Record<string, string> = {
-    "pt-BR": locale === "pt" ? url : (altUrl ?? siteConfig.url),
-    en: locale === "en" ? url : (altUrl ?? `${siteConfig.url}/en`),
-    "x-default": siteConfig.url,
-  };
+  // hreflang must be reciprocal: only advertise a counterpart language when a
+  // real translation exists. Fabricating `en → /en` (or `pt-BR → home`) for an
+  // untranslated page creates a non-reciprocal pair that Search Console flags as
+  // "no return tag" and then ignores the whole cluster.
+  const languages: Record<string, string> = { "x-default": siteConfig.url };
+  languages[locale === "pt" ? "pt-BR" : "en"] = url;
+  if (altUrl) {
+    languages[locale === "pt" ? "en" : "pt-BR"] = altUrl;
+  }
 
   const rssUrl =
     locale === "pt"
