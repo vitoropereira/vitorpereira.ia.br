@@ -25,7 +25,7 @@ export function generateMetadata(): Metadata {
     title: page?.title ?? "About",
     description:
       page?.description ??
-      "Full-Stack Dev with 10+ years. CTO at I.V.Tecnologias, co-founder of products, AI enthusiast.",
+      "Engineer for applied AI in business. Agents, copilots, and automation in production — with measurable results.",
     path: "/en/about",
     locale: "en",
     alternatePath: "/sobre",
@@ -43,6 +43,7 @@ export default function AboutPage() {
         title={page.title}
         description={page.description}
         body={page.body}
+        image={{ src: "/vitor.png", alt: "Vitor Pereira" }}
       />
     </>
   );

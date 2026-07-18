@@ -1,49 +1,49 @@
-import { Bot, Cpu, Layers, Workflow } from "lucide-react";
+import { Bot, MessageSquareText, ShieldCheck, Workflow } from "lucide-react";
 import type { Locale } from "@/lib/i18n/config";
 
 const items = [
   {
     icon: Bot,
     pt: {
-      title: "Produtos com IA",
-      desc: "LLMs, agentes, RAG, automação inteligente aplicada a negócios.",
+      title: "Agentes de IA autônomos",
+      desc: "Agentes que executam trabalho em produção — não só respondem.",
     },
     en: {
-      title: "AI products",
-      desc: "LLMs, agents, RAG, intelligent automation applied to business.",
+      title: "Autonomous AI agents",
+      desc: "Agents that get work done in production — not just answer.",
     },
   },
   {
     icon: Workflow,
     pt: {
-      title: "Automação & SaaS",
-      desc: "N8N, integrações, Micro-SaaS escaláveis e eficientes.",
+      title: "Automação & orquestração",
+      desc: "n8n, webhooks, filas e integrações que rodam sozinhas.",
     },
     en: {
-      title: "Automation & SaaS",
-      desc: "N8N, integrations, scalable and efficient Micro-SaaS.",
+      title: "Automation & orchestration",
+      desc: "n8n, webhooks, queues, and integrations that run on their own.",
     },
   },
   {
-    icon: Layers,
+    icon: MessageSquareText,
     pt: {
-      title: "Full-Stack moderno",
-      desc: "React, Next.js, Node.js, TypeScript end-to-end.",
+      title: "Copilotos / IA in-product",
+      desc: "IA dentro do produto, respondendo sobre os dados de cada cliente.",
     },
     en: {
-      title: "Modern full-stack",
-      desc: "React, Next.js, Node.js, TypeScript end-to-end.",
+      title: "Copilots / in-product AI",
+      desc: "AI inside the product, answering over each client's data.",
     },
   },
   {
-    icon: Cpu,
+    icon: ShieldCheck,
     pt: {
-      title: "Análise de dados",
-      desc: "OCR, NLP, pipelines para insights acionáveis.",
+      title: "Segurança de agentes & dados",
+      desc: "Guardrails, RLS e permissões — a fronteira fica no servidor.",
     },
     en: {
-      title: "Data analysis",
-      desc: "OCR, NLP, pipelines for actionable insights.",
+      title: "Agent & data security",
+      desc: "Guardrails, RLS, and permissions — the boundary lives on the server.",
     },
   },
 ];
