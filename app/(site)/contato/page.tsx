@@ -62,7 +62,7 @@ const items = [
     name: "X (Twitter)",
     href: siteConfig.social.x,
     icon: XIcon,
-    desc: "Comentários rápidos sobre tech, SaaS e dev.",
+    desc: "Ideias rápidas sobre IA aplicada, agentes e produto.",
   },
   {
     name: "Instagram",
@@ -74,7 +74,7 @@ const items = [
     name: "YouTube",
     href: siteConfig.social.youtube,
     icon: YoutubeIcon,
-    desc: "Vídeos sobre dev, SaaS e produto.",
+    desc: "Vídeos sobre IA aplicada, agentes e sistemas reais.",
   },
   {
     name: "TabNews",
