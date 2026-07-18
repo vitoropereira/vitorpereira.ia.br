@@ -593,6 +593,7 @@ git commit -m "feat(syndication): buildTabNewsPreview (puro) + publishToTabNews 
 - Create: `lib/mdx/frontmatter.ts`
 - Create: `lib/mdx/load-post.ts`
 - Test: `lib/mdx/frontmatter.test.ts`
+- Test: `lib/mdx/load-post.test.ts`
 - Modify: `package.json` (devDependency `gray-matter`)
 
 **Interfaces:**
@@ -600,6 +601,7 @@ git commit -m "feat(syndication): buildTabNewsPreview (puro) + publishToTabNews 
 - Produces:
   - `readFrontmatterField(mdxPath: string, field: string): string | undefined`
   - `writeSyndicationMarker(mdxPath: string, url: string): void`
+  - `permalinkFromPath(mdxPath: string): string` (exportada, pura — deriva permalink do caminho)
   - `loadPostFromPath(mdxPath: string): SourcePost` (via `gray-matter`; lança se caminho não for PT `index.mdx`)
 
 - [ ] **Step 1: Install gray-matter**
@@ -671,7 +673,7 @@ import { SITE_URL } from "../syndication/config.ts";
 import type { SourcePost } from "../syndication/types.ts";
 
 /** Deriva o permalink PT do caminho content/posts/AAAA/MM/DD/slug/index.mdx */
-function permalinkFromPath(mdxPath: string): string {
+export function permalinkFromPath(mdxPath: string): string {
   const m = mdxPath.replace(/\\/g, "/").match(/content\/posts\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+)\/index\.mdx$/);
   if (!m) throw new Error(`Caminho não é um post PT válido (…/index.mdx): ${mdxPath}`);
   const [, y, mo, d, slug] = m;
@@ -693,15 +695,38 @@ export function loadPostFromPath(mdxPath: string): SourcePost {
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [ ] **Step 5: Run frontmatter test to verify it passes**
 
 Run: `pnpm exec vitest run lib/mdx/frontmatter.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Test permalinkFromPath (pura)**
+
+```ts
+// lib/mdx/load-post.test.ts
+import { describe, it, expect } from "vitest";
+import { permalinkFromPath } from "./load-post.ts";
+
+describe("permalinkFromPath", () => {
+  it("deriva o permalink do caminho do post", () => {
+    expect(permalinkFromPath("content/posts/2026/07/18/arquitetura-mental/index.mdx")).toBe("/2026/07/18/arquitetura-mental");
+  });
+  it("aceita caminho absoluto", () => {
+    expect(permalinkFromPath("/x/y/content/posts/2026/05/31/ancora/index.mdx")).toBe("/2026/05/31/ancora");
+  });
+  it("rejeita caminho que não é post PT", () => {
+    expect(() => permalinkFromPath("content/posts/2026/07/18/x/index.en.mdx")).toThrow(/válido/);
+  });
+});
+```
+
+Run: `pnpm exec vitest run lib/mdx/load-post.test.ts`
+Expected: PASS (`load-post.ts` já foi escrito no Step 4).
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add lib/mdx/frontmatter.ts lib/mdx/frontmatter.test.ts lib/mdx/load-post.ts package.json pnpm-lock.yaml
+git add lib/mdx/frontmatter.ts lib/mdx/frontmatter.test.ts lib/mdx/load-post.ts lib/mdx/load-post.test.ts package.json pnpm-lock.yaml
 git commit -m "feat(syndication): frontmatter (marcador tabnews) + loadPostFromPath via gray-matter"
 ```
 
