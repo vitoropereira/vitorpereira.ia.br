@@ -1,0 +1,145 @@
+---
+title: "A arquitetura mental de um agente: 7 perguntas antes do primeiro prompt"
+description: "Antes de escrever qualquer prompt, um agente exige 7 decisões de design. São as mesmas 7 que separam um agente confiável de uma demo bonita."
+date: 2026-07-17T10:00:00-03:00
+draft: true
+tags: [agentes, arquitetura, ia-aplicada]
+comments: true
+---
+
+No [texto anterior](/2026/05/31/chatbot-nao-e-agente) eu defendi uma distinção
+simples: chatbot conversa, agente executa. Ficou faltando a parte prática. Se um
+agente é um sistema de execução, como é que a gente projeta esse sistema antes de
+escrever a primeira linha de prompt?
+
+Aqui vai a resposta curta: o prompt é a última coisa.
+
+O erro mais comum que eu vejo é começar pelo prompt. A pessoa abre o editor,
+escreve "você é um assistente especialista em...", e sai testando. O demo até
+funciona. Mas o que ela construiu não é um agente — é um chatbot com esperança.
+
+Antes do prompt vêm sete decisões de arquitetura. Eu penso nelas como sete
+perguntas. Se você não consegue responder as sete, você ainda não tem um agente
+para construir. Você tem uma ideia.
+
+## 1. Objetivo — o que precisa estar concluído?
+
+A primeira pergunta parece óbvia e quase nunca é respondida direito. "Responder
+bem" não é objetivo. "Ajudar o usuário" não é objetivo. Objetivo é uma condição
+de término que dá para verificar.
+
+Compare:
+
+- Ruim: "atender o cliente no suporte".
+- Bom: "resolver ou encaminhar o chamado, deixando um registro com o motivo".
+
+O segundo tem um fim. O primeiro roda para sempre. Um agente sem condição de
+término verificável é um agente que nunca sabe que terminou — e aí ou ele para
+cedo demais, ou fica girando.
+
+## 2. Contexto — o que o agente sabe agora?
+
+Modelo não tem contexto por osmose. Tudo que ele "sabe" naquele passo ou está na
+janela, ou foi buscado por uma ferramenta. Projetar contexto é decidir o que
+entra direto e o que o agente vai buscar sob demanda.
+
+O erro comum aqui é o oposto do que parece: não é falta de contexto, é excesso.
+Gente jogando o manual inteiro, o histórico inteiro e três documentos no prompt
+"por garantia". O resultado é caro, lento e mais confuso — o modelo se perde no
+que é relevante.
+
+<Callout type="note">
+  Contexto é curadoria, não despejo. A pergunta certa é "o que essa decisão
+  específica exige?", não "o que eu tenho disponível?".
+</Callout>
+
+## 3. Ferramentas — o que ele pode fazer fora do modelo?
+
+Um modelo sozinho prevê texto. O que transforma resposta em execução é a
+capacidade de usar ferramentas: uma API, um banco, uma fila, um webhook.
+
+Essa pergunta merece um texto inteiro — é o próximo da série. Por ora, o que
+importa na fase de arquitetura é decidir **quais** ferramentas existem e, mais
+importante, quais **não** existem. Um agente com ferramenta demais é um operador
+confuso com acesso demais. Menos ferramentas, melhor definidas, quase sempre
+ganha.
+
+## 4. Memória — o que precisa ser lembrado entre etapas?
+
+Memória vira uma palavra mágica e some o significado. Separo em duas:
+
+- **Memória de tarefa**: o que o agente precisa carregar entre os passos de uma
+  mesma execução (o pedido que ele está processando agora).
+- **Memória entre tarefas**: o que precisa sobreviver de uma execução para outra
+  (preferências, o que já foi tentado antes).
+
+O erro é confundir memória com histórico infinito de conversa. Guardar tudo não
+é ter memória — é ter um problema de custo e de ruído. Memória boa é seletiva e
+tem propósito.
+
+## 5. Critérios — como saber se ficou bem feito?
+
+Se você não define qualidade antes, você vai definir depois, no susto, quando um
+cliente reclamar. Eu avalio agente em quatro eixos:
+
+| Eixo       | A pergunta                                     |
+| ---------- | ---------------------------------------------- |
+| Resultado  | a tarefa foi concluída corretamente?           |
+| Trajeto    | ele escolheu as ferramentas adequadas?         |
+| Segurança  | respeitou limites e permissões?                |
+| Custo      | valeu o preço em tokens, tempo e infra?        |
+
+Repare que "resultado" é só um dos quatro. Um agente pode acertar a resposta
+pelo caminho errado, gastando dez vezes mais, tocando um sistema que não devia.
+Isso não é sucesso — é sorte que ainda não deu errado.
+
+## 6. Limites — o que ele não pode fazer sozinho?
+
+Aqui mora o risco que quase ninguém coloca no dia um. Todo mundo pensa em
+alucinação. Em sistema que age, o risco mais operacional é outro: permissão sem
+controle.
+
+Eu separo ação em três níveis:
+
+| Nível      | Exemplo                                  | Comportamento          |
+| ---------- | ---------------------------------------- | ---------------------- |
+| Leitura    | consultar, listar, buscar histórico      | executa direto         |
+| Preparação | gerar proposta, simular, montar resposta | prepara, não finaliza  |
+| Escrita    | alterar, enviar, cobrar, cancelar        | regra forte ou humano  |
+
+Definir limites é decidir, para cada ferramenta, em qual nível ela cai e onde
+entra um ponto de confirmação. Autonomia total no primeiro dia não é ambição —
+é falta de projeto.
+
+<Callout type="warn">
+  Quanto mais autônomo o agente, mais o desenho de limites deixa de ser detalhe
+  e vira a parte mais importante do sistema.
+</Callout>
+
+## 7. Logs — como auditar o que aconteceu?
+
+A última pergunta é a que mais gente pula: como eu descubro o que o agente fez
+quando algo der errado? E vai dar.
+
+Log de agente não é `console.log`. É registro de decisão: quais ferramentas
+foram chamadas, com quais argumentos, o que o modelo recebeu de volta, qual
+caminho ele escolheu e onde falhou. Sem isso, o primeiro a te contar que o
+agente errou vai ser o cliente — e você não vai conseguir explicar por quê.
+
+Log é parte do produto, não um extra que se coloca depois.
+
+## O prompt vem depois
+
+Quando as sete perguntas estão respondidas, acontece uma coisa engraçada: o
+prompt quase se escreve sozinho. Ele vira só a amarração em linguagem do que
+você já decidiu — o objetivo, o contexto disponível, as ferramentas, os limites.
+
+O prompt é a interface entre as suas decisões e o modelo. Se as decisões são
+boas, um prompt simples resolve. Se as decisões não existem, nenhum prompt
+salva.
+
+Responder as sete no papel custa uma tarde. Descobrir que faltavam, em produção,
+custa um incidente.
+
+No próximo texto eu abro a pergunta 3 — ferramentas — porque é onde a teoria
+encosta na prática: como desenhar uma tool que o agente não vai usar errado.

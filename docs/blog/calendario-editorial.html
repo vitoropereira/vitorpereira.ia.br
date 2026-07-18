@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calendário editorial — blog vitorpereira.ia.br</title>
+<style>
+  :root{
+    --bg:#0a0c10; --panel:#12151c; --panel2:#161a22; --border:#232a36;
+    --ink:#e8edf4; --muted:#8b97a8; --faint:#5b6472; --accent:#24C8FF;
+    --accent-dim:#1aa0cf; --ok:#37d67a; --warn:#ffb020;
+    --p-agentes:#24C8FF; --p-seg:#ff6b6b; --p-case:#b985ff;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:0 0 80px;
+    background:radial-gradient(1100px 560px at 85% -12%,rgba(36,200,255,.08),transparent 60%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(36,200,255,.3)}
+  a:hover{border-bottom-color:var(--accent)}
+  code,.k{font-family:var(--mono);font-size:12.5px;background:#0e1218;border:1px solid #242c38;
+    border-radius:5px;padding:1.5px 6px;color:#bfe9fb}
+
+  header.top{padding:44px 0 6px}
+  .brand{font-family:var(--mono);color:var(--accent);font-weight:700;letter-spacing:.5px;font-size:14px}
+  .brand .cursor{animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  h1{font-size:30px;line-height:1.15;margin:10px 0 6px;letter-spacing:-.5px}
+  .sub{color:var(--muted);font-size:15px;margin:0;max-width:640px}
+  .meta{color:var(--faint);font-size:12.5px;font-family:var(--mono);margin-top:10px}
+
+  .progress-card{margin:24px 0 6px;background:var(--panel);border:1px solid var(--border);
+    border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:16px;position:sticky;top:12px;z-index:5}
+  .ring-wrap{position:relative;display:grid;place-items:center;width:50px;height:50px}
+  .ring{width:50px;height:50px;border-radius:50%;
+    background:conic-gradient(var(--accent) calc(var(--p,0)*1%),#222834 0);display:grid;place-items:center}
+  .ring::after{content:"";width:38px;height:38px;border-radius:50%;background:var(--panel);position:absolute}
+  .ring-wrap b{position:absolute;z-index:2;font-size:12px;font-family:var(--mono)}
+  .progress-txt .big{font-size:14.5px;font-weight:600}
+  .progress-txt .small{color:var(--muted);font-size:12.5px}
+  .reset{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);
+    font-size:12px;padding:6px 11px;border-radius:8px;cursor:pointer;font-family:var(--mono)}
+  .reset:hover{border-color:var(--accent);color:var(--accent)}
+
+  h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);
+    margin:30px 0 12px;font-weight:600}
+
+  /* pillars */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:680px){.pillars{grid-template-columns:1fr}}
+  .pillar{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;border-top:3px solid}
+  .pillar h3{margin:0 0 4px;font-size:15px}
+  .pillar p{margin:0;color:var(--muted);font-size:13px}
+  .pillar.agentes{border-top-color:var(--p-agentes)}
+  .pillar.seg{border-top-color:var(--p-seg)}
+  .pillar.case{border-top-color:var(--p-case)}
+
+  .tagbar{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .tag{font-family:var(--mono);font-size:12px;color:#bfe9fb;background:#0e1218;border:1px solid #242c38;
+    border-radius:999px;padding:3px 10px}
+
+  /* post cards */
+  .post{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin:14px 0;overflow:hidden}
+  .post .head{display:flex;align-items:flex-start;gap:12px;padding:15px 18px;background:var(--panel2);border-bottom:1px solid var(--border)}
+  .num{font-family:var(--mono);font-size:13px;color:#06222c;background:var(--accent);border-radius:8px;
+    min-width:28px;height:28px;display:grid;place-items:center;flex:0 0 auto;font-weight:700}
+  .post.seg .num{background:var(--p-seg);color:#2a0a0a}
+  .post.case .num{background:var(--p-case);color:#1e0a33}
+  .htitle{flex:1}
+  .pchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;
+    padding:2px 7px;border-radius:5px;border:1px solid;display:inline-block;margin-bottom:5px}
+  .pchip.agentes{color:var(--p-agentes);border-color:rgba(36,200,255,.4);background:rgba(36,200,255,.08)}
+  .pchip.seg{color:var(--p-seg);border-color:rgba(255,107,107,.4);background:rgba(255,107,107,.08)}
+  .pchip.case{color:var(--p-case);border-color:rgba(185,133,255,.4);background:rgba(185,133,255,.08)}
+  .htitle .t{font-size:16.5px;font-weight:650;line-height:1.3}
+  .post input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:22px;height:22px;
+    border:1.6px solid #3a4454;border-radius:6px;cursor:pointer;position:relative;margin-top:3px}
+  .post input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+  .post input[type=checkbox]:checked::after{content:"";position:absolute;left:7px;top:3px;width:5px;height:10px;
+    border:solid #06222c;border-width:0 2.4px 2.4px 0;transform:rotate(42deg)}
+  .post.done{opacity:.62}
+  .post.done .htitle .t{text-decoration:line-through;text-decoration-color:#3a4454}
+
+  .body{padding:6px 18px 16px}
+  .row{display:flex;flex-wrap:wrap;gap:16px;padding:10px 0;border-bottom:1px solid #1b2028;font-size:13px}
+  .row .lab{color:var(--faint);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+  .kw{color:#cfeaf6}
+  .angle{margin:12px 0 6px;font-size:14px;color:var(--ink)}
+  .angle b{color:#fff}
+  ul.outline{margin:6px 0 4px;padding-left:18px;color:var(--muted);font-size:13.5px}
+  ul.outline li{margin:3px 0}
+  .why{margin-top:10px;border-left:3px solid var(--accent);background:rgba(36,200,255,.06);
+    padding:8px 12px;border-radius:0 8px 8px 0;font-size:13px;color:#cfeaf6}
+  .why.warn{border-color:var(--warn);background:rgba(255,176,32,.06);color:#e7d7b6}
+  .why b{color:#fff}
+
+  footer.cad{margin-top:26px;border:1px dashed #2b3340;border-radius:12px;padding:16px 18px;font-size:13.5px;color:var(--muted)}
+  footer.cad h3{margin:0 0 8px;color:var(--ink);font-size:15px}
+  footer.cad ol{margin:6px 0 0;padding-left:20px}
+  footer.cad li{margin:4px 0}
+  footer.cad b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">&gt;_ blog · vitorpereira.ia.br<span class="cursor">▊</span></div>
+    <h1>Calendário editorial</h1>
+    <p class="sub">Saindo de 1 texto pra uma linha editorial com autoridade. Cada post abaixo você <b>consegue escrever melhor que quase todo mundo em PT</b> — porque vem do que você constrói de verdade.</p>
+    <div class="meta">gerado 17/07/2026 · progresso salvo neste navegador · base: o flagship «Chatbot não é agente»</div>
+  </header>
+
+  <div class="progress-card">
+    <div class="ring-wrap"><div class="ring" id="ring"></div><b id="ringtxt">0%</b></div>
+    <div class="progress-txt">
+      <div class="big" id="pbig">0 de 6 escritos</div>
+      <div class="small">marque quando publicar cada um</div>
+    </div>
+    <button class="reset" id="reset">limpar</button>
+  </div>
+
+  <h2 class="sec">3 pilares</h2>
+  <div class="pillars">
+    <div class="pillar agentes"><h3>Agentes de verdade</h3><p>Série já iniciada pelo flagship: arquitetura → ferramentas → operação. Seu tema-âncora.</p></div>
+    <div class="pillar seg"><h3>Segurança aplicada</h3><p>RLS, permissões, fronteira no servidor. Quase ninguém escreve bem isso em PT — e é sua obsessão técnica.</p></div>
+    <div class="pillar case"><h3>Bastidores &amp; cases</h3><p>Números reais (WhatsApp, PIX, Micro-SaaS). Prova, não promessa. Alimenta o «sem demo fake».</p></div>
+  </div>
+
+  <h2 class="sec">Vocabulário de tags (fixar isto — evita bagunça com 20 posts)</h2>
+  <div class="tagbar">
+    <span class="tag">agentes</span><span class="tag">ia-aplicada</span><span class="tag">arquitetura</span>
+    <span class="tag">seguranca</span><span class="tag">whatsapp</span><span class="tag">automacao</span>
+    <span class="tag">micro-saas</span><span class="tag">bastidores</span>
+  </div>
+
+  <h2 class="sec">Os 6 posts</h2>
+
+  <!-- 1 -->
+  <section class="post agentes">
+    <div class="head"><span class="num">1</span>
+      <div class="htitle"><span class="pchip agentes">Série Agentes · #2</span>
+        <div class="t">A arquitetura mental de um agente: 7 perguntas antes do primeiro prompt</div></div>
+      <input type="checkbox" data-id="p1" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">arquitetura de agentes de IA · como projetar um agente</span></div>
+        <div><span class="lab">Tags</span><span class="k">agentes · arquitetura · ia-aplicada</span></div>
+        <div><span class="lab">Esforço</span>médio · você já tem o material</div></div>
+      <p class="angle"><b>Ângulo:</b> pega a tabela do flagship (objetivo, contexto, ferramentas, memória, critérios, limites, logs) e transforma em 7 perguntas de design — cada uma com o exemplo prático e o erro comum de quem pula a pergunta.</p>
+      <ul class="outline">
+        <li>Por que "arquitetura mental" vem antes do prompt</li>
+        <li>As 7 perguntas, uma seção cada, com exemplo + anti-exemplo</li>
+        <li>Fechamento ligando pro #3 (ferramentas como contrato)</li>
+      </ul>
+      <div class="why"><b>Por que você:</b> o próprio flagship prometeu «primeiro a arquitetura mental». Continuar a série é o efeito composto — não deixar 7 semanas viram 7 meses. <b>Eu já drafto este agora (passo b).</b></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="post agentes">
+    <div class="head"><span class="num">2</span>
+      <div class="htitle"><span class="pchip agentes">Série Agentes · #3</span>
+        <div class="t">Ferramentas como contrato: desenhando tools que o agente não usa errado</div></div>
+      <input type="checkbox" data-id="p2" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">function calling boas práticas · tool calling design</span></div>
+        <div><span class="lab">Tags</span><span class="k">agentes · arquitetura · seguranca</span></div>
+        <div><span class="lab">Esforço</span>médio</div></div>
+      <p class="angle"><b>Ângulo:</b> cada tool é um contrato — o que faz, entradas, saídas, erros, é reversível?, precisa aprovação? Amarra com os 3 níveis (leitura / preparação / escrita) e idempotência.</p>
+      <ul class="outline">
+        <li>Tool mal definida = operador confuso com acesso demais</li>
+        <li>O contrato: 6 campos que toda tool declara</li>
+        <li>Níveis de permissão + quando exigir confirmação humana</li>
+      </ul>
+      <div class="why"><b>Por que você:</b> o flagship já introduziu «tool como contrato» e os níveis de permissão — este post é o zoom-in natural.</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="post seg">
+    <div class="head"><span class="num">3</span>
+      <div class="htitle"><span class="pchip seg">Segurança aplicada</span>
+        <div class="t">Seu agente pode gravar a coluna errada: por que RLS não protege o que você acha</div></div>
+      <input type="checkbox" data-id="p3" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">Supabase RLS segurança · RLS coluna vs linha</span></div>
+        <div><span class="lab">Tags</span><span class="k">seguranca · arquitetura · ia-aplicada</span></div>
+        <div><span class="lab">Esforço</span>baixo · já está tudo na sua cabeça</div></div>
+      <p class="angle"><b>Ângulo:</b> «dono escreve a linha, não a coluna». Uma policy <code>for update using (auth.uid()=user_id)</code> deixa o dono gravar <b>qualquer</b> coluna — inclusive saldo, pontos, flags. A trava real é <code>REVOKE UPDATE(coluna)</code> ou RPC <code>security definer</code>.</p>
+      <ul class="outline">
+        <li>RLS responde «essa linha é sua?», não «você pode setar esse campo?»</li>
+        <li>Campos de autoridade do servidor + como travar de verdade</li>
+        <li>A fronteira é o servidor, não a UI · o teste que afirma que a escrita não-autorizada FALHA</li>
+      </ul>
+      <div class="why"><b>Por que você:</b> isto é literalmente a sua disciplina técnica escrita. <b>Diferenciação altíssima</b> — quase ninguém publica isso em português. Provável campeão de SEO da lista.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="post case">
+    <div class="head"><span class="num">4</span>
+      <div class="htitle"><span class="pchip case">Bastidores &amp; cases</span>
+        <div class="t">190 mil resumos depois: operando bots de WhatsApp em escala</div></div>
+      <input type="checkbox" data-id="p4" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">bot whatsapp escala · n8n whatsapp automação</span></div>
+        <div><span class="lab">Tags</span><span class="k">whatsapp · automacao · bastidores</span></div>
+        <div><span class="lab">Esforço</span>médio · precisa das suas lições reais</div></div>
+      <p class="angle"><b>Ângulo:</b> case do My Group Metrics com números reais (250+ gestores, 190.987 resumos, +40% engajamento). O que quebra em escala: rate limits, custo por token, moderação, filas.</p>
+      <ul class="outline">
+        <li>O problema que o produto resolve (com o número que prova)</li>
+        <li>3–4 coisas que só aparecem em escala</li>
+        <li>O que você faria diferente hoje</li>
+      </ul>
+      <div class="why warn"><b>Preciso de você:</b> não invento lições nem números além dos do portfólio. Você me passa 3–4 aprendizados reais e eu estruturo no seu tom.</div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="post agentes">
+    <div class="head"><span class="num">5</span>
+      <div class="htitle"><span class="pchip agentes">Agentes · opinião</span>
+        <div class="t">Quando NÃO usar um agente (e usar um workflow burro)</div></div>
+      <input type="checkbox" data-id="p5" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">n8n vs agente de ia · quando usar agente</span></div>
+        <div><span class="lab">Tags</span><span class="k">agentes · automacao · arquitetura</span></div>
+        <div><span class="lab">Esforço</span>baixo</div></div>
+      <p class="angle"><b>Ângulo:</b> o take anti-hype. Expande o «quando eu não usaria agente» do flagship: processo determinístico → workflow; empresa que não entende o próprio processo; alto impacto / baixa tolerância a erro.</p>
+      <ul class="outline">
+        <li>«Se ninguém explica a regra, IA só automatiza a confusão»</li>
+        <li>A tabela: sinal → arquitetura certa</li>
+        <li>Copiloto/aprovação humana antes de autonomia total</li>
+      </ul>
+      <div class="why"><b>Por que você:</b> alinhado 100% com «sem hype». Post que ganha compartilhamento por ser contrário à onda.</div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="post case">
+    <div class="head"><span class="num">6</span>
+      <div class="htitle"><span class="pchip case">Micro-SaaS</span>
+        <div class="t">PIX no seu SaaS sem dor: idempotência, webhooks e os cantos afiados</div></div>
+      <input type="checkbox" data-id="p6" />
+    </div>
+    <div class="body">
+      <div class="row"><div><span class="lab">Keyword</span><span class="kw">integrar PIX SaaS · webhook pagamento idempotência</span></div>
+        <div><span class="lab">Tags</span><span class="k">micro-saas · automacao · seguranca</span></div>
+        <div><span class="lab">Esforço</span>médio</div></div>
+      <p class="angle"><b>Ângulo:</b> o fluxo PIX de ponta a ponta (AbacatePay), webhooks idempotentes, reconciliação e o que dá errado quando o webhook chega duas vezes ou fora de ordem.</p>
+      <ul class="outline">
+        <li>Fluxo PIX: cobrança → webhook → confirmação</li>
+        <li>Idempotência: por que o mesmo evento chega 2×</li>
+        <li>Os cantos afiados: timeout, valor divergente, estorno</li>
+      </ul>
+      <div class="why"><b>Por que você:</b> AjudaJá (R$ 2,7M arrecadados) e cursos de Micro-SaaS te dão o case. Público empreendedor-dev com alta intenção.</div>
+    </div>
+  </section>
+
+  <footer class="cad">
+    <h3>Cadência sugerida</h3>
+    <div>1 post/semana, <b>alternando pilar</b> (não 3 de agentes seguidos — cansa). Ordem que eu recomendo:</div>
+    <ol>
+      <li><b>#1</b> (série, retoma o momentum) → <b>#3</b> (RLS — diferenciação + SEO evergreen)</li>
+      <li><b>#2</b> (série) → <b>#4</b> (case com números)</li>
+      <li><b>#5</b> (opinião, viraliza) → <b>#6</b> (micro-saas)</li>
+    </ol>
+    <div style="margin-top:10px">Paralelo, fora da lista: <b>traduzir o flagship pra EN</b> (dobra alcance de um texto que já performa) e <b>reconciliar Sobre/portfólio</b> com a realidade 2026 (passo c).</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var KEY="blog-calendario-v1", state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
+  var boxes=[].slice.call(document.querySelectorAll('input[type=checkbox][data-id]'));
+  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+  function refresh(){
+    var t=boxes.length,d=0;
+    boxes.forEach(function(b){var on=!!state[b.dataset.id];b.checked=on;b.closest('.post').classList.toggle('done',on);if(on)d++});
+    var pct=t?Math.round(d/t*100):0;
+    document.getElementById('ring').style.setProperty('--p',pct);
+    document.getElementById('ringtxt').textContent=pct+"%";
+    document.getElementById('pbig').textContent=d+" de "+t+" escritos";
+  }
+  boxes.forEach(function(b){b.addEventListener('change',function(){state[b.dataset.id]=b.checked;save();refresh()})});
+  document.getElementById('reset').addEventListener('click',function(){if(confirm('Limpar progresso?')){state={};save();refresh()}});
+  refresh();
+})();
+</script>
+</body>
+</html>

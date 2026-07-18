@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>US-005 · Pós-ship — Checklist do Vitor</title>
+<style>
+  :root{
+    --bg:#0a0c10; --panel:#12151c; --panel2:#161a22; --border:#232a36;
+    --ink:#e8edf4; --muted:#8b97a8; --faint:#5b6472; --accent:#24C8FF;
+    --accent-dim:#1aa0cf; --ok:#37d67a; --warn:#ffb020; --danger:#ff5c5c;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 80% -10%,rgba(36,200,255,.08),transparent 60%),var(--bg);
+    color:var(--ink); font-family:var(--sans); line-height:1.55;
+    -webkit-font-smoothing:antialiased; padding:0 0 80px;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+
+  header.top{padding:44px 0 8px}
+  .brand{font-family:var(--mono);color:var(--accent);font-weight:700;letter-spacing:.5px;font-size:14px}
+  .brand .cursor{animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  h1{font-size:30px;line-height:1.15;margin:10px 0 6px;letter-spacing:-.5px}
+  h1 .tag{color:var(--accent)}
+  .sub{color:var(--muted);font-size:15px;margin:0}
+  .meta{color:var(--faint);font-size:12.5px;font-family:var(--mono);margin-top:10px;color:#5b6472}
+
+  /* progress */
+  .progress-card{
+    margin:26px 0 8px;background:var(--panel);border:1px solid var(--border);
+    border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:16px;
+    position:sticky;top:12px;z-index:5;backdrop-filter:blur(6px);
+  }
+  .ring{--p:0;flex:0 0 auto;width:54px;height:54px;border-radius:50%;
+    background:conic-gradient(var(--accent) calc(var(--p)*1%),#222834 0);
+    display:grid;place-items:center;transition:background .35s ease}
+  .ring::after{content:"";width:42px;height:42px;border-radius:50%;background:var(--panel);position:absolute}
+  .ring b{position:relative;z-index:2;font-size:13px;font-family:var(--mono);color:var(--ink)}
+  .ring-wrap{position:relative;display:grid;place-items:center;width:54px;height:54px}
+  .progress-txt{flex:1}
+  .progress-txt .big{font-size:15px;font-weight:600}
+  .progress-txt .small{color:var(--muted);font-size:13px}
+  .reset{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);
+    font-size:12px;padding:6px 11px;border-radius:8px;cursor:pointer;font-family:var(--mono)}
+  .reset:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* sections */
+  section.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    margin:16px 0;overflow:hidden}
+  .card > h2{margin:0;padding:16px 18px;font-size:16px;display:flex;align-items:center;gap:10px;
+    background:var(--panel2);border-bottom:1px solid var(--border)}
+  .num{font-family:var(--mono);color:var(--accent);font-size:14px;background:rgba(36,200,255,.10);
+    border:1px solid rgba(36,200,255,.28);border-radius:7px;width:26px;height:26px;
+    display:grid;place-items:center;flex:0 0 auto}
+  .card .body{padding:6px 18px 16px}
+
+  /* checklist items */
+  .item{display:flex;gap:12px;padding:12px 4px;border-bottom:1px solid #1b2028;align-items:flex-start}
+  .item:last-child{border-bottom:0}
+  .item input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:0 0 auto;
+    width:20px;height:20px;border:1.6px solid #3a4454;border-radius:6px;margin-top:2px;cursor:pointer;
+    position:relative;transition:.15s}
+  .item input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent)}
+  .item input[type=checkbox]:checked::after{content:"";position:absolute;left:6px;top:2px;
+    width:5px;height:10px;border:solid #06222c;border-width:0 2.4px 2.4px 0;transform:rotate(42deg)}
+  .item label{cursor:pointer;flex:1}
+  .item .lab{font-size:14.5px}
+  .item.done .lab{color:var(--faint);text-decoration:line-through;text-decoration-color:#3a4454}
+  .steps{margin:8px 0 2px;padding-left:2px;list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding:4px 0 4px 26px;color:var(--muted);font-size:13.5px}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:4px;font-family:var(--mono);
+    font-size:11px;color:var(--accent-dim);border:1px solid #2a3340;border-radius:5px;
+    width:18px;height:18px;display:grid;place-items:center}
+  code,.k{font-family:var(--mono);font-size:12.5px;background:#0e1218;border:1px solid #242c38;
+    border-radius:5px;padding:1.5px 6px;color:#bfe9fb}
+  a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(36,200,255,.3)}
+  a:hover{border-bottom-color:var(--accent)}
+  .copy{cursor:pointer;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+    background:#0e1218;border:1px solid #242c38;border-radius:6px;padding:2px 8px;margin-left:6px;transition:.15s}
+  .copy:hover{border-color:var(--accent);color:var(--accent)}
+  .copy.done{color:var(--ok);border-color:var(--ok)}
+
+  .callout{margin:10px 0 2px;border-left:3px solid var(--warn);background:rgba(255,176,32,.06);
+    padding:9px 12px;border-radius:0 8px 8px 0;font-size:13px;color:#e7d7b6}
+  .callout.info{border-color:var(--accent);background:rgba(36,200,255,.06);color:#cfeaf6}
+  .callout b{color:#fff}
+
+  textarea.notes{width:100%;min-height:90px;background:#0e1218;border:1px solid var(--border);
+    border-radius:10px;color:var(--ink);font-family:var(--mono);font-size:13px;padding:12px;resize:vertical;margin-top:4px}
+  textarea.notes:focus{outline:none;border-color:var(--accent)}
+
+  footer.mine{margin-top:22px;border:1px dashed #2b3340;border-radius:12px;padding:14px 16px;
+    color:var(--muted);font-size:13px;background:rgba(255,255,255,.01)}
+  footer.mine b{color:var(--ink)}
+  .goal{color:var(--ok);font-family:var(--mono);font-size:12px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--accent);color:#06222c;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;
+    opacity:0;transition:.25s;font-family:var(--mono);pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">&gt;_ vitorpereira.ia.br<span class="cursor">▊</span></div>
+    <h1>Pós-ship <span class="tag">US-005</span> — o que <u>você</u> faz</h1>
+    <p class="sub">Search Console, validators, Lighthouse e uptime. É a última US do PRD 01 (Deploy &amp; go-live). O lado de código fica comigo.</p>
+    <div class="meta">gerado sexta-feira, 17/07/2026 · progresso salvo neste navegador · PRD: docs/prd/01_deploy-e-go-live.md</div>
+  </header>
+
+  <div class="progress-card">
+    <div class="ring-wrap"><div class="ring" id="ring"></div><b id="ringtxt">0%</b></div>
+    <div class="progress-txt">
+      <div class="big" id="pbig">0 de 0 concluídos</div>
+      <div class="small">marque conforme for fazendo — some sozinho quando você recarregar</div>
+    </div>
+    <button class="reset" id="reset">limpar</button>
+  </div>
+
+  <!-- 1 -->
+  <section class="card">
+    <h2><span class="num">1</span> Google Search Console — adicionar + verificar por DNS</h2>
+    <div class="body">
+      <div class="callout info">O DNS é gerido no <b>Cloudflare</b> (não no registrar). O TXT de verificação vai lá.</div>
+      <div class="item"><input type="checkbox" data-id="gsc-add" /><label>
+        <span class="lab">Adicionar a propriedade tipo <b>Domínio</b></span>
+        <ol class="steps">
+          <li>Abrir <a href="https://search.google.com/search-console" target="_blank" rel="noopener">search.google.com/search-console</a></li>
+          <li>«Adicionar propriedade» → aba <b>Domínio</b> → digitar <span class="k">vitorpereira.ia.br</span><button class="copy" data-copy="vitorpereira.ia.br">copiar</button></li>
+          <li>O Google mostra um registro <code>TXT</code> (<code>google-site-verification=…</code>) — deixe essa tela aberta</li>
+        </ol></label></div>
+      <div class="item"><input type="checkbox" data-id="gsc-txt" /><label>
+        <span class="lab">Colar o TXT no Cloudflare</span>
+        <ol class="steps">
+          <li>Cloudflare → domínio <span class="k">vitorpereira.ia.br</span> → <b>DNS · Records</b></li>
+          <li>Add record → Type <code>TXT</code>, Name <code>@</code>, Content = o valor do Google → Save</li>
+          <li>Proxy status é irrelevante pra TXT (fica «DNS only» automático)</li>
+        </ol></label></div>
+      <div class="item"><input type="checkbox" data-id="gsc-verify" /><label>
+        <span class="lab">Voltar no GSC e clicar <b>Verificar</b></span>
+        <ol class="steps"><li>Se falhar, esperar 2–10 min de propagação e tentar de novo</li>
+        <li>Tipo «Domínio» cobre apex + <code>www</code> + http/https de uma vez</li></ol></label></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="card">
+    <h2><span class="num">2</span> Submeter o sitemap</h2>
+    <div class="body">
+      <div class="item"><input type="checkbox" data-id="sitemap" /><label>
+        <span class="lab">Enviar <span class="k">sitemap.xml</span><button class="copy" data-copy="sitemap.xml">copiar</button> no Search Console</span>
+        <ol class="steps">
+          <li>GSC → menu lateral <b>Sitemaps</b></li>
+          <li>«Adicionar novo sitemap» → digitar <code>sitemap.xml</code> → Enviar</li>
+          <li>Esperar status <b>Êxito</b> — «Não foi possível buscar» nas primeiras horas é normal, reprocessa sozinho</li>
+        </ol></label></div>
+      <div class="callout info">Já validei ao vivo: <a href="https://vitorpereira.ia.br/sitemap.xml" target="_blank" rel="noopener">/sitemap.xml</a> responde 200 com 25 URLs e drafts fora. Está pronto pra submeter.</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="card">
+    <h2><span class="num">3</span> Validar SEO no domínio real</h2>
+    <div class="body">
+      <div class="item"><input type="checkbox" data-id="v-rich" /><label>
+        <span class="lab"><b>Rich Results Test</b> → BlogPosting com imagem</span>
+        <ol class="steps">
+          <li>Abrir <a href="https://search.google.com/test/rich-results" target="_blank" rel="noopener">search.google.com/test/rich-results</a></li>
+          <li>Colar <span class="k">https://vitorpereira.ia.br/2026/05/31/chatbot-nao-e-agente</span><button class="copy" data-copy="https://vitorpereira.ia.br/2026/05/31/chatbot-nao-e-agente">copiar</button></li>
+          <li>Confirmar «Artigo / BlogPosting» detectado, com campo <code>image</code></li>
+        </ol></label></div>
+      <div class="item"><input type="checkbox" data-id="v-schema" /><label>
+        <span class="lab"><b>Schema.org validator</b> → JSON-LD sem erros</span>
+        <ol class="steps"><li><a href="https://validator.schema.org" target="_blank" rel="noopener">validator.schema.org</a> → mesma URL do post → sem erros (avisos são ok)</li></ol></label></div>
+      <div class="item"><input type="checkbox" data-id="v-feed" /><label>
+        <span class="lab"><b>W3C Feed Validator</b> → os dois RSS</span>
+        <ol class="steps">
+          <li><a href="https://validator.w3.org/feed/" target="_blank" rel="noopener">validator.w3.org/feed</a></li>
+          <li>Validar <span class="k">https://vitorpereira.ia.br/rss.xml</span><button class="copy" data-copy="https://vitorpereira.ia.br/rss.xml">copiar</button></li>
+          <li>e <span class="k">https://vitorpereira.ia.br/en/rss.xml</span><button class="copy" data-copy="https://vitorpereira.ia.br/en/rss.xml">copiar</button></li>
+        </ol></label></div>
+      <div class="item"><input type="checkbox" data-id="v-social" /><label>
+        <span class="lab"><b>Preview social</b> (card do Twitter/X + OG)</span>
+        <ol class="steps"><li><a href="https://www.opengraph.xyz" target="_blank" rel="noopener">opengraph.xyz</a> → colar uma URL de post → conferir card grande com imagem</li></ol></label></div>
+      <div class="callout"><b>Heads-up:</b> o <b>Twitter Card Validator</b> do aceite original <b>foi desativado pela X em 2022</b>. As meta tags já estão corretas (<code>summary_large_image</code> + imagem) — use o opengraph.xyz acima no lugar.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="card">
+    <h2><span class="num">4</span> Lighthouse mobile</h2>
+    <div class="body">
+      <div class="callout info">Metas: <span class="goal">Performance ≥ 90 · SEO ≥ 95 · Acessibilidade ≥ 90 · Best Practices ≥ 90</span></div>
+      <div class="item"><input type="checkbox" data-id="lh-home" /><label>
+        <span class="lab">Rodar na home</span>
+        <ol class="steps"><li><a href="https://pagespeed.web.dev" target="_blank" rel="noopener">pagespeed.web.dev</a> → aba <b>Mobile</b> → <span class="k">https://vitorpereira.ia.br/</span><button class="copy" data-copy="https://vitorpereira.ia.br/">copiar</button></li></ol></label></div>
+      <div class="item"><input type="checkbox" data-id="lh-post" /><label>
+        <span class="lab">Rodar num post</span>
+        <ol class="steps"><li>Mesma ferramenta → <span class="k">https://vitorpereira.ia.br/2026/05/31/chatbot-nao-e-agente</span></li></ol></label></div>
+      <label style="display:block;color:var(--muted);font-size:13px;margin:10px 4px 4px">Anotar os scores aqui (salva sozinho):</label>
+      <textarea class="notes" data-id="lh-notes" placeholder="home:  Perf __  SEO __  A11y __  BP __&#10;post:  Perf __  SEO __  A11y __  BP __"></textarea>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="card">
+    <h2><span class="num">5</span> Uptime monitor</h2>
+    <div class="body">
+      <div class="item"><input type="checkbox" data-id="up-acct" /><label>
+        <span class="lab">Criar conta free (UptimeRobot)</span>
+        <ol class="steps"><li><a href="https://uptimerobot.com" target="_blank" rel="noopener">uptimerobot.com</a> → sign up grátis</li></ol></label></div>
+      <div class="item"><input type="checkbox" data-id="up-monitor" /><label>
+        <span class="lab">Criar o monitor HTTP(s)</span>
+        <ol class="steps">
+          <li>Add New Monitor → Type <b>HTTP(s)</b></li>
+          <li>URL <span class="k">https://vitorpereira.ia.br/</span> · Interval <b>5 min</b></li>
+          <li>Alert Contact = seu email → Create</li>
+        </ol></label></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="card">
+    <h2><span class="num">6</span> Fechar a US-005</h2>
+    <div class="body">
+      <div class="item"><input type="checkbox" data-id="ship" /><label>
+        <span class="lab">Me avisar no chat: <b>«shipado»</b></span>
+        <ol class="steps"><li>Eu atualizo <code>docs/prd/INDEX.md</code> e <code>docs/HANDOFF.md</code> → PRD 01 = <b>Concluído</b> (5/5 US)</li></ol></label></div>
+    </div>
+  </section>
+
+  <footer class="mine">
+    <b>Meu lado (código), em paralelo — não te bloqueia:</b><br>
+    Fix do <b>hreflang</b> em posts sem tradução (<code>buildMetadata.ts</code> + <code>sitemap.ts</code>) — hoje um post PT sem par EN declara <code>hreflang="en" → /en</code>, o que o Search Console vai marcar como «no return tag». Faço com teste de regressão e abro PR pequeno.
+  </footer>
+</div>
+
+<div class="toast" id="toast">copiado</div>
+
+<script>
+(function(){
+  var KEY = "us005-checklist-v1";
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){ state = {}; }
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type=checkbox][data-id]'));
+  var notes = Array.prototype.slice.call(document.querySelectorAll('textarea.notes[data-id]'));
+
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  function refresh(){
+    var total = boxes.length, done = 0;
+    boxes.forEach(function(b){
+      var on = !!state[b.dataset.id];
+      b.checked = on;
+      b.closest('.item').classList.toggle('done', on);
+      if(on) done++;
+    });
+    var pct = total ? Math.round(done/total*100) : 0;
+    var ring = document.getElementById('ring');
+    ring.style.setProperty('--p', pct);
+    document.getElementById('ringtxt').textContent = pct + "%";
+    document.getElementById('pbig').textContent = done + " de " + total + " concluídos";
+  }
+
+  boxes.forEach(function(b){
+    b.addEventListener('change', function(){
+      state[b.dataset.id] = b.checked;
+      save(); refresh();
+    });
+  });
+
+  notes.forEach(function(t){
+    if(state[t.dataset.id]) t.value = state[t.dataset.id];
+    t.addEventListener('input', function(){ state[t.dataset.id] = t.value; save(); });
+  });
+
+  document.getElementById('reset').addEventListener('click', function(){
+    if(confirm('Limpar todo o progresso deste checklist?')){ state = {}; save(); refresh(); notes.forEach(function(t){t.value="";}); }
+  });
+
+  var toast = document.getElementById('toast'), tmr;
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var txt = btn.getAttribute('data-copy');
+      navigator.clipboard.writeText(txt).then(function(){
+        btn.classList.add('done'); var old = btn.textContent; btn.textContent = "✓";
+        toast.textContent = "copiado: " + txt; toast.classList.add('show');
+        clearTimeout(tmr); tmr = setTimeout(function(){ toast.classList.remove('show'); btn.classList.remove('done'); btn.textContent = old; }, 1400);
+      });
+    });
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
