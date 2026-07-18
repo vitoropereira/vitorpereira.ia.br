@@ -33,28 +33,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const allPosts = rawPosts as unknown as Post[];
   for (const p of allPosts.filter((x) => !x.draft)) {
-    const langs: Record<string, string> = {
-      "pt-BR":
-        p.locale === "pt"
-          ? `${siteConfig.url}${p.permalink}`
-          : (p.translationSlug ?? `${siteConfig.url}${p.permalink}`),
-      en:
-        p.locale === "en"
-          ? `${siteConfig.url}${p.permalink}`
-          : (p.translationSlug ?? `${siteConfig.url}${p.permalink}`),
-    };
-    // translationSlug is already an absolute path (starts with `/`), prepend site URL.
-    if (p.locale === "pt" && p.translationSlug) {
-      langs.en = `${siteConfig.url}${p.translationSlug}`;
-    }
-    if (p.locale === "en" && p.translationSlug) {
-      langs["pt-BR"] = `${siteConfig.url}${p.translationSlug}`;
+    const selfUrl = `${siteConfig.url}${p.permalink}`;
+    // Only advertise alternates when a real translation exists — otherwise we'd
+    // emit a self-referential hreflang for the "other" language, which is a
+    // non-reciprocal pair (mirrors the buildMetadata head fix).
+    let alternates: Entry["alternates"];
+    if (p.translationSlug) {
+      // translationSlug is an absolute path (starts with `/`), prepend site URL.
+      const otherUrl = `${siteConfig.url}${p.translationSlug}`;
+      alternates = {
+        languages:
+          p.locale === "pt"
+            ? { "pt-BR": selfUrl, en: otherUrl }
+            : { en: selfUrl, "pt-BR": otherUrl },
+      };
     }
 
     entries.push({
-      url: `${siteConfig.url}${p.permalink}`,
+      url: selfUrl,
       lastModified: p.updated ? new Date(p.updated) : new Date(p.date),
-      alternates: { languages: langs },
+      ...(alternates ? { alternates } : {}),
     });
   }
 
