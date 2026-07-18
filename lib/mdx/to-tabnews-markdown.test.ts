@@ -15,6 +15,21 @@ O erro comum é excesso, não falta. Mais uma frase.`;
 
 const base = { title: "As 7 perguntas", canonicalUrl: "https://vitorpereira.ia.br/2026/07/18/arquitetura" };
 
+const BODY_NO_SECTIONS = `Apenas um parágrafo, sem nenhuma seção.
+
+Mais um parágrafo aqui, ainda sem heading nível 2.`;
+
+const BODY_WITH_FENCE = `Intro antes do primeiro heading real.
+
+\`\`\`md
+## Isso não é um heading de verdade
+código dentro do fence, não deve virar item nem cortar o teaser
+\`\`\`
+
+## Heading real depois do fence
+
+Conteúdo da seção real. Mais uma frase.`;
+
 describe("toTabNewsMarkdown", () => {
   it("summary: linha por seção + CTA com UTM", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "summary" });
@@ -38,5 +53,26 @@ describe("toTabNewsMarkdown", () => {
   });
   it("estoura acima de 20k chars", () => {
     expect(() => toTabNewsMarkdown({ ...base, body: "x".repeat(20001), format: "full" })).toThrow(/20/);
+  });
+  it("summary: sem seções '## ' falha loud em vez de virar só o CTA", () => {
+    expect(() => toTabNewsMarkdown({ ...base, body: BODY_NO_SECTIONS, format: "summary" })).toThrow(/seções/);
+  });
+  it("summary: '## ' dentro de um fence não vira item, heading real fora do fence sim", () => {
+    const out = toTabNewsMarkdown({ ...base, body: BODY_WITH_FENCE, format: "summary" });
+    expect(out).toContain("- **Heading real depois do fence** — Conteúdo da seção real.");
+    expect(out).not.toContain("Isso não é um heading de verdade");
+  });
+  it("teaser: '## ' dentro de um fence não corta a lede, e o fence permanece intacto", () => {
+    const out = toTabNewsMarkdown({ ...base, body: BODY_WITH_FENCE, format: "teaser" });
+    expect(out).toContain("Intro antes do primeiro heading real.");
+    expect(out).toContain("```md");
+    expect(out).toContain("## Isso não é um heading de verdade");
+    expect(out).toContain("código dentro do fence, não deve virar item nem cortar o teaser");
+    expect(out).not.toContain("## Heading real depois do fence");
+  });
+  it("full: fence com '## ' interno permanece intacto no corpo completo", () => {
+    const out = toTabNewsMarkdown({ ...base, body: BODY_WITH_FENCE, format: "full" });
+    expect(out).toContain("## Isso não é um heading de verdade");
+    expect(out).toContain("## Heading real depois do fence");
   });
 });
