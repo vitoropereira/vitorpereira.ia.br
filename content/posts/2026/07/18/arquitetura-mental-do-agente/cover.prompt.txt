@@ -1,0 +1,19 @@
+Premium 3D product-render illustration, 16:9, for a technical blog cover about
+AI agent architecture. Match the reference image's style exactly: soft studio
+lighting, matte rounded 3D tiles floating over a smooth gradient background that
+goes from near-black graphite on the left to soft light grey on the right. Thin
+glowing electric-blue (#24C8FF) connection wires with small light nodes, plus a
+few subtle amber accent dots.
+
+Composition: seven distinct rounded tiles arranged in a gentle arc, each with a
+single minimal glyph icon (a target, stacked layers, a wrench/tool, a memory
+chip, a checklist, a padlock, and console/log lines), all connected by glowing
+blue wires that converge into one central darker cube node — the "agent core".
+Downstream from the core, set slightly apart and smaller, a single terminal tile
+with a caret cursor glyph, visually implying the prompt comes last.
+Lots of negative space, clean, calm, minimal.
+
+Strictly avoid: any text, letters or numbers rendered in the image; robots,
+humanoid faces, glowing blue brains, matrix rain, literal circuit-board cliches;
+clutter or neon overload. Aesthetic reference: Vercel / Linear / Raycast dark
+premium product design. One electric-blue accent, everything else neutral.
