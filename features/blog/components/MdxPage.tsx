@@ -8,11 +8,13 @@ export function MdxPage({
   description,
   body,
   image,
+  justify,
 }: {
   title: string;
   description?: string;
   body: string;
   image?: { src: string; alt: string };
+  justify?: boolean;
 }) {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
@@ -20,10 +22,10 @@ export function MdxPage({
         <Image
           src={image.src}
           alt={image.alt}
-          width={352}
-          height={299}
+          width={512}
+          height={435}
           priority
-          className="mx-auto mb-8 h-auto w-40 drop-shadow-lg"
+          className="mx-auto mb-6 h-auto w-44 drop-shadow-lg sm:float-right sm:mb-3 sm:ml-8 sm:w-60 md:w-72"
         />
       )}
       <h1 className="mb-2 font-heading text-4xl font-bold tracking-tight">
@@ -32,7 +34,9 @@ export function MdxPage({
       {description && (
         <p className="text-muted-foreground mb-8">{description}</p>
       )}
-      <article className="prose-post">
+      <article
+        className={`prose-post${justify ? " hyphens-auto text-justify" : ""}`}
+      >
         <MDXRemote
           source={body}
           components={mdxComponents}

@@ -44,6 +44,7 @@ export default function SobrePage() {
         description={page.description}
         body={page.body}
         image={{ src: "/vitor.png", alt: "Vitor Pereira" }}
+        justify
       />
     </>
   );
