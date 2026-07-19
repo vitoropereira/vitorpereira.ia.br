@@ -1,0 +1,166 @@
+---
+title: "Ferramentas como contrato: desenhando tools que o agente não usa errado"
+description: "Um agente não chama sua API porque leu o código — ele lê a descrição e decide. Por isso cada ferramenta é um contrato: o que faz, entradas, saídas, erros, se é reversível e se precisa de aprovação."
+date: 2026-07-25T10:00:00-03:00
+draft: true
+tags: [agentes, arquitetura, seguranca]
+comments: true
+---
+
+No [texto anterior](/2026/07/18/arquitetura-mental-do-agente) eu listei sete
+perguntas que vêm antes do prompt. A pergunta 3 — ferramentas — eu deixei de
+propósito para um texto só dela. Aqui está.
+
+Ferramenta é o que transforma um modelo que só prevê texto em um sistema que
+executa. É também onde a maioria dos agentes quebra. Não porque o modelo é burro
+— porque a ferramenta foi entregue mal definida. E um agente com ferramenta mal
+definida é um operador confuso com acesso demais.
+
+A ideia central deste texto é uma só: **trate cada ferramenta como um contrato**,
+não como um endpoint.
+
+## Uma tool não é um endpoint
+
+O reflexo de quem vem de backend é pensar em tool como rota de API. Mas tem uma
+diferença que muda tudo: ninguém do outro lado leu a sua documentação.
+
+O modelo não chama a sua função porque entendeu o código. Ele lê uma descrição em
+linguagem natural — nome, o que faz, quais parâmetros — e decide, na hora, se
+aquela é a ferramenta certa e o que passar para ela.
+
+Ou seja: a descrição da tool não é comentário. É a interface. É o único contexto
+que o modelo tem para escolher entre acertar e fazer besteira. Se ela está
+ambígua, o agente vai errar — e vai errar com confiança.
+
+## O contrato: seis campos que toda tool declara
+
+No texto-âncora eu disse que gosto de pensar em ferramentas como contratos. Um
+contrato de tool responde seis coisas, e todas importam:
+
+| Campo       | A pergunta que ele responde                  |
+| ----------- | -------------------------------------------- |
+| O que faz   | qual ação, em uma frase sem ambiguidade      |
+| Entradas    | quais dados recebe, com que tipo e formato   |
+| Saídas      | o que devolve — e o que aquilo significa     |
+| Erros       | o que pode falhar, e como o agente descobre  |
+| Reversível? | dá para desfazer, ou é definitivo            |
+| Aprovação?  | executa sozinho ou precisa de um humano      |
+
+Repare que só os dois primeiros são "de API". Os quatro últimos são de projeto de
+agente — e são justamente os que quase ninguém escreve.
+
+## Descrição é prompt, não comentário
+
+A descrição da tool é lida pelo modelo a cada chamada. Escreva para o modelo, não
+para o dev que vai dar manutenção seis meses depois.
+
+Ruim:
+
+> `buscar_dados(id)` — busca dados.
+
+Boa:
+
+> `buscar_pedido(pedido_id)` — retorna status, itens e endereço de **um** pedido
+> pelo ID. Não serve para buscar por cliente nem para listar vários; use
+> `listar_pedidos` para isso.
+
+A segunda versão faz duas coisas que a primeira não faz: diz o que a tool é, e diz
+o que ela **não** é. "O que ela não é" evita metade dos usos errados — o modelo
+tende a forçar a ferramenta mais próxima quando nenhuma serve direito. Fechar a
+porta é tão importante quanto abri-la.
+
+<Callout type="note">
+  Um teste rápido: leia só as descrições das suas tools, sem o código. Se você —
+  que conhece o sistema — ficaria em dúvida sobre qual usar, o modelo também vai
+  ficar.
+</Callout>
+
+## Entradas tipadas, validadas no servidor
+
+O modelo vai passar entrada errada. Vai mandar string onde era enum, data em
+formato criativo, um ID que não existe. Não é "se", é "quando".
+
+Por isso a entrada da tool precisa de duas camadas. A primeira é o schema que o
+modelo enxerga: tipos, enums, campos obrigatórios. `status: "pago" | "pendente" |
+"cancelado"` guia o modelo muito melhor do que `status: string` — um enum fecha o
+espaço de erro antes dele acontecer.
+
+A segunda camada é a que de fato protege: **validação no servidor**. O schema no
+prompt é uma sugestão que o modelo pode ignorar — do mesmo jeito que uma trava de
+UI é decorativa quando o cliente fala direto com a API. A ferramenta roda no seu
+backend; é lá que a entrada é checada, não na esperança de que o modelo obedeça
+ao schema.
+
+## Saídas que o modelo consegue usar
+
+Tool boa também devolve bem. Dois erros comuns na saída:
+
+**Despejar o banco.** Retornar a linha crua com trinta colunas faz o agente
+gastar tokens e se perder no que é relevante. Devolva o que a próxima decisão
+precisa, não tudo que você tem.
+
+**Esconder a falha.** Se a tool falhou, o modelo precisa saber — como dado, não
+como exceção que morre no seu log. Um retorno `{ ok: false, motivo: "pedido não
+encontrado" }` deixa o agente corrigir o rumo. Um erro que o modelo não vê é um
+agente que segue em frente como se tivesse dado certo.
+
+## Os três níveis, agora por ferramenta
+
+No âncora e no texto das sete perguntas eu separo ação em três níveis. Na hora de
+desenhar a tool, isso vira uma etiqueta por ferramenta:
+
+| Nível      | Exemplo de tool                          | Regra                     |
+| ---------- | ---------------------------------------- | ------------------------- |
+| Leitura    | `buscar_pedido`, `listar_opções`         | executa direto            |
+| Preparação | `simular_troca`, `montar_proposta`       | prepara, não finaliza     |
+| Escrita    | `cancelar_pedido`, `enviar_mensagem`     | regra forte ou aprovação  |
+
+O ponto prático: você não trata toda tool com o mesmo cuidado. `buscar_pedido`
+errado gera uma resposta ruim. `cancelar_pedido` errado gera um problema real, no
+sistema real, com um cliente real. O nível decide onde entra um ponto de
+confirmação — e onde não precisa.
+
+## Idempotência: o agente vai repetir
+
+Tem um detalhe que separa quem já rodou agente em produção de quem só fez demo: o
+agente **repete**. Ele tenta de novo quando a resposta demora, entra em loop
+quando o critério de término está frouxo, re-chama a tool quando reinterpreta o
+passo.
+
+Se `cobrar_cliente` não for idempotente, "tentar de novo" vira cobrar duas vezes.
+`enviar_mensagem` sem idempotência vira o cliente recebendo a mesma coisa três
+vezes.
+
+A defesa é velha e conhecida: chave de idempotência. A tool aceita um
+identificador da operação e, se já processou aquele identificador, devolve o
+resultado anterior em vez de executar de novo. Toda tool de escrita precisa
+disso. Não é sofisticação — é o mínimo para deixar um agente perto de uma ação
+que mexe em dinheiro ou em mensagem.
+
+<Callout type="warn">
+  Toda ferramenta que escreve, cobra ou envia deveria ser idempotente antes de um
+  agente chegar perto dela. O agente não é um cliente educado que chama uma vez.
+</Callout>
+
+## Menos tools, melhor definidas
+
+A tentação é dar mais ferramentas ao agente "por garantia". É o caminho contrário
+do que funciona. Cada tool a mais é uma decisão a mais que pode sair errada, mais
+descrição competindo pela atenção do modelo, mais superfície para auditar.
+
+Um agente com cinco ferramentas bem definidas resolve mais, e erra menos, do que
+um com vinte mal definidas. Ferramenta não é feature que se acumula. É permissão
+que se concede — e permissão a mais é risco a mais.
+
+## O contrato quebra em produção — e aí?
+
+Um contrato bom no papel ainda quebra em produção. A tool está definida, os níveis
+estão certos, a idempotência está lá — e mesmo assim algo vai falhar de um jeito
+que você não previu.
+
+A diferença entre descobrir isso por um log ou por um cliente irritado é o próximo
+assunto da série: operar agente de verdade — o que os logs precisam mostrar, o que
+quebra quando o volume sobe, e como você dorme tranquilo com um sistema que age
+sozinho.
+
+Arquitetura, ferramentas, operação. Esta era a do meio.
