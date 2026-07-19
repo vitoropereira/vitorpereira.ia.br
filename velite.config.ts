@@ -13,6 +13,7 @@ const postsSchema = s.object({
   tags: s.array(s.string()).default([]),
   cover: s.image().optional(),
   comments: s.boolean().default(false),
+  tabnews: s.string().optional(),
   // Raw MDX body. We render via next-mdx-remote at request time,
   // so we keep the source string here instead of compiling.
   body: s.string().default(""),

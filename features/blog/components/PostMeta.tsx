@@ -32,6 +32,19 @@ export async function PostMeta({ post }: { post: Post }) {
           </ul>
         </>
       )}
+      {post.tabnews && (
+        <>
+          <span>·</span>
+          <a
+            href={post.tabnews}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+          >
+            Discuta no TabNews
+          </a>
+        </>
+      )}
     </div>
   );
 }
