@@ -6,6 +6,7 @@ import {
   hashUA,
   buildClickPayload,
   logClick,
+  isLikelyBot,
 } from "./click.ts";
 
 describe("resolveTrackRedirect (anti open-redirect)", () => {
@@ -42,6 +43,16 @@ describe("helpers puros", () => {
     const ua = "Mozilla/5.0 (Macintosh)";
     expect(hashUA(ua)).toBe(hashUA(ua));
     expect(hashUA(ua)).not.toContain("Mozilla");
+  });
+  it("isLikelyBot pega unfurlers e crawlers, deixa navegador passar", () => {
+    expect(isLikelyBot("")).toBe(true);
+    expect(isLikelyBot("WhatsApp/2.23")).toBe(true);
+    expect(isLikelyBot("facebookexternalhit/1.1")).toBe(true);
+    expect(isLikelyBot("Slackbot-LinkExpanding 1.0")).toBe(true);
+    expect(isLikelyBot("Twitterbot/1.0")).toBe(true);
+    expect(isLikelyBot("curl/8.0")).toBe(true);
+    expect(isLikelyBot("Mozilla/5.0 (Macintosh) Safari/605")).toBe(false);
+    expect(isLikelyBot("Mozilla/5.0 (iPhone) Mobile/15E148")).toBe(false);
   });
   it("buildClickPayload monta o registro", () => {
     const p = buildClickPayload("https://vitorpereira.ia.br/x", "summary", {

@@ -26,4 +26,14 @@ describe("GET /api/track", () => {
     const res = await GET(req(""));
     expect(res.headers.get("location") ?? "").toContain("vitorpereira.ia.br");
   });
+
+  it("bot (unfurler) ainda é redirecionado (só não conta como clique)", async () => {
+    const to = encodeURIComponent("https://vitorpereira.ia.br/2026/05/31/ancora");
+    const request = new Request(`https://vitorpereira.ia.br/api/track?to=${to}&f=summary`, {
+      headers: { "user-agent": "WhatsApp/2.23" },
+    });
+    const res = await GET(request);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location") ?? "").toContain("vitorpereira.ia.br/2026/05/31/ancora");
+  });
 });

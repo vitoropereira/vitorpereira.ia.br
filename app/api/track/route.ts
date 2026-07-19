@@ -1,4 +1,4 @@
-import { resolveTrackRedirect, buildClickPayload, logClick, SITE_ORIGIN } from "@/lib/analytics/click";
+import { resolveTrackRedirect, buildClickPayload, logClick, isLikelyBot, SITE_ORIGIN } from "@/lib/analytics/click";
 
 // Redirect de rastreio; sempre por-request (nunca cacheado).
 export const dynamic = "force-dynamic";
@@ -19,12 +19,16 @@ export async function GET(request: Request): Promise<Response> {
     return Response.redirect(SITE_ORIGIN, 302);
   }
 
-  const payload = buildClickPayload(to, format, {
-    userAgent: request.headers.get("user-agent") ?? "",
-    referrer: request.headers.get("referer"),
-    country: request.headers.get("x-vercel-ip-country"),
-  });
-  await logClick(payload); // best-effort, nunca lança, no-op se não configurado
+  const userAgent = request.headers.get("user-agent") ?? "";
+  // Bots/unfurlers são redirecionados normalmente, mas NÃO contam como clique.
+  if (!isLikelyBot(userAgent)) {
+    const payload = buildClickPayload(to, format, {
+      userAgent,
+      referrer: request.headers.get("referer"),
+      country: request.headers.get("x-vercel-ip-country"),
+    });
+    await logClick(payload); // best-effort, nunca lança, no-op se não configurado
+  }
 
   return Response.redirect(dest, 302);
 }

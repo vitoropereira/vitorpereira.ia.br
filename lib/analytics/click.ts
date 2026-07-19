@@ -35,6 +35,16 @@ export function deviceFromUA(ua: string): "mobile" | "desktop" {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? "mobile" : "desktop";
 }
 
+// Link-unfurlers e crawlers disparam o /api/track ao desdobrar o link — não são
+// cliques humanos. Filtrados para não inflar a métrica primária (cliques).
+const BOT_UA =
+  /bot|crawl|spider|facebookexternalhit|whatsapp|slackbot|twitterbot|discordbot|telegrambot|linkedinbot|embedly|preview|curl|wget|python-requests|headless|monitor/i;
+
+/** UA vazio ou de bot/unfurler → não conta como clique. */
+export function isLikelyBot(ua: string): boolean {
+  return ua.trim() === "" || BOT_UA.test(ua);
+}
+
 /** Hash não-reversível do UA (privacidade — não guardamos UA cru). */
 export function hashUA(ua: string): string {
   let h = 0;
