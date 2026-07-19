@@ -24,7 +24,21 @@ métricas do TabNews, e mede **cliques de volta pro site** (métrica primária).
 | Rota redirect de rastreio | `app/api/track/route.ts` | ✅ testado (redirect); log gated |
 | CTA roteado pelo `/api/track` | `lib/mdx/to-tabnews-markdown.ts` | ✅ testado |
 
-**Gates:** velite ✓ · typecheck ✓ · lint ✓ · **77 testes ✓**.
+**Gates:** velite ✓ · typecheck ✓ · lint ✓ · **79 testes ✓**.
+
+## Review de segurança (feito, opus/security-auditor)
+
+**Veredito: Safe to merge — Yes.** As 5 superfícies duras resistiram a probing
+adversarial: RLS trancado (anon → 401), open-redirect (`/api/track` só aceita nosso
+domínio — testado contra `@evil.com`, `//evil.com`, `javascript:`, backslash, etc.),
+service_role isolado (nunca no browser/NEXT_PUBLIC/log), SQLi (escaping de aspas
+suficiente; todo valor passa por `sqlLiteral`), e higiene de segredos (nada hardcoded).
+
+- **1 finding Low → JÁ CORRIGIDO:** sem filtro de bot, link-unfurlers (WhatsApp/Slack/
+  Twitter) inflariam os cliques ao desdobrar o link. Adicionei `isLikelyBot` — bots
+  redirecionam mas não contam como clique.
+- **Nota informativa (deferida):** se um dia fizermos o dashboard web, o `referrer`
+  gravado é input não-confiável — escapar no render (semente de XSS armazenado).
 
 ---
 
@@ -81,7 +95,7 @@ comentários · **cliques**).
 - [ ] Confirmar o trade-off do CTA-via-redirect (item 2) — mantém ou reverte?
 - [ ] Rodar `pnpm crosspost:stats` (já configurado local) — ver a tabela.
 - [ ] Adicionar `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (local+Vercel) pra ativar cliques.
-- [ ] Rodar o review de segurança (já anexei um no fim da branch) — ver findings.
+- [x] Review de segurança rodado — Safe to merge; finding Low (bots) já corrigido.
 - [ ] PR de tudo (Fase 1 + Fase 2 + os posts) quando aprovar.
 
 ---
