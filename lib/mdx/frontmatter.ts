@@ -8,10 +8,18 @@ export function readFrontmatterField(mdxPath: string, field: string): string | u
   return line?.slice(field.length + 1).trim().replace(/^["']|["']$/g, "");
 }
 
-/** Insere `tabnews: "<url>"` antes do `---` de fechamento, preservando o resto. */
+/**
+ * Insere `tabnews: "<url>"` no frontmatter, preservando o resto.
+ * Idempotente: se a chave `tabnews:` já existir, é substituída in-place
+ * (nunca duplicada); caso contrário é inserida antes do `---` de fechamento.
+ */
 export function writeSyndicationMarker(mdxPath: string, url: string): void {
   const src = readFileSync(mdxPath, "utf8");
-  const m = src.match(/^(---\n[\s\S]*?)(\n---)/);
+  const m = src.match(/^(---\n)([\s\S]*?)(\n---)/);
   if (!m) throw new Error(`Frontmatter não encontrado em ${mdxPath}`);
-  writeFileSync(mdxPath, `${m[1]}\ntabnews: "${url}"${m[2]}${src.slice(m[0].length)}`);
+  const [full, open, body, close] = m;
+  const line = `tabnews: "${url}"`;
+  const hasMarker = /^tabnews:.*$/m.test(body);
+  const newBody = hasMarker ? body.replace(/^tabnews:.*$/m, line) : `${body}\n${line}`;
+  writeFileSync(mdxPath, `${open}${newBody}${close}${src.slice(full.length)}`);
 }
