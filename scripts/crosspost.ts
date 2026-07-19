@@ -4,6 +4,7 @@ import { loadPostFromPath } from "../lib/mdx/load-post.ts";
 import { readFrontmatterField, writeSyndicationMarker } from "../lib/mdx/frontmatter.ts";
 import { buildTabNewsPreview, publishToTabNews } from "../lib/syndication/publish-tabnews.ts";
 import type { SyndicationFormat } from "../lib/mdx/to-tabnews-markdown.ts";
+import { recordSyndication } from "../lib/analytics/record.ts";
 
 function fail(msg: string): never {
   console.error(`\n✖ ${msg}\n`);
@@ -69,6 +70,28 @@ async function main(): Promise<void> {
   writeSyndicationMarker(mdxPath, result.url);
   console.log(`✓ publicado: ${result.url}`);
   console.log(`  marcador gravado em ${mdxPath} — revise o diff e commite.`);
+
+  // Analytics (best-effort): registra a linha de syndication. Falha aqui NÃO
+  // derruba o comando — o post no TabNews e o marcador já são a fonte da verdade.
+  if (process.env.SUPABASE_TOKEN && process.env.SUPABASE_PROJECT_REF) {
+    try {
+      await recordSyndication({
+        postPermalink: post.permalink,
+        canonicalUrl: post.canonicalUrl,
+        target: "tabnews",
+        externalUrl: result.url,
+        externalSlug: result.externalSlug,
+        format,
+        status,
+        title: post.title,
+        summaryCharCount: finalBody.length,
+        tags: post.tags,
+      });
+      console.log(`  ✓ registrado no Supabase (vitor_syndications).`);
+    } catch (e) {
+      console.warn(`  ⚠ analytics não gravou (${errMsg(e)}) — post ok; dá pra backfill depois.`);
+    }
+  }
 }
 
 main().catch((e: unknown) => fail(errMsg(e)));

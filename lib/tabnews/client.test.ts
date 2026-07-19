@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createSession, createContent, RateLimitError, AuthError } from "./client.ts";
+import { createSession, createContent, getContentMetrics, RateLimitError, AuthError } from "./client.ts";
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -30,5 +30,18 @@ describe("createContent", () => {
   it("429 vira RateLimitError", async () => {
     const fetch = vi.fn().mockResolvedValue(json(429, { message: "muitas requisições" }));
     await expect(createContent(session, { title: "T", body: "B", status: "published", sourceUrl: "https://x" }, { fetch })).rejects.toBeInstanceOf(RateLimitError);
+  });
+});
+
+describe("getContentMetrics", () => {
+  it("lê tabcoins + comentários (children_deep_count) do conteúdo público", async () => {
+    const fetch = vi.fn().mockResolvedValue(json(200, { tabcoins: 12, children_deep_count: 4 }));
+    const m = await getContentMetrics("vitorpereirasaas", "meu-post", { fetch });
+    expect(m).toEqual({ tabcoins: 12, comments: 4 });
+    expect(fetch.mock.calls[0][0]).toBe("https://www.tabnews.com.br/api/v1/contents/vitorpereirasaas/meu-post");
+  });
+  it("faltando campos → 0", async () => {
+    const fetch = vi.fn().mockResolvedValue(json(200, {}));
+    expect(await getContentMetrics("o", "s", { fetch })).toEqual({ tabcoins: 0, comments: 0 });
   });
 });

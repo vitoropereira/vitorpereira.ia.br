@@ -34,6 +34,24 @@ export async function createSession(creds: { email: string; password: string }, 
   return { token: j.token, expiresAt: j.expires_at };
 }
 
+export interface ContentMetrics {
+  tabcoins: number;
+  comments: number;
+}
+
+/** Lê tabcoins + total de comentários de um conteúdo público (sem sessão). */
+export async function getContentMetrics(
+  owner: string,
+  slug: string,
+  deps: Deps = {},
+): Promise<ContentMetrics> {
+  const f = deps.fetch ?? fetch;
+  const res = await f(`${TABNEWS_API}/contents/${owner}/${slug}`);
+  if (!res.ok) raise(res.status, await readError(res));
+  const j = (await res.json()) as { tabcoins?: number; children_deep_count?: number };
+  return { tabcoins: j.tabcoins ?? 0, comments: j.children_deep_count ?? 0 };
+}
+
 export async function createContent(session: TabNewsSession, input: CreateContentInput, deps: Deps = {}): Promise<CreatedContent> {
   const f = deps.fetch ?? fetch;
   const res = await f(`${TABNEWS_API}/contents`, {
