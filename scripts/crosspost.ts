@@ -12,15 +12,24 @@ function fail(msg: string): never {
 const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const target = args.find((a) => !a.startsWith("--"));
+  const argv = process.argv.slice(2);
+  let target: string | undefined;
+  let dryRun = false;
+  let draft = false;
+  let format: SyndicationFormat = "summary";
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--dry-run") dryRun = true;
+    else if (a === "--draft") draft = true;
+    else if (a === "--format") {
+      format = argv[++i] as SyndicationFormat;
+    } else if (a.startsWith("--")) fail(`Flag desconhecida: ${a}`);
+    else if (target === undefined) target = a;
+    else fail(`Argumento inesperado: ${a}`);
+  }
   if (!target) fail("Uso: pnpm crosspost <caminho-do-post> [--dry-run] [--format summary|teaser|full] [--draft]");
-
-  const dryRun = args.includes("--dry-run");
-  const status = args.includes("--draft") ? "draft" : "published";
-  const fi = args.indexOf("--format");
-  const format = (fi >= 0 ? args[fi + 1] : "summary") as SyndicationFormat;
   if (!["summary", "teaser", "full"].includes(format)) fail(`--format inválido: ${format}`);
+  const status = draft ? "draft" : "published";
 
   const mdxPath = target.endsWith("index.mdx") ? target : `${target.replace(/\/$/, "")}/index.mdx`;
   if (!existsSync(mdxPath)) fail(`Arquivo não encontrado: ${mdxPath}`);
@@ -52,7 +61,7 @@ async function main(): Promise<void> {
 
   // A mão do Vitor manda: se existe preview editado, publica ELE (sem o cabeçalho <!-- ... -->).
   const finalBody = existsSync(previewPath)
-    ? readFileSync(previewPath, "utf8").replace(/^<!--[\s\S]*?-->\n?/, "").trim()
+    ? readFileSync(previewPath, "utf8").replace(/<!--[\s\S]*?-->\n*/, "").trim()
     : content.body;
 
   console.log(`· publicando "${post.title}" no TabNews (${format}${existsSync(previewPath) ? ", preview editado" : ""})…`);
