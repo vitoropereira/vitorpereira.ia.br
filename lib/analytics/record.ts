@@ -87,10 +87,10 @@ export async function getSyndicationsWithStats(deps: Deps = {}): Promise<Syndica
       limit 1
     ) m on true
     left join (
-      select syndication_id, count(*) as clicks
+      select post_permalink, count(*) as clicks
       from public.vitor_syndication_clicks
-      group by syndication_id
-    ) c on c.syndication_id = s.id
+      group by post_permalink
+    ) c on c.post_permalink = s.post_permalink
     order by s.posted_at desc;`;
   return runSql<SyndicationRow>(sql, deps);
 }

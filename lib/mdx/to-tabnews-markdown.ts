@@ -53,9 +53,17 @@ function extractTeaser(body: string): string {
   return (idx === -1 ? lines : lines.slice(0, idx)).join("\n").trim();
 }
 
+/**
+ * Link do CTA passa pelo redirect de rastreio `/api/track` (log de clique
+ * first-party). O UTM é adicionado pelo próprio redirect — aqui só vai `to` (a
+ * canônica) + `f` (formato). Mantém as páginas de post estáticas.
+ */
+function trackUrl(canonicalUrl: string, format: SyndicationFormat): string {
+  return `${SITE_URL}/api/track?to=${encodeURIComponent(canonicalUrl)}&f=${format}`;
+}
+
 function cta(title: string, canonicalUrl: string, format: SyndicationFormat): string {
-  const url = `${canonicalUrl}?utm_source=tabnews&utm_medium=syndication&utm_content=${format}`;
-  return `\n\n---\n\nEscrevi o resto no meu site:\n\n**[${title}](${url})**`;
+  return `\n\n---\n\nEscrevi o resto no meu site:\n\n**[${title}](${trackUrl(canonicalUrl, format)})**`;
 }
 
 export function toTabNewsMarkdown(input: {
@@ -73,8 +81,7 @@ export function toTabNewsMarkdown(input: {
   } else if (format === "teaser") {
     out = extractTeaser(transformInline(body)) + cta(title, canonicalUrl, format);
   } else {
-    const url = `${canonicalUrl}?utm_source=tabnews&utm_medium=syndication&utm_content=full`;
-    out = `${transformInline(body)}\n\n---\n\nPublicado originalmente em ${url}`;
+    out = `${transformInline(body)}\n\n---\n\nPublicado originalmente em ${trackUrl(canonicalUrl, "full")}`;
   }
   if (out.length > MAX_BODY)
     throw new Error(`Body de ${out.length} chars excede o limite de ${MAX_BODY.toLocaleString("pt-BR")} do TabNews.`);

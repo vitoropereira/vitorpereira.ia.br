@@ -31,25 +31,30 @@ código dentro do fence, não deve virar item nem cortar o teaser
 Conteúdo da seção real. Mais uma frase.`;
 
 describe("toTabNewsMarkdown", () => {
-  it("summary: linha por seção + CTA com UTM", () => {
+  it("summary: linha por seção + CTA pelo /api/track (f=summary)", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "summary" });
     expect(out).toContain("- **1. Objetivo — o que precisa estar concluído?** — Objetivo é condição de término verificável.");
     expect(out).toContain("- **2. Contexto — o que ele sabe?** — O erro comum é excesso, não falta.");
-    expect(out).toContain("utm_content=summary");
-    expect(out).toContain("[As 7 perguntas](https://vitorpereira.ia.br/2026/07/18/arquitetura?");
+    expect(out).toContain("f=summary");
+    expect(out).toContain("[As 7 perguntas](https://vitorpereira.ia.br/api/track?to=");
+    // a canônica vai como parâmetro `to` (encodada), não como UTM cru no markdown
+    expect(out).toContain(encodeURIComponent("https://vitorpereira.ia.br/2026/07/18/arquitetura"));
+    expect(out).not.toContain("utm_content=");
   });
-  it("teaser: lede (até 1º ##) com link absoluto + CTA", () => {
+  it("teaser: lede (até 1º ##) com link absoluto + CTA pelo /api/track", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "teaser" });
     expect(out).toContain("[um link](https://vitorpereira.ia.br/2026/05/31/ancora)");
     expect(out).toContain("Segundo parágrafo da lede.");
     expect(out).not.toContain("## 1. Objetivo");
-    expect(out).toContain("utm_content=teaser");
+    expect(out).toContain("/api/track?to=");
+    expect(out).toContain("f=teaser");
   });
-  it("full: corpo inteiro + rodapé de origem", () => {
+  it("full: corpo inteiro + rodapé de origem pelo /api/track", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "full" });
     expect(out).toContain("## 1. Objetivo");
     expect(out).toContain("Publicado originalmente");
-    expect(out).toContain("utm_content=full");
+    expect(out).toContain("/api/track?to=");
+    expect(out).toContain("f=full");
   });
   it("estoura acima de 20k chars", () => {
     expect(() => toTabNewsMarkdown({ ...base, body: "x".repeat(20001), format: "full" })).toThrow(/20/);
