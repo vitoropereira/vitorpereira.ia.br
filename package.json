@@ -13,7 +13,9 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "gen:cover": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/gen-cover.ts"
+    "gen:cover": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/gen-cover.ts",
+    "crosspost": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost.ts",
+    "crosspost:stats": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost-stats.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -57,6 +59,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "gray-matter": "^4.0.3",
     "jsdom": "^29.0.2",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
