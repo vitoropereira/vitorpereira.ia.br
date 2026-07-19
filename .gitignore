@@ -80,3 +80,6 @@ vendor/
 
 # SDD execution ledger (scratch)
 .superpowers/
+
+# previews/estado do cross-post (não versionar)
+.syndication/
