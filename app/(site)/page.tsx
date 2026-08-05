@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/features/marketing/components/Hero";
+import { Proof } from "@/features/marketing/components/Proof";
 import { Specialties } from "@/features/marketing/components/Specialties";
 import { FeaturedProjects } from "@/features/marketing/components/FeaturedProjects";
 import { LatestPosts } from "@/features/marketing/components/LatestPosts";
@@ -20,6 +21,7 @@ export default function HomePage() {
   return (
     <>
       <Hero locale="pt" />
+      <Proof locale="pt" />
       <Specialties locale="pt" />
       <FeaturedProjects locale="pt" />
       <LatestPosts locale="pt" />

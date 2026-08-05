@@ -1,0 +1,156 @@
+---
+title: "Memória de agente: guardar tudo não é ter memória"
+description: "Histórico infinito não é memória — é custo e ruído. A pergunta 4 da série: o que precisa sobreviver entre etapas, o que precisa sobreviver entre execuções, e o que precisa ser esquecido de propósito."
+date: 2026-08-11T10:00:00-03:00
+draft: true
+tags: [agentes, arquitetura, ia-aplicada]
+comments: true
+---
+
+Na [arquitetura mental do agente](/2026/07/18/arquitetura-mental-do-agente) eu
+listei sete perguntas que vêm antes do prompt. A pergunta 3 — ferramentas —
+virou [um texto só dela](/2026/07/25/ferramentas-como-contrato). Esta é a
+pergunta 4.
+
+Memória é a palavra mais inflacionada do vocabulário de agentes. Todo mundo diz
+que o agente "tem memória", quase ninguém diz o que isso significa. Na prática,
+o que costuma existir é histórico de conversa acumulando até estourar a janela.
+
+Isso não é memória. Isso é um log que ninguém poda.
+
+## Duas memórias, não uma
+
+A separação que resolve metade da confusão:
+
+| | Memória de tarefa | Memória entre tarefas |
+| --- | --- | --- |
+| Vive por | uma execução | várias execuções |
+| Guarda | o estado do que está sendo feito agora | o que vale a pena carregar pro futuro |
+| Exemplo | qual arquivo já foi lido, qual passo falhou | preferência do usuário, o que já foi tentado e não deu certo |
+| Se perder | a execução atual quebra | o agente repete um erro antigo |
+| Cresce | dentro de um limite conhecido | indefinidamente, se você deixar |
+
+São problemas diferentes com soluções diferentes, e tratá-los como uma coisa só
+é a origem de quase todo sistema de memória ruim que eu já vi.
+
+Memória de tarefa é um problema de **contexto**: cabe na janela, some no fim, e
+o desafio é o que manter enquanto a execução corre. Memória entre tarefas é um
+problema de **armazenamento**: precisa de um lugar durável, de uma decisão de
+escrita e — a parte que ninguém implementa — de uma decisão de remoção.
+
+## O erro: confundir memória com histórico
+
+O reflexo padrão é jogar todo o histórico de volta a cada passo. Funciona por um
+tempo, e depois cobra em três moedas:
+
+**Custo.** Você paga por token, e reenviar tudo a cada passo multiplica isso por
+todos os passos. Uma execução de vinte tool calls com histórico completo custa
+absurdamente mais do que a mesma execução com contexto podado.
+
+**Ruído.** Este é o pior, porque não aparece na fatura. Modelo não ignora o que
+está na janela — ele leva tudo em conta. Enfiar quinze tool results antigos no
+contexto não deixa o agente "mais informado"; deixa ele com quinze distrações
+concorrendo com a decisão atual. Já vi agente voltar a considerar um caminho que
+ele mesmo tinha descartado dez passos antes, porque a tentativa fracassada
+continuava lá.
+
+**Rastreabilidade.** Quando tudo está no histórico, nada é fato explícito. A
+informação "esse cliente já recusou a proposta A" fica diluída no meio de uma
+conversa de 8 mil tokens, em vez de ser um campo que o agente lê.
+
+<Callout type="note">
+  Memória boa é seletiva por projeto, não por acidente. Se a sua estratégia é
+  "guarda tudo e o modelo se vira", você não projetou memória — você adiou o
+  problema até ele virar conta.
+</Callout>
+
+## A pergunta que decide o que guardar
+
+Antes de escrever, eu faço uma pergunta só:
+
+> Se essa informação sumir, o que quebra — e daqui a quanto tempo?
+
+Ela separa bem as três categorias:
+
+- **Quebra agora, nesta execução** → memória de tarefa. Mantém no contexto ativo
+  enquanto a execução roda, descarta no fim.
+- **Quebra numa execução futura** → memória entre tarefas. Escreve em algum
+  lugar durável, com nome e formato.
+- **Não quebra nada** → não guarda. E essa é a maioria dos casos.
+
+A terceira linha é a que ninguém aplica. A tentação é guardar "por garantia",
+porque parece barato. Não é: cada item guardado é um item que vai ser lido,
+enviado, e vai competir por atenção em toda decisão futura.
+
+## Escrever é uma decisão, não um efeito colateral
+
+O padrão que funcionou pra mim é tratar a escrita na memória como uma ação
+explícita do agente, com critério — não como um `append` automático no fim de
+cada passo.
+
+Concretamente, o que vale a pena registrar:
+
+- **Correções.** O usuário disse que eu estava errado sobre X. Isso vale mais
+  que dez interações bem-sucedidas.
+- **Decisões com custo de reversão.** Escolhemos a abordagem B, descartamos a A
+  por um motivo. Sem isso, a próxima execução reabre a discussão.
+- **Caminhos que falharam.** "Já tentei X, não funcionou porque Y" é o item de
+  memória com melhor relação valor/tamanho que existe.
+- **Restrições que não estão no código.** Prazo, preferência, política interna —
+  o que um colega novo precisaria que alguém contasse.
+
+E o que **não** vale registrar: qualquer coisa que o sistema já sabe de outro
+jeito. Se está no banco, o agente consulta o banco. Se está no repositório, ele
+lê o repositório. Duplicar isso na memória cria duas fontes de verdade que vão
+divergir — e a memória, sendo a mais fácil de escrever, vai ser a que envelhece
+mal.
+
+## A armadilha da última sessão
+
+Um vício específico e comum: o agente tropeça uma vez, e aquele tropeço vira
+regra permanente.
+
+Sessão de terça: um comando falhou porque faltava uma flag. O agente anota "usar
+sempre a flag `--x`". Na sexta, num contexto onde a flag não faz sentido, ele
+usa mesmo assim — porque virou regra.
+
+Antes de gravar uma lição, a pergunta é: **isso teria ajudado na maioria das
+execuções, ou só naquela?** Se a resposta é "só naquela", não é memória. É a
+cicatriz de um incidente, e ela vai fazer o agente desviar de um buraco que não
+existe mais.
+
+## Poda faz parte do sistema
+
+Todo sistema de memória que dura precisa de um caminho de remoção — e quase
+nenhum tem, porque escrever é divertido e deletar dá medo.
+
+Três gatilhos que eu uso:
+
+1. **Contradição.** Chegou informação nova que contradiz um item antigo? O item
+   antigo não fica ao lado do novo "por contexto histórico". Ele é substituído.
+2. **Expiração natural.** "O deploy de sexta está bloqueado" era verdade na
+   quinta e é lixo na segunda. Informação com validade nasce com data.
+3. **Nunca foi lido.** Se um item nunca foi recuperado em nenhuma execução, ele
+   não está ajudando — está só custando.
+
+<Callout type="warn">
+  Memória sem poda não estabiliza: cresce. E um agente que carrega meses de
+  anotações desatualizadas performa pior que um sem memória nenhuma, porque
+  agora ele age com confiança sobre informação errada.
+</Callout>
+
+## O que fica
+
+Memória não é uma feature que você liga. É uma decisão de projeto com quatro
+partes, e a maioria dos sistemas implementa só a primeira:
+
+1. **O que escrever** — quase todo mundo faz.
+2. **Como recuperar** — muita gente faz.
+3. **Quando não escrever** — pouca gente faz.
+4. **Quando apagar** — quase ninguém faz.
+
+Se você só implementou a 1 e a 2, o que você tem não é memória. É acúmulo, e ele
+piora com o tempo em vez de melhorar.
+
+No próximo texto, a pergunta 5: como saber se o agente foi bem — e por que
+"deu a resposta certa" é só um dos quatro eixos que importam.

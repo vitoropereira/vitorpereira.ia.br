@@ -2,7 +2,55 @@
 
 > **Como usar**: na próxima sessão, mande "leia `docs/HANDOFF.md`". Eu entendo onde paramos, o que falta, e te guio no próximo passo.
 >
-> **Última atualização**: 2026-05-31 — pós-cutover. Domínio real no ar (Vercel), 5 fixes shippados, validação manual da US-003 majoritariamente feita.
+> **Última atualização**: 2026-08-05 — prova na home, portfólio mostrando resultados, pipeline editorial (3 posts/semana) e 6 drafts na fila.
+
+---
+
+## Sessão 2026-08-05 — prova na home + pipeline editorial
+
+**Contexto**: revisão do site à luz dos CVs em `domus/memory/carreira/cv/`. O
+diagnóstico apontou que o material mais forte (números git-verified, war stories
+do MGM) não aparecia em lugar nenhum do site.
+
+**O que foi feito**:
+
+1. **Faixa de prova na home** (`features/marketing/components/Proof.tsx`, PT+EN) —
+   70+ founders simultâneos, ~700 análises/dia, 3,6M+ interações, ~400 deploys
+   com 165 testes. O Hero prometia "sem hype, sem demo fake" e não mostrava
+   número nenhum.
+2. **`results` do portfólio passou a renderizar.** O campo existia em
+   `features/portfolio/types.ts` e nos dados desde sempre, mas **nenhum
+   componente o exibia** — todo número de todo projeto era dado morto (inclusive
+   "R$ 2,7M" do AjudaJá). `ProjectCard` agora mostra os 3 primeiros; MGM e Pixel
+   AI Hub ganharam métricas do cv-master.
+3. **Pipeline editorial local** — `pnpm new:post` (scaffold) e `pnpm translate`
+   (PT→EN via Claude, structured output; o modelo devolve só title/description/
+   body e o código remonta o frontmatter, garantindo `date`/`draft`/`tags`
+   preservados). Links internos são reescritos pras rotas `/en`.
+4. **6 drafts na fila** — 3 war stories do MGM (ban do WhatsApp, evolução de
+   filas, IDOR do pentest) + 3 posts fechando as perguntas 4/5/6 da série de
+   agentes. Cadência ter/qui/sáb.
+5. **`docs/blog/backlog.md`** — fila de pautas até a semana 36 com ângulo e
+   material-fonte, banco de ideias e checklist de qualidade.
+
+**Decisões**:
+
+- **Sem cron de CI para tradução.** Um workflow agendado chegou a ser escrito e
+  foi descartado a pedido do Vitor: geração é local, sob demanda, com revisão
+  antes de publicar. `pnpm translate` precisa de `ANTHROPIC_API_KEY` no ambiente.
+- **`cv-master.md` corrigido** (no repo Domus, não neste): ClearSeg é empresa
+  própria (sócio-fundador & CTO, 2025–), não produto da I.V. Tec — que ficou
+  marcada como encerrada.
+- Contato **não** ganhou e-mail/WhatsApp — decisão do Vitor, segue só redes.
+
+**Pendências desta sessão**:
+
+- [ ] A chamada real da API em `pnpm translate` nunca executou (sem
+      `ANTHROPIC_API_KEY` no ambiente da sessão). A lógica em volta tem 12 testes;
+      a chamada em si não foi validada.
+- [ ] Publicar os drafts **em ordem cronológica** — `memoria-de-agente` linka
+      para `ferramentas-como-contrato` (draft) e dois posts linkam para
+      `idor-a-fronteira-e-o-servidor` (draft). Draft dá 404 em produção.
 
 ---
 
