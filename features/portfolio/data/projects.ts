@@ -91,14 +91,16 @@ export const projects: Project[] = [
     url: "https://aihub.pixeleducacao.com.br",
     results: {
       pt: [
-        "Agentes de IA autônomos com camada de segurança própria",
-        "Plataforma core event-driven multi-provedor de pagamentos",
-        "Frota de IA como código + infra multi-tenant isolada",
+        "~400 deploys em produção com 165 testes automatizados verdes",
+        "Agente ao vivo para 70+ founders simultâneos (2.411 mensagens em 123 sessões)",
+        "Frota de 19 agentes como código + supervisor sobre 9 servidores",
+        "Broadcast entregue a ~26,6 mil contatos",
       ],
       en: [
-        "Autonomous AI agents with a custom security layer",
-        "Event-driven core platform with multi-provider payments",
-        "AI fleet as code + isolated multi-tenant infra",
+        "~400 production deploys with a 165-test suite green",
+        "Live agent for 70+ simultaneous founders (2,411 messages in 123 sessions)",
+        "Fleet of 19 agents as code + supervisor across 9 servers",
+        "Broadcast delivered to ~26.6k contacts",
       ],
     },
     cover: null,
@@ -126,14 +128,16 @@ export const projects: Project[] = [
     url: "https://mygroupmetrics.com/",
     results: {
       pt: [
+        "3,6M+ interações processadas em ~2.900 grupos",
+        "~700 resumos automáticos por dia (áudio + LLM, a cada 3 min)",
         "AI Copilot: Q&A em linguagem natural sobre os dados do cliente",
-        "Pipeline de resumos automáticos por IA (áudio + LLM)",
-        "Analytics de grupos de WhatsApp em escala",
+        "100+ workflows de automação e 90+ tabelas PostgreSQL (pgvector)",
       ],
       en: [
+        "3.6M+ interactions processed across ~2,900 groups",
+        "~700 automatic summaries per day (audio + LLM, every 3 min)",
         "AI Copilot: natural-language Q&A over the client's data",
-        "Automatic AI summarization pipeline (audio + LLM)",
-        "WhatsApp group analytics at scale",
+        "100+ automation workflows and 90+ PostgreSQL tables (pgvector)",
       ],
     },
     cover: null,

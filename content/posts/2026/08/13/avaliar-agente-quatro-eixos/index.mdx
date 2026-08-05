@@ -1,0 +1,156 @@
+---
+title: "Acertou a resposta pelo caminho errado: os 4 eixos de avaliar um agente"
+description: "Resultado é só um dos quatro eixos. A pergunta 5 da série: como avaliar trajeto, segurança e custo — e por que um agente que acerta gastando dez vezes mais não é sucesso, é sorte que ainda não deu errado."
+date: 2026-08-13T10:00:00-03:00
+draft: true
+tags: [agentes, arquitetura, ia-aplicada, qualidade]
+comments: true
+---
+
+Esta é a pergunta 5 da série que começou na [arquitetura mental do
+agente](/2026/07/18/arquitetura-mental-do-agente): como saber se ficou bem
+feito?
+
+A resposta padrão é olhar a saída. O agente respondeu certo? Ótimo, passou.
+
+Essa avaliação de um eixo só é a razão pela qual tanto agente parece bom em
+demo e decepciona em produção. Ela mede o que é fácil medir e ignora três coisas
+que decidem se o sistema sobrevive.
+
+## Os quatro eixos
+
+| Eixo | A pergunta | O que passa despercebido sem ele |
+| --- | --- | --- |
+| Resultado | a tarefa foi concluída corretamente? | — |
+| Trajeto | ele escolheu as ferramentas adequadas? | acerto por acaso, que não se repete |
+| Segurança | respeitou limites e permissões? | o incidente que ainda não aconteceu |
+| Custo | valeu o preço em tokens, tempo e infra? | a conta que inviabiliza o produto |
+
+Um agente pode acertar a resposta pelo caminho errado, gastando dez vezes mais,
+tocando um sistema que não devia. Nos quatro eixos isso é uma falha em três.
+Olhando só o resultado, é um sucesso.
+
+## Resultado: a parte fácil, com uma pegadinha
+
+Resultado é o eixo que todo mundo mede, e mesmo assim costuma ser medido mal —
+porque "correto" é vago.
+
+O critério tem que ser verificável por outra pessoa (ou por código) sem
+discussão. "O resumo ficou bom" não é critério. "O resumo cita os três
+participantes e não inventa nenhuma decisão que não está na transcrição" é.
+
+A pegadinha: quanto mais capaz o modelo, mais plausível fica a resposta errada.
+Um agente fraco erra de um jeito óbvio. Um agente bom erra de um jeito que passa
+na sua revisão superficial. Isso significa que **a qualidade do seu critério
+precisa subir junto com a qualidade do modelo** — o mesmo checklist que pegava
+erros há um ano deixa passar erros hoje.
+
+Em pipeline com volume isso vira operacional. Quando você gera centenas de
+análises por dia, ninguém lê todas. O que existe é uma amostra revisada e um
+conjunto de verificações automáticas — e o desenho dessas verificações é que
+determina se você descobre a degradação, ou se o cliente descobre.
+
+## Trajeto: acerto que não se repete não é acerto
+
+Trajeto é o eixo que separa um sistema de uma coincidência.
+
+Duas execuções chegam na mesma resposta. Uma consultou a ferramenta certa,
+recebeu o dado e concluiu. A outra chutou, chutou de novo, tropeçou numa
+ferramenta que devolveu algo parecido, e chegou no mesmo lugar. Pelo resultado,
+empate. Na prática, a segunda vai falhar assim que a entrada mudar um pouco.
+
+O que eu olho no trajeto:
+
+- **Número de passos vs. o mínimo necessário.** Vinte tool calls pra algo que
+  exigia três não é minúcia — é o agente sem contexto suficiente pra decidir, e
+  vai piorar sob carga.
+- **Ferramenta certa pro trabalho.** Usou busca genérica onde tinha uma consulta
+  direta? Funciona hoje, quebra quando o volume subir.
+- **Repetição.** Chamou a mesma ferramenta com o mesmo argumento duas vezes
+  seguidas é sinal de que ele não incorporou o resultado da primeira.
+- **Abandono.** Terminou o turno anunciando o que ia fazer, sem ter feito.
+
+<Callout type="note">
+  Trajeto é o eixo que mais prediz comportamento futuro. Resultado te conta o
+  que aconteceu; trajeto te conta o que vai acontecer quando a entrada mudar.
+</Callout>
+
+## Segurança: o teste que quase ninguém roda
+
+Aqui mora a lição que me custou mais caro: **validar que funciona não é validar
+que resiste.**
+
+Caminho feliz testado ponta a ponta não diz nada sobre segurança. São dois
+exercícios diferentes, e a maioria dos times roda só o primeiro — porque o
+primeiro é o que o roadmap pede.
+
+O que avaliar neste eixo:
+
+- **Permissão real, não aparente.** O agente conseguiu tocar algo fora do
+  escopo? A trava está no servidor ou só na descrição da tool? Um agente que
+  "sabe que não deve" é uma trava decorativa — a mesma história que eu contei em
+  [um pentest achando IDOR](/2026/08/08/idor-a-fronteira-e-o-servidor), só que
+  agora quem manda a requisição é o modelo.
+- **Injeção via conteúdo.** O agente lê dados que vieram de fora — mensagem de
+  usuário, página, documento. Se um texto lido em runtime muda o comportamento
+  dele, isso é a superfície de ataque, e ela não é o prompt: é todo dado que
+  entra na janela.
+- **Ação irreversível sem confirmação.** Enviou, cobrou, deletou, publicou —
+  passou por um ponto de controle?
+
+O teste é explícito e adversarial: enumere o que um ator mal-intencionado
+tentaria e rode. Se você nunca escreveu um caso de teste que **afirma que a ação
+não-autorizada falha**, você tem cobertura de caminho feliz com nome de suíte de
+segurança.
+
+## Custo: o eixo que mata o produto sem quebrar nada
+
+Custo é o único eixo em que o sistema pode estar perfeito nos outros três e
+mesmo assim não dar certo.
+
+Três dimensões, e a maioria mede só a primeira:
+
+- **Tokens.** Direto, visível na fatura. Cresce com contexto reenviado, com
+  passo desnecessário e com memória sem poda.
+- **Tempo.** Um agente que resolve em oito minutos pode estar certo e ser
+  inutilizável, se o usuário esperava oito segundos. Latência não é otimização
+  tardia; é requisito.
+- **Infra.** Fila, banco, servidor, retentativa. O custo que não aparece na
+  conta do modelo.
+
+E tem o custo composto que quase ninguém atribui: **quanto custa a revisão
+humana?** Se cada saída do agente exige quinze minutos de conferência, o agente
+não economizou trabalho — ele mudou o tipo de trabalho. Às vezes vale, às vezes
+é o contrário do objetivo.
+
+## Como isso vira rotina
+
+Não precisa de plataforma de eval pra começar. Precisa de uma tabela.
+
+Pra cada execução que você revisar, quatro colunas e uma nota curta:
+
+| Execução | Resultado | Trajeto | Segurança | Custo |
+| --- | --- | --- | --- | --- |
+| #1 | ok | 12 passos p/ 3 | ok | 40k tokens |
+| #2 | ok | ok | tocou tabela X | 8k tokens |
+
+Vinte linhas dessas ensinam mais sobre o seu agente do que qualquer benchmark
+público, porque medem o **seu** agente na **sua** tarefa. E o padrão aparece
+rápido: quase sempre um eixo está sistematicamente pior que os outros, e é nele
+que vale gastar a próxima semana.
+
+<Callout type="warn">
+  Se você só mede resultado, você vai otimizar resultado — e vai descobrir os
+  outros três eixos em produção, um incidente de cada vez.
+</Callout>
+
+## O que fica
+
+Um agente aprovado em um eixo é um agente que você ainda não avaliou. Resultado
+diz que funcionou uma vez. Trajeto diz se vai funcionar de novo. Segurança diz o
+que acontece quando alguém for hostil. Custo diz se vale continuar existindo.
+
+Os quatro são baratos de medir no começo e caros de descobrir depois.
+
+No próximo texto, a pergunta 6: limites — o que o agente não pode fazer sozinho,
+e por que autonomia total no dia um não é ambição, é falta de projeto.

@@ -1,0 +1,122 @@
+---
+title: "Um pentester leu a conversa de outro cliente — e eu aprendi onde fica a fronteira"
+description: "Dois meses depois do lançamento a gente contratou um hacker ético. Ele achou duas falhas críticas. A pior era um ID de conversa exposto no front-end que dava acesso a dados de outro cliente. A lição não é sobre IDOR."
+date: 2026-08-08T10:00:00-03:00
+draft: true
+tags: [seguranca, arquitetura, backend]
+comments: true
+---
+
+Uns dois meses depois de lançar, a gente contratou um hacker ético pra atacar a
+plataforma. Não porque suspeitávamos de algo — porque parecia a coisa
+responsável a fazer com dado de cliente.
+
+Ele voltou com duas falhas críticas. A pior delas eu ainda uso como exemplo
+sempre que alguém me diz que uma feature "está travada".
+
+## A falha
+
+O front-end recebia, no payload de uma tela, o ID da conversa. Coisa banal — o
+componente precisava do ID pra pedir os dados.
+
+O problema é que a API, ao receber aquele ID, respondia. Ela verificava que você
+estava autenticado. Não verificava se **aquela conversa era sua**.
+
+Trocar o ID na requisição retornava a conversa de outro cliente.
+
+Não teve exploit elaborado, não teve bypass de autenticação, não teve nada
+sofisticado. Um usuário legítimo, logado com a própria conta, mudando um número
+numa requisição. Isso é IDOR — *Insecure Direct Object Reference* — e é
+consistentemente uma das falhas mais comuns em SaaS multi-tenant.
+
+## Por que passou
+
+Essa é a parte que interessa, porque a falha não veio de descuido. Veio de um
+modelo mental errado.
+
+Na interface, não existia caminho pra ver conversa de outro cliente. A tela
+listava as suas conversas. Você clicava numa delas. O ID que ia na requisição era
+sempre um ID que a UI tinha te entregado — e a UI só te entregava os seus.
+
+Então, olhando a aplicação pela tela, a autorização parecia estar lá. Ela
+simplesmente não estava em lugar nenhum, exceto no fato de que a UI não oferecia
+o caminho.
+
+E aí está o erro, que eu escrevo assim hoje:
+
+> A fronteira de confiança é o servidor, não a UI.
+
+Trava que existe só no front — botão `disabled`, campo bloqueado, validação em
+JavaScript, uma tela que não oferece a opção — é **decorativa** do ponto de vista
+de segurança. O cliente fala direto com a sua API. Ele não precisa passar pela
+sua tela pra fazer isso, e um atacante não vai.
+
+## A pergunta que eu passei a fazer
+
+Depois disso, toda feature que toca dado sensível passa por uma pergunta única,
+que eu recomendo copiar:
+
+> **O que um cliente autenticado mal-intencionado consegue fazer batendo direto
+> no endpoint, ignorando completamente a minha UI?**
+
+Repare no "autenticado". O invasor do modelo não é um anônimo tentando entrar. É
+um usuário legítimo, com conta válida, curioso ou mal-intencionado, usando as
+credenciais dele pra pedir coisas que não são dele. É um perfil muito mais
+provável que o hacker de filme — e muito mais fácil de esquecer.
+
+## O que a gente mudou
+
+O fix não foi um patch no endpoint. Foi mover a regra de lugar:
+**autorização e acesso a dado 100% no back-end.**
+
+Na prática:
+
+- **Todo acesso a recurso valida dono no servidor.** Receber o ID não é
+  autorização. A pergunta "esse recurso pertence a quem está pedindo?" é
+  respondida na fonte, toda vez, sem exceção.
+- **O front deixou de ser fonte de verdade sobre permissão.** Ele continua
+  escondendo o que você não pode fazer — isso é boa UX. Mas esconder virou
+  cosmético por definição, nunca o mecanismo.
+- **A verificação desceu pro nível mais baixo possível.** Quanto mais perto do
+  dado a regra mora, menos caminhos existem pra contorná-la. Autorização
+  espalhada por controllers é uma superfície grande; na camada de dados, é uma.
+
+## Uma armadilha que eu vi depois, com RLS
+
+Um adendo que vale, porque eu já vi gente aplicar a lição pela metade.
+
+Quando você usa Row-Level Security no Postgres, uma policy tipo
+`for update using (auth.uid() = user_id)` responde uma pergunta só: **essa linha é
+sua?**
+
+Ela não responde: **você pode escrever nessa coluna?**
+
+O dono da linha pode escrever em qualquer coluna dela — inclusive em campos que
+são autoridade do servidor: pontuação, saldo, status computado, flags de
+permissão. RLS resolve isolamento entre tenants. Ela não resolve, sozinha,
+quem tem direito de setar qual campo.
+
+Pra isso é `REVOKE UPDATE (coluna)` ou escrita só via função `security definer`
+com whitelist de campos. Mesmo princípio da lição principal, um nível mais fundo:
+a trava tem que estar onde o cliente não alcança.
+
+## Validar que funciona ≠ validar que resiste
+
+A conclusão maior desse episódio não é técnica.
+
+A gente tinha testado a plataforma. Os fluxos funcionavam, os clientes usavam, o
+caminho feliz estava validado ponta a ponta. Nada disso tinha alguma coisa a
+dizer sobre o que acontecia quando alguém agia de má-fé — porque testar o caminho
+feliz e testar hostilidade são exercícios diferentes, e a gente só tinha feito o
+primeiro.
+
+Isso vale pro teste automatizado também. A maioria dos testes de autorização que
+eu vejo afirma que **o usuário certo consegue**. Poucos afirmam que **o usuário
+errado falha**. O segundo é o que pega regressão de segurança — e é justamente o
+que costuma faltar.
+
+Se você tem dado de cliente em produção e nunca rodou um passo explícito de
+adversário, o exercício é barato: pegue as suas rotas que recebem um ID e tente,
+com uma conta de teste legítima, pedir o ID de outra. Só isso.
+
+Foi o que custou duas falhas críticas pra gente aprender.

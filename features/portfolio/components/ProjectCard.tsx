@@ -43,6 +43,21 @@ export function ProjectCard({
         <p className="mt-3 text-sm leading-relaxed">
           {project.excerpt[locale]}
         </p>
+        {project.results[locale].length > 0 && (
+          <ul className="mt-4 space-y-1.5">
+            {project.results[locale].slice(0, 3).map((result) => (
+              <li
+                key={result}
+                className="text-muted-foreground flex gap-2 text-sm leading-snug"
+              >
+                <span className="text-primary mt-px font-mono" aria-hidden="true">
+                  ›
+                </span>
+                <span>{result}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <ul className="text-muted-foreground mt-4 flex flex-wrap gap-1.5 text-xs">
           {project.technologies.slice(0, 6).map((tech) => (
             <li key={tech} className="bg-muted rounded px-2 py-0.5">

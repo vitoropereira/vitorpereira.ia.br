@@ -34,6 +34,16 @@ Personal blog and portfolio of Vitor Pereira, built with Next.js 16.
 - `pnpm lint` — ESLint (`next/core-web-vitals`)
 - `pnpm format` / `pnpm format:check` — Prettier
 
+### Authoring (local only)
+
+- `pnpm new:post "Título"` — scaffolds `content/posts/YYYY/MM/DD/slug/index.mdx` as a draft
+- `pnpm translate <post-dir>` — generates the EN sibling (`index.en.mdx`) via Claude; needs `ANTHROPIC_API_KEY`
+- `pnpm gen:cover --post <dir>` — generates the post cover from `cover.prompt.txt`; needs `GOOGLE_API_KEY`
+- `pnpm crosspost <post-dir>` — syndicates to TabNews; needs `TABNEWS_EMAIL` / `TABNEWS_PASSWORD`
+- `pnpm crosspost:stats` — syndication stats
+
+Editorial queue and cadence: `docs/blog/backlog.md`.
+
 ## Environment variables
 
 See `.env.example`. All public (`NEXT_PUBLIC_*`) because they are consumed on the client and safe to expose.
