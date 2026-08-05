@@ -1,11 +1,16 @@
 import type { MetadataRoute } from "next";
 import { posts as rawPosts } from "@/content";
 import { getAllTags } from "@/features/blog/lib/queries";
+import { isPublic } from "@/features/blog/lib/visibility";
 import type { Post } from "@/features/blog/types";
 import { siteConfig } from "@/lib/siteConfig";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 
 type Entry = MetadataRoute.Sitemap[number];
+
+// sitemap.ts é um Route Handler cacheado por padrão. Sem revalidate, um post
+// agendado só apareceria no sitemap no próximo deploy.
+export const revalidate = 600;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -32,7 +37,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }
 
   const allPosts = rawPosts as unknown as Post[];
-  for (const p of allPosts.filter((x) => !x.draft)) {
+  for (const p of allPosts.filter((x) => isPublic(x, now))) {
     const selfUrl = `${siteConfig.url}${p.permalink}`;
     // Only advertise alternates when a real translation exists — otherwise we'd
     // emit a self-referential hreflang for the "other" language, which is a
@@ -57,7 +62,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }
 
   for (const locale of ["pt", "en"] as const) {
-    const tags = getAllTags(allPosts, locale);
+    const tags = getAllTags(allPosts, locale, now);
     for (const tag of tags) {
       const base = locale === "pt" ? "/tags" : "/en/tags";
       entries.push({

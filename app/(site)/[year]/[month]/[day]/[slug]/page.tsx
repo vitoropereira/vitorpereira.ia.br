@@ -13,8 +13,14 @@ import { buildMetadata } from "@/components/seo/buildMetadata";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { siteConfig } from "@/lib/siteConfig";
 
+// Posts agendados (data futura) ficam fora do generateStaticParams, então caem
+// no dynamicParams e são renderizados em request time. O revalidate existe pra
+// que o 404 cacheado de um agendado expire — senão ele seguiria 404 depois da
+// data, até o próximo deploy.
+export const revalidate = 600;
+
 export async function generateStaticParams() {
-  const posts = getPostsByLocale("pt", { includeDrafts: false });
+  const posts = getPostsByLocale("pt", { preview: false });
   return posts.map((p) => {
     const [year, month, day, slug] = p.permalink.split("/").filter(Boolean);
     return { year, month, day, slug };

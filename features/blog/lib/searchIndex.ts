@@ -1,5 +1,6 @@
 import { posts as rawPosts } from "@/content";
 import type { Post, Locale } from "../types";
+import { isPublic } from "./visibility";
 
 export type SearchItem = {
   slug: string;
@@ -12,7 +13,7 @@ export type SearchItem = {
 
 export function buildSearchIndex(locale: Locale): SearchItem[] {
   return (rawPosts as unknown as Post[])
-    .filter((p) => p.locale === locale && !p.draft)
+    .filter((p) => p.locale === locale && isPublic(p))
     .map((p) => ({
       slug: p.slug,
       title: p.title,

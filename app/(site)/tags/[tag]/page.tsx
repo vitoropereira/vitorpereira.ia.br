@@ -6,6 +6,10 @@ import { posts as rawPosts } from "@/content";
 import type { Post } from "@/features/blog/types";
 import { buildMetadata } from "@/components/seo/buildMetadata";
 
+// Tag cujo único post é agendado não é pré-gerada; entra via dynamicParams.
+// O revalidate mantém a listagem da tag fresca quando um agendado vence.
+export const revalidate = 600;
+
 export async function generateStaticParams() {
   const tags = getAllTags(rawPosts as unknown as Post[], "pt");
   return tags.map((tag) => ({ tag: encodeURIComponent(tag) }));
