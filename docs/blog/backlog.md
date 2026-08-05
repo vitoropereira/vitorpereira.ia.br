@@ -9,11 +9,33 @@
 
 ```bash
 pnpm new:post "Título" --date 2026-08-20 --tags agentes,arquitetura
-pnpm translate content/posts/2026/08/20/slug   # depois de publicar (precisa de ANTHROPIC_API_KEY)
+pnpm translate content/posts/2026/08/20/slug   # precisa de ANTHROPIC_API_KEY
 ```
 
-Todo draft nasce com `draft: true` — não vaza em produção. Publicar = trocar pra
-`false`. Não há automação de CI: geração é local, sob demanda.
+Geração é local, sob demanda — não há automação de CI.
+
+### Os dois estados invisíveis
+
+Um post some do site por dois motivos **independentes**:
+
+| Estado | Frontmatter | Some porque | Entra sozinho? |
+| --- | --- | --- | --- |
+| **Draft** | `draft: true` | não terminou | não — você troca pra `false` |
+| **Agendado** | `draft: false` + data futura | ainda não chegou a hora | **sim**, na data/hora do `date:` |
+
+Ou seja: `draft: false` **não** significa "no ar agora" — significa "pronto,
+entra quando a data chegar". Um post datado `2026-08-20T10:00:00-03:00` aparece
+às 10h daquele dia, sozinho, sem deploy.
+
+O fluxo prático: escreve → revisa → `draft: false` → esquece. O calendário
+publica.
+
+Em **dev** você vê tudo (draft e agendado) para revisar; em **produção** os dois
+dão 404 e não aparecem em listagem, RSS, sitemap, llms.txt nem busca.
+
+> Latência: as rotas estáticas revalidam a cada 10 min (`export const
+> revalidate = 600`), então um post pode entrar até 10 minutos depois da hora
+> cravada. A listagem `/posts` é dinâmica e pega na hora.
 
 ---
 
@@ -24,7 +46,7 @@ Todo draft nasce com `draft: true` — não vaza em produção. Publicar = troca
 | 2026-05-31 | [Chatbot não é agente](/2026/05/31/chatbot-nao-e-agente) | Agentes #1 |
 | 2026-07-18 | [A arquitetura mental de um agente: 7 perguntas](/2026/07/18/arquitetura-mental-do-agente) | Agentes #2 (âncora) |
 
-## Em draft — prontos pra revisão
+## Agendados — `draft: false`, entram sozinhos na data
 
 | Data | Post | Série | Material-fonte |
 | --- | --- | --- | --- |
@@ -35,6 +57,16 @@ Todo draft nasce com `draft: true` — não vaza em produção. Publicar = troca
 | 2026-08-11 | Memória de agente: guardar tudo não é ter memória | Agentes #4 (pergunta 4) | Post-âncora + operação da frota |
 | 2026-08-13 | Acertou a resposta pelo caminho errado: os 4 eixos | Agentes #5 (pergunta 5) | Post-âncora + pipeline ~700 análises/dia + Scale AI |
 | 2026-08-15 | 70 founders ao mesmo tempo | Agentes #6 (pergunta 6) | Agente Sebrae ao vivo: 2.411 msgs / 123 sessões / 70+ simultâneos |
+
+> Os dois primeiros já venceram e ficam públicos no deploy. Os outros cinco
+> entram sozinhos nas respectivas datas, às 10h.
+
+## Sobras de scaffold — limpar
+
+`2026/04/21/hello-world` e `2026/04/22/only-pt-draft` são fixtures do bootstrap
+do blog, ainda `draft: true`. O `hello-world` é o único post com versão `.en`,
+então serve de fixture do pipeline de tradução — decidir se vira teste de
+verdade ou se sai do `content/`.
 
 ---
 

@@ -10,10 +10,14 @@ import {
 
 vi.mock("@/content", () => ({
   posts: [
-    { locale: "pt", slug: "published", draft: false },
-    { locale: "pt", slug: "secret", draft: true },
+    { locale: "pt", slug: "published", draft: false, date: "2020-01-01" },
+    { locale: "pt", slug: "secret", draft: true, date: "2020-01-01" },
+    // publicado, mas com data lá na frente — agendado, não deve vazar
+    { locale: "pt", slug: "agendado", draft: false, date: "2099-01-01" },
   ],
 }));
+
+const NOW = new Date("2026-08-05T12:00:00Z");
 
 const make = (overrides: Partial<Post> = {}): Post =>
   ({
@@ -40,20 +44,42 @@ describe("filterPublishedByLocale", () => {
       make({ slug: "c", locale: "pt", draft: true }),
     ];
     expect(
-      filterPublishedByLocale(all, "pt", false).map((p) => p.slug),
+      filterPublishedByLocale(all, "pt", false, NOW).map((p) => p.slug),
     ).toEqual(["a"]);
   });
 
-  it("includes drafts when includeDrafts=true", () => {
+  it("includes drafts when preview=true", () => {
     const all = [
       make({ slug: "a", locale: "pt" }),
       make({ slug: "c", locale: "pt", draft: true }),
     ];
     expect(
-      filterPublishedByLocale(all, "pt", true)
+      filterPublishedByLocale(all, "pt", true, NOW)
         .map((p) => p.slug)
         .sort(),
     ).toEqual(["a", "c"]);
+  });
+
+  it("esconde post agendado (data futura) em produção", () => {
+    const all = [
+      make({ slug: "hoje", date: "2026-08-01" }),
+      make({ slug: "amanha", date: "2026-08-30" }),
+    ];
+    expect(
+      filterPublishedByLocale(all, "pt", false, NOW).map((p) => p.slug),
+    ).toEqual(["hoje"]);
+  });
+
+  it("mostra agendado em preview (dev)", () => {
+    const all = [
+      make({ slug: "hoje", date: "2026-08-01" }),
+      make({ slug: "amanha", date: "2026-08-30" }),
+    ];
+    expect(
+      filterPublishedByLocale(all, "pt", true, NOW)
+        .map((p) => p.slug)
+        .sort(),
+    ).toEqual(["amanha", "hoje"]);
   });
 });
 
@@ -100,16 +126,47 @@ describe("getRelatedPosts", () => {
 });
 
 describe("getPostBySlug", () => {
-  it("excludes drafts when includeDrafts is false (production behavior)", () => {
-    expect(getPostBySlug("pt", "secret", { includeDrafts: false })).toBeUndefined();
-    expect(
-      getPostBySlug("pt", "published", { includeDrafts: false })?.slug,
-    ).toBe("published");
+  it("excludes drafts when preview is false (production behavior)", () => {
+    expect(getPostBySlug("pt", "secret", { preview: false })).toBeUndefined();
+    expect(getPostBySlug("pt", "published", { preview: false })?.slug).toBe(
+      "published",
+    );
   });
 
-  it("returns drafts when includeDrafts is true (dev behavior)", () => {
-    expect(getPostBySlug("pt", "secret", { includeDrafts: true })?.slug).toBe(
+  it("returns drafts when preview is true (dev behavior)", () => {
+    expect(getPostBySlug("pt", "secret", { preview: true })?.slug).toBe(
       "secret",
     );
+  });
+
+  // Regressão: URL direta de post agendado tem que 404 em produção, igual draft.
+  it("excludes scheduled posts when preview is false", () => {
+    expect(getPostBySlug("pt", "agendado", { preview: false })).toBeUndefined();
+  });
+
+  it("returns scheduled posts when preview is true", () => {
+    expect(getPostBySlug("pt", "agendado", { preview: true })?.slug).toBe(
+      "agendado",
+    );
+  });
+});
+
+describe("getAllTags", () => {
+  it("ignora tags que só existem em post agendado", () => {
+    const all = [
+      make({ slug: "a", tags: ["publicada"], date: "2026-08-01" }),
+      make({ slug: "b", tags: ["futura"], date: "2026-08-30" }),
+    ];
+    expect(getAllTags(all, "pt", NOW)).toEqual(["publicada"]);
+  });
+});
+
+describe("getRelatedPosts", () => {
+  it("não sugere post agendado", () => {
+    const base = make({ slug: "base", tags: ["x"], date: "2026-08-01" });
+    const agendado = make({ slug: "agendado", tags: ["x"], date: "2026-08-30" });
+    const publicado = make({ slug: "pub", tags: ["x"], date: "2026-07-01" });
+    const rel = getRelatedPosts(base, [base, agendado, publicado], 3, NOW);
+    expect(rel.map((p) => p.slug)).toEqual(["pub"]);
   });
 });

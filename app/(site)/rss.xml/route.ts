@@ -2,6 +2,8 @@ import { getPostsByLocale } from "@/features/blog/lib/queries";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const dynamic = "force-static";
+// Sem isto, um post agendado só entraria no feed no próximo deploy.
+export const revalidate = 600;
 
 function escapeXml(text: string): string {
   return text.replace(
@@ -18,7 +20,7 @@ function escapeXml(text: string): string {
 }
 
 export async function GET() {
-  const posts = getPostsByLocale("pt", { includeDrafts: false, limit: 20 });
+  const posts = getPostsByLocale("pt", { preview: false, limit: 20 });
   const items = posts
     .map((p) => {
       const url = `${siteConfig.url}${p.permalink}`;

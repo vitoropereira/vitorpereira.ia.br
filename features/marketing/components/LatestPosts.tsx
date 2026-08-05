@@ -4,7 +4,7 @@ import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import type { Locale } from "@/lib/i18n/config";
 
 export function LatestPosts({ locale }: { locale: Locale }) {
-  const posts = getPostsByLocale(locale, { limit: 5, includeDrafts: false });
+  const posts = getPostsByLocale(locale, { limit: 5, preview: false });
   if (posts.length === 0) return null;
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">

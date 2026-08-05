@@ -3,6 +3,8 @@ import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const dynamic = "force-static";
+// Sem isto, um post agendado só entraria no feed no próximo deploy.
+export const revalidate = 600;
 
 const PAGE_LABELS: Record<
   keyof typeof institutionalRoutes,
@@ -37,7 +39,7 @@ function section(heading: string, lines: string): string {
 }
 
 function postLines(locale: "pt" | "en"): string {
-  return getPostsByLocale(locale, { includeDrafts: false })
+  return getPostsByLocale(locale, { preview: false })
     .map((p) => {
       const url = `${siteConfig.url}${p.permalink}`;
       const excerpt = p.excerpt ? `: ${oneLine(p.excerpt)}` : "";
