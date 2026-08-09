@@ -1,0 +1,124 @@
+---
+title: "Nine numbers banned overnight: what we did in the 60 days that followed"
+description: "Ingestion stopped in the middle of the night. Nine of our ten WhatsApp numbers had been banned at once. In two months we moved 100% of the operation from Bubble to Next.js + Supabase — and pivoted the product along the way."
+date: 2026-08-04T10:00:00-03:00
+draft: false
+tags: [arquitetura, produto, incidentes]
+comments: true
+---
+
+The alert was not "the numbers have been banned". It was a boring chart: message
+ingestion had dropped to zero.
+
+We ran a SaaS for WhatsApp group analytics. Ten numbers connected through an
+unofficial API, pulling messages from thousands of groups. Overnight, **nine of
+the ten were banned**. Not in a cascade, over the course of a week, giving us time
+to react — all at once.
+
+This post is about the two months that followed. It is not a hero story. It is
+about what happens when the entire platform you built rests on a premise you do
+not control, and that premise evaporates in the middle of the night.
+
+## The mistake was not the ban. It was how we found out.
+
+We knew the ban was possible. That is what an unofficial API is: you operate
+somewhere the owner of the house can throw you out at any moment, and one day they
+do. A known risk, consciously accepted.
+
+The real problem was **how** we found out.
+
+There was no alert on the ingestion rate. No monitor asking "is the message volume
+of the last hour within what we expect for this time of day?". We found out by
+looking at a dashboard for another reason and finding the flat line odd.
+
+That is the lesson I carry most strongly from this episode, and it has nothing to
+do with WhatsApp:
+
+> If the health of your product depends on a number, that number needs an alarm.
+> Not a dashboard — an alarm. A dashboard is something somebody has to remember to
+> look at.
+
+A chart that is only seen when someone decides to look is not observability. It is
+decoration.
+
+## Two decisions in the first few days
+
+With nine numbers down, the obvious question was: how do we get the numbers back?
+We spent almost no time on it. Because the right question was a different one:
+**why does the entire product die when one supplier blocks us?**
+
+That made it clear we had two problems stacked on top of each other, not one.
+
+**Problem 1 — the operation was on Bubble.** The product had been born no-code,
+which was absolutely the right call for validating it. But by then we were trying
+to do serious data engineering in a tool that was not built for it. Every schema
+change was an exercise in patience. We could not move fast — and we needed to move
+fast.
+
+**Problem 2 — the product was "group summaries".** In other words: the value we
+delivered depended on reading every message, live, continuously. The product was,
+by definition, hostage to the ingestion channel.
+
+Nobody decides to rewrite the stack and pivot the product at the same time for
+sport. We decided to because the two problems were the same problem seen from
+different angles: the architecture and the value proposition were both tied to one
+fragile dependency.
+
+## The two months
+
+We moved 100% of the operation from **Bubble → Next.js + Supabase**. And we
+pivoted from **group summaries → group analytics**.
+
+The difference between the two products sounds subtle and is not. A summary is a
+continuous service: if ingestion stops today, the product does not deliver today.
+Analytics is about the accumulated picture: patterns, trends, who engages, what
+changes over time. An ingestion outage becomes a gap in the chart — not a product
+outage.
+
+The pivot was not cosmetic. It was **turning the most fragile dependency in the
+operation into something that degrades quality, instead of a switch that turns the
+product off**.
+
+What helped it fit into two months:
+
+- **Not migrating everything.** We migrated what supported the new product. A lot
+  of Bubble simply did not come along, because it served the old product.
+- **Accepting debt with a date on it.** Several decisions from that period were
+  explicitly temporary. Some became permanent — and that is fine, they worked.
+- **Keeping customers active the whole time.** That is not a detail, it is the
+  constraint that defined everything. It was not a rewrite with the product
+  switched off.
+
+## What I would take to any stack
+
+Three things that survived this episode and have nothing WhatsApp-specific about
+them:
+
+**1. Alarm on the flow, not just on the error.** Everybody monitors 500s. Far
+fewer people monitor absence: the queue that stopped filling, the webhook that
+stopped arriving, the cron that runs but processes nothing. A silent failure does
+not raise an exception. It draws a flat line on a chart nobody is watching.
+
+**2. Ask what dies along with it.** For every external dependency, the question is
+not "what if it goes down?" — it is "what exactly stops working for the customer
+when it goes down, and for how long?". If the answer is "everything, immediately",
+you do not have a dependency. You have a single point of failure with a vendor
+contract.
+
+**3. No-code is great until the question changes.** Bubble was the right choice for
+validating whether anyone wanted this. It became the wrong choice once the question
+turned into "how does this hold up under volume and change fast?". That is not a
+criticism of no-code — it is about recognizing the moment when the tool that got
+you here does not take you further.
+
+## What I do not recommend
+
+Rewriting the stack and pivoting the product at the same time. We did it because
+the alternative was worse, not because it is a good idea in the abstract.
+
+If you are reading this without a crisis on top of you, do it in the boring order:
+first find out which dependency kills you, then untie the product from it, then
+touch the stack if it still makes sense. In that order you have time to make
+mistakes.
+
+We did not.

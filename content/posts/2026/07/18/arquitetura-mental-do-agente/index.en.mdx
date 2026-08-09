@@ -1,0 +1,146 @@
+---
+title: "The mental architecture of an agent: 7 questions before the first prompt"
+description: "Before you write a single prompt, an agent demands 7 design decisions — the same 7 that separate a reliable agent from a good-looking demo."
+date: 2026-07-18T10:00:00-03:00
+draft: false
+tags: [agentes, arquitetura, ia-aplicada]
+cover: "./assets/cover.webp"
+comments: true
+---
+
+In the [previous post](/en/2026/05/31/chatbot-nao-e-agente) I argued for a simple
+distinction: a chatbot talks, an agent executes. What was missing is the
+practical part. If an agent is an execution system, how do you design that system
+before writing the first line of prompt?
+
+Here is the short answer: the prompt is the last thing.
+
+The most common mistake I see is starting with the prompt. Someone opens the
+editor, writes "you are an assistant specialized in...", and starts testing. The
+demo even works. But what they built is not an agent — it is a chatbot with hope.
+
+Seven architecture decisions come before the prompt. I think of them as seven
+questions. If you cannot answer all seven, you do not have an agent to build yet.
+You have an idea.
+
+## 1. Goal — what has to be completed?
+
+The first question sounds obvious and is almost never answered properly.
+"Answering well" is not a goal. "Helping the user" is not a goal. A goal is a
+termination condition you can verify.
+
+Compare:
+
+- Bad: "handle the customer in support".
+- Good: "resolve or escalate the ticket, leaving a record with the reason".
+
+The second one has an ending. The first runs forever. An agent without a
+verifiable termination condition is an agent that never knows it is done — and
+then it either stops too early or keeps spinning.
+
+## 2. Context — what does the agent know right now?
+
+A model does not get context by osmosis. Everything it "knows" at that step is
+either in the window or was fetched by a tool. Designing context means deciding
+what goes in directly and what the agent will fetch on demand.
+
+The common mistake here is the opposite of what it looks like: it is not missing
+context, it is too much. People dump the entire manual, the entire history, and
+three documents into the prompt "just in case". The result is expensive, slow,
+and more confusing — the model loses track of what is relevant.
+
+<Callout type="note">
+  Context is curation, not dumping. The right question is "what does this
+  specific decision require?", not "what do I have available?".
+</Callout>
+
+## 3. Tools — what can it do outside the model?
+
+A model on its own predicts text. What turns an answer into execution is the
+ability to use tools: an API, a database, a queue, a webhook.
+
+This question deserves a post of its own — it is the next one in the series. For
+now, what matters at the architecture stage is deciding **which** tools exist
+and, more importantly, which ones do **not**. An agent with too many tools is a
+confused operator with too much access. Fewer tools, better defined, almost
+always wins.
+
+## 4. Memory — what has to be remembered between steps?
+
+Memory becomes a magic word and loses its meaning. I split it in two:
+
+- **Task memory**: what the agent has to carry between the steps of a single run
+  (the order it is processing right now).
+- **Cross-task memory**: what has to survive from one run to the next
+  (preferences, what has already been tried).
+
+The mistake is confusing memory with an infinite conversation history. Storing
+everything is not having memory — it is having a cost and noise problem. Good
+memory is selective and has a purpose.
+
+## 5. Criteria — how do you know it was done well?
+
+If you do not define quality up front, you will define it later, in a panic, when
+a customer complains. I evaluate agents on four axes:
+
+| Axis    | The question                                     |
+| ------- | ------------------------------------------------ |
+| Outcome | was the task completed correctly?                |
+| Path    | did it choose the appropriate tools?             |
+| Safety  | did it respect limits and permissions?           |
+| Cost    | was it worth the price in tokens, time, and infra? |
+
+Notice that "outcome" is only one of the four. An agent can get the right answer
+by the wrong path, spending ten times more, touching a system it should not have.
+That is not success — it is luck that has not run out yet.
+
+## 6. Limits — what can it not do on its own?
+
+This is where the risk almost nobody puts on day one lives. Everyone thinks about
+hallucination. In a system that acts, the more operational risk is a different
+one: permission without control.
+
+I split actions into three levels:
+
+| Level       | Example                                     | Behavior                  |
+| ----------- | ------------------------------------------- | ------------------------- |
+| Read        | query, list, fetch history                  | runs directly             |
+| Preparation | generate a proposal, simulate, draft a reply| prepares, does not commit |
+| Write       | change, send, charge, cancel                | hard rule or a human      |
+
+Defining limits means deciding, for each tool, which level it falls into and
+where a confirmation point goes. Full autonomy on day one is not ambition — it is
+a lack of design.
+
+<Callout type="warn">
+  The more autonomous the agent, the more the design of limits stops being a
+  detail and becomes the most important part of the system.
+</Callout>
+
+## 7. Logs — how do you audit what happened?
+
+The last question is the one most people skip: how do I find out what the agent
+did when something goes wrong? And it will.
+
+An agent log is not `console.log`. It is a record of decisions: which tools were
+called, with which arguments, what the model got back, which path it chose, and
+where it failed. Without that, the first one to tell you the agent got it wrong
+will be the customer — and you will not be able to explain why.
+
+Logs are part of the product, not an extra you bolt on later.
+
+## The prompt comes last
+
+Once the seven questions are answered, something funny happens: the prompt almost
+writes itself. It becomes just the wording that ties together what you already
+decided — the goal, the available context, the tools, the limits.
+
+The prompt is the interface between your decisions and the model. If the
+decisions are good, a simple prompt does the job. If the decisions do not exist,
+no prompt saves you.
+
+Answering the seven on paper costs an afternoon. Finding out they were missing,
+in production, costs an incident.
+
+In the next post I open up question 3 — tools — because that is where the theory
+meets practice: how to design a tool the agent will not use wrong.

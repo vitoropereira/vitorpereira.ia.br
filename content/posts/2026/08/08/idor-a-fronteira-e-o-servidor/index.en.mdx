@@ -1,0 +1,122 @@
+---
+title: "A pentester read another customer's conversation — and I learned where the boundary lives"
+description: "Two months after launch we hired an ethical hacker. He found two critical flaws. The worst was a conversation ID exposed in the front-end that gave access to another customer's data. The lesson is not about IDOR."
+date: 2026-08-08T10:00:00-03:00
+draft: false
+tags: [seguranca, arquitetura, backend]
+comments: true
+---
+
+About two months after launching, we hired an ethical hacker to attack the
+platform. Not because we suspected anything — because it seemed like the
+responsible thing to do with customer data.
+
+He came back with two critical flaws. I still use the worse one as an example
+whenever someone tells me a feature "is locked down".
+
+## The flaw
+
+The front-end received the conversation ID in the payload of a screen. Mundane
+stuff — the component needed the ID to request the data.
+
+The problem is that the API, on receiving that ID, answered. It checked that you
+were authenticated. It did not check whether **that conversation was yours**.
+
+Changing the ID in the request returned another customer's conversation.
+
+There was no elaborate exploit, no authentication bypass, nothing sophisticated. A
+legitimate user, logged in with their own account, changing a number in a request.
+That is IDOR — *Insecure Direct Object Reference* — and it is consistently one of
+the most common flaws in multi-tenant SaaS.
+
+## Why it got through
+
+This is the interesting part, because the flaw did not come from carelessness. It
+came from a wrong mental model.
+
+In the interface there was no path to view another customer's conversation. The
+screen listed your conversations. You clicked one of them. The ID that went into
+the request was always an ID the UI had handed you — and the UI only handed you
+your own.
+
+So, looking at the application through the screen, authorization appeared to be
+there. It simply was not anywhere, except in the fact that the UI did not offer the
+path.
+
+And that is the mistake, which I now write like this:
+
+> The trust boundary is the server, not the UI.
+
+A lock that only exists in the front end — a `disabled` button, a blocked field,
+JavaScript validation, a screen that does not offer the option — is **decorative**
+from a security standpoint. The client talks straight to your API. It does not need
+to go through your screen to do that, and an attacker will not.
+
+## The question I started asking
+
+After that, every feature touching sensitive data goes through a single question,
+which I recommend copying:
+
+> **What can a malicious authenticated customer do by hitting the endpoint
+> directly, ignoring my UI completely?**
+
+Note the "authenticated". The attacker in this model is not an anonymous stranger
+trying to get in. It is a legitimate user, with a valid account, curious or
+malicious, using their own credentials to ask for things that are not theirs. That
+is a far more likely profile than the movie hacker — and far easier to forget.
+
+## What we changed
+
+The fix was not a patch on the endpoint. It was moving the rule somewhere else:
+**authorization and data access 100% in the back end.**
+
+In practice:
+
+- **Every resource access validates ownership on the server.** Receiving the ID is
+  not authorization. The question "does this resource belong to whoever is asking?"
+  is answered at the source, every time, no exceptions.
+- **The front end stopped being the source of truth about permissions.** It still
+  hides what you cannot do — that is good UX. But hiding became cosmetic by
+  definition, never the mechanism.
+- **The check moved down to the lowest level possible.** The closer to the data the
+  rule lives, the fewer paths exist to route around it. Authorization scattered
+  across controllers is a large surface; in the data layer, it is one.
+
+## A trap I saw later, with RLS
+
+An addendum worth making, because I have seen people apply this lesson halfway.
+
+When you use Row-Level Security in Postgres, a policy like
+`for update using (auth.uid() = user_id)` answers exactly one question: **is this
+row yours?**
+
+It does not answer: **may you write to this column?**
+
+The owner of the row can write to any column in it — including fields that are the
+server's authority: score, balance, computed status, permission flags. RLS solves
+isolation between tenants. On its own, it does not solve who has the right to set
+which field.
+
+For that you need `REVOKE UPDATE (coluna)`, or writes only through a
+`security definer` function with a field whitelist. Same principle as the main
+lesson, one level deeper: the lock has to be where the client cannot reach.
+
+## Validating that it works ≠ validating that it holds
+
+The bigger conclusion from this episode is not technical.
+
+We had tested the platform. The flows worked, customers used it, the happy path was
+validated end to end. None of that had anything to say about what happened when
+someone acted in bad faith — because testing the happy path and testing hostility
+are different exercises, and we had only done the first.
+
+That applies to automated tests too. Most authorization tests I see assert that
+**the right user succeeds**. Few assert that **the wrong user fails**. The second
+one is what catches security regressions — and it is exactly what tends to be
+missing.
+
+If you have customer data in production and have never run an explicit adversarial
+pass, the exercise is cheap: take your routes that accept an ID and try, with a
+legitimate test account, asking for someone else's ID. That is all.
+
+That is what cost us two critical flaws to learn.

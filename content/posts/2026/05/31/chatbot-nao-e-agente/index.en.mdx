@@ -1,0 +1,248 @@
+---
+title: "A chatbot is not an agent: the difference that actually matters"
+description: "The practical difference between chatbots and AI agents, and why that distinction changes architecture, product, risk, and operations."
+date: 2026-05-31T10:00:00-03:00
+draft: false
+tags: [agentes, ia-aplicada, arquitetura, automacao]
+cover: "./assets/cover.webp"
+comments: true
+---
+
+Over the past few months, almost anything involving AI started being called an
+agent. A chatbot with a better prompt became an agent. A flow with three API
+calls became an agent. An assistant that answers questions became an agent.
+
+I find this confusion dangerous because it gets in the way of the technical
+decision. If everything is an agent, then nothing is an agent. And when the word
+loses precision, the architecture loses it too.
+
+A chatbot talks. An agent executes.
+
+That is the simplest difference, but it opens up several others: goal, tools,
+memory, permissions, validation, logs, cost, risk, and how you measure quality.
+
+## A chatbot is an interface
+
+A chatbot is, first of all, a conversational interface. It receives a message,
+interprets whatever context is available, and returns an answer.
+
+That can be extremely useful. A good chatbot helps with support, answers common
+questions, queries a knowledge base, summarizes documents, and reduces friction
+for the user.
+
+But in most cases it is not responsible for completing a job from start to
+finish. It guides, answers, suggests, or hands off.
+
+The limit shows up when the conversation has to become execution.
+
+For example:
+
+- look up a customer in the database;
+- check business rules;
+- generate a proposal;
+- request approval;
+- record a change;
+- send a message;
+- follow up on the result;
+- correct course if something fails.
+
+Once the system starts taking actions using external tools, the conversation
+stops being the center. Execution becomes the center.
+
+## An agent is an execution system
+
+An AI agent is not just a model answering better. It is a system that uses a
+model as one part of a chain of decision and action.
+
+An agent usually needs a few elements:
+
+| Element | The question it answers                  |
+| ------- | ---------------------------------------- |
+| Goal    | What has to be completed?                |
+| Context | What does the agent know right now?      |
+| Tools   | What can the agent do outside the model? |
+| Memory  | What has to be remembered between steps? |
+| Criteria| How do you know the task was done well?  |
+| Limits  | What can it not do on its own?           |
+| Logs    | How do you audit what happened?          |
+
+Without those elements, we are usually not talking about an agent. We are
+talking about a chatbot, a workflow, an automation, or an integration with AI.
+
+And that is not a problem. The problem is picking the wrong architecture because
+the name sounds more modern.
+
+<Callout type="note">
+  The point is not that an agent is always better. Very often a simple
+  deterministic flow is cheaper, more predictable, and easier to maintain.
+</Callout>
+
+## The right question is not "does it have AI?"
+
+A better question is: which part of the work requires judgment?
+
+If the process is predictable, with clear rules and few exceptions, a workflow
+probably solves it. It could be code, N8N, a queue, a scheduled job, or a direct
+integration between systems.
+
+If the process requires interpreting natural language, dealing with ambiguity,
+choosing between possible paths, and reaching for different tools depending on
+the case, then an agent starts to make sense.
+
+Simple example: answering "what's the status of my order?" can be a chatbot with
+a database lookup.
+
+Now picture a different scenario: "my order is late, I need to change the
+address, but I can only receive it after 6pm".
+
+In that case the system may need to:
+
+- identify the right order;
+- check delivery rules;
+- verify whether the address change is still possible;
+- evaluate the delivery window;
+- propose alternatives;
+- ask for confirmation;
+- record the change;
+- notify another system;
+- explain the decision to the user.
+
+That is the kind of situation where the architecture starts to look like an
+agent.
+
+## The agent needs tools
+
+A model on its own does not do much. It predicts text.
+
+What turns an answer into execution is the ability to use tools: APIs,
+databases, queues, internal systems, spreadsheets, webhooks, automations, and
+external services.
+
+This shifts the responsibility of the project. Writing a nice prompt is not
+enough. You have to design which tools exist, what inputs they accept, what
+permissions the agent holds, and which actions require human confirmation.
+
+I like to think of tools as contracts. Each tool has to make clear:
+
+- what it does;
+- what data it receives;
+- what data it returns;
+- what errors can happen;
+- whether the action is reversible;
+- whether it needs approval before running.
+
+An agent with poorly defined tools becomes a confused operator with too much
+access.
+
+## The biggest risk is too much permission
+
+When people talk about AI, they usually think of hallucination first. That is a
+real risk, but in agentic systems there is another one that is even more
+operational: permission without control.
+
+A chatbot that answers wrong produces a bad answer. An agent with too much
+permission can change data, send messages, trigger charges, cancel orders, or
+run actions in real systems.
+
+That is why I split actions into three levels:
+
+| Level       | Example                                                | Expected behavior                |
+| ----------- | ------------------------------------------------------ | -------------------------------- |
+| Read        | look up an order, fetch history, list options          | can run directly                 |
+| Preparation | generate a proposal, draft a reply, simulate a change  | can prepare, but not finalize    |
+| Write       | change a record, send a message, charge, cancel        | requires a hard rule or approval |
+
+This separation keeps you from treating every tool as if it carried the same
+risk.
+
+<Callout type="warn">
+  The more autonomous the agent, the more it matters to limit scope, record
+  decisions, and create confirmation points.
+</Callout>
+
+## An agent without evaluation is a demo
+
+A common mistake is testing an agent only with nice examples.
+
+The demo works. The recording looks good. The first conversation is impressive.
+But the real product shows up in the bad cases: incomplete data, ambiguous
+requests, annoyed users, APIs that are down, conflicting answers, and business
+rules nobody documented.
+
+To take an agent seriously, I need to evaluate at least four things:
+
+- **outcome:** was the task completed correctly?
+- **path:** did the agent choose appropriate tools?
+- **safety:** did it respect limits and permissions?
+- **cost:** was the run worth the price in tokens, time, and infrastructure?
+
+Without that, the agent may look smart, but it is not reliable.
+
+Logs are part of the product too. You cannot operate an agent in production
+without knowing which tools were called, what responses the model received, what
+decisions it made, and where it failed.
+
+## When I would not use an agent
+
+I would not use an agent when the process is simple, repetitive, and fully
+deterministic.
+
+I would also avoid an agent when the company does not yet understand its own
+process. If nobody can explain the rule by hand, putting AI in the middle
+usually just automates the confusion.
+
+Another delicate case is when the action has high impact and low tolerance for
+error: finance, legal, health, sensitive cancellations, or irreversible changes.
+Agents can take part in those flows, but they should rarely start with full
+autonomy.
+
+In those scenarios I prefer to start with:
+
+- a traditional automation;
+- an assistant that prepares decisions;
+- an internal copilot;
+- a flow with human approval;
+- detailed logs before releasing direct action.
+
+## Where Hermes and OpenClaw come in
+
+Tools like Hermes and OpenClaw enter this conversation as practical labs for
+getting out of theory.
+
+But I do not want to start the series with the tool. I want to start with the
+criterion. Before asking "how do I use Hermes?" or "how do I use OpenClaw?", the
+question that matters is:
+
+> what kind of work do I want an agent to carry out, with which tools, and under
+> what limits?
+
+After that, the tool becomes a consequence.
+
+In the next posts I want to explore agents along that path: first the mental
+architecture, then the implementation, then operating them in real scenarios.
+
+## The distinction changes the product
+
+When a system is only a chatbot, the main experience is having a conversation.
+
+When the system is an agent, the main experience is delegating work.
+
+That shift sounds small, but it changes everything:
+
+- the user expects progress, not just an answer;
+- the system has to know when to stop;
+- the interface has to show state;
+- the backend has to record decisions;
+- the product has to handle failures;
+- the team has to measure execution quality.
+
+That is why I think it matters to keep the terms separate.
+
+A chatbot is a powerful interface.
+
+An agent is an execution architecture.
+
+One can use the other, but they are not the same thing.
+
+And the sooner that difference is clear, the better the decision about what to
+build.

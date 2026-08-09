@@ -1,0 +1,168 @@
+---
+title: "Tools as contracts: designing tools the agent won't misuse"
+description: "An agent doesn't call your API because it read the code — it reads the description and decides. That's why every tool is a contract: what it does, inputs, outputs, errors, whether it's reversible, and whether it needs approval."
+date: 2026-07-25T10:00:00-03:00
+draft: false
+tags: [agentes, arquitetura, seguranca]
+comments: true
+---
+
+In the [previous post](/en/2026/07/18/arquitetura-mental-do-agente) I listed seven
+questions that come before the prompt. Question 3 — tools — I deliberately saved
+for a post of its own. Here it is.
+
+A tool is what turns a model that only predicts text into a system that executes.
+It is also where most agents break. Not because the model is dumb — because the
+tool was handed over poorly defined. And an agent with a poorly defined tool is a
+confused operator with too much access.
+
+The central idea of this post is a single one: **treat every tool as a contract**,
+not as an endpoint.
+
+## A tool is not an endpoint
+
+The reflex of anyone coming from backend work is to think of a tool as an API
+route. But there is one difference that changes everything: nobody on the other
+side read your documentation.
+
+The model does not call your function because it understood the code. It reads a
+description in natural language — name, what it does, which parameters — and
+decides, on the spot, whether that is the right tool and what to pass to it.
+
+In other words: the tool description is not a comment. It is the interface. It is
+the only context the model has to choose between getting it right and doing
+something stupid. If it is ambiguous, the agent will get it wrong — and it will
+get it wrong confidently.
+
+## The contract: six fields every tool declares
+
+In the anchor post I said I like to think of tools as contracts. A tool contract
+answers six things, and all of them matter:
+
+| Field       | The question it answers                        |
+| ----------- | ---------------------------------------------- |
+| What it does| which action, in one unambiguous sentence      |
+| Inputs      | what data it takes, with what type and format  |
+| Outputs     | what it returns — and what that means          |
+| Errors      | what can fail, and how the agent finds out     |
+| Reversible? | can it be undone, or is it final               |
+| Approval?   | does it run alone or does it need a human      |
+
+Notice that only the first two are "API" fields. The last four are agent design —
+and they are exactly the ones almost nobody writes down.
+
+## The description is a prompt, not a comment
+
+The tool description is read by the model on every call. Write for the model, not
+for the dev who will maintain it six months from now.
+
+Bad:
+
+> `buscar_dados(id)` — fetches data.
+
+Good:
+
+> `buscar_pedido(pedido_id)` — returns the status, items, and address of **one**
+> order by ID. It is not for searching by customer or listing several; use
+> `listar_pedidos` for that.
+
+The second version does two things the first does not: it says what the tool is,
+and it says what it is **not**. "What it is not" prevents half the wrong uses —
+the model tends to force the closest tool when none really fits. Closing the door
+matters as much as opening it.
+
+<Callout type="note">
+  A quick test: read only your tool descriptions, without the code. If you — who
+  know the system — would hesitate about which one to use, the model will too.
+</Callout>
+
+## Typed inputs, validated on the server
+
+The model will pass the wrong input. It will send a string where an enum was
+expected, a date in a creative format, an ID that does not exist. It is not "if",
+it is "when".
+
+That is why a tool's input needs two layers. The first is the schema the model
+sees: types, enums, required fields. `status: "pago" | "pendente" | "cancelado"`
+guides the model far better than `status: string` — an enum closes off the error
+space before it happens.
+
+The second layer is the one that actually protects: **server-side validation**.
+The schema in the prompt is a suggestion the model can ignore — the same way a UI
+lock is decorative once the client talks straight to the API. The tool runs on
+your backend; that is where the input gets checked, not in the hope that the model
+obeys the schema.
+
+## Outputs the model can actually use
+
+A good tool also returns well. Two common output mistakes:
+
+**Dumping the database.** Returning the raw row with thirty columns makes the
+agent burn tokens and lose track of what is relevant. Return what the next
+decision needs, not everything you have.
+
+**Hiding the failure.** If the tool failed, the model has to know — as data, not
+as an exception that dies in your log. A return of `{ ok: false, motivo: "pedido
+não encontrado" }` lets the agent correct course. An error the model never sees is
+an agent that carries on as if it had worked.
+
+## The three levels, now per tool
+
+In the anchor post and in the seven-questions one I split actions into three
+levels. When designing a tool, that becomes a label per tool:
+
+| Level       | Example tool                             | Rule                       |
+| ----------- | ---------------------------------------- | -------------------------- |
+| Read        | `buscar_pedido`, `listar_opções`         | runs directly              |
+| Preparation | `simular_troca`, `montar_proposta`       | prepares, does not commit  |
+| Write       | `cancelar_pedido`, `enviar_mensagem`     | hard rule or approval      |
+
+The practical point: you do not treat every tool with the same care. A wrong
+`buscar_pedido` produces a bad answer. A wrong `cancelar_pedido` produces a real
+problem, in a real system, with a real customer. The level decides where a
+confirmation point goes — and where it is not needed.
+
+## Idempotency: the agent will repeat
+
+There is one detail that separates people who have run an agent in production from
+people who only built a demo: the agent **repeats**. It retries when the response
+is slow, it loops when the termination criterion is loose, it calls the tool again
+when it reinterprets the step.
+
+If `cobrar_cliente` is not idempotent, "try again" becomes charging twice.
+`enviar_mensagem` without idempotency becomes the customer receiving the same
+thing three times.
+
+The defense is old and well known: an idempotency key. The tool accepts an
+operation identifier and, if it already processed that identifier, returns the
+previous result instead of running again. Every write tool needs this. It is not
+sophistication — it is the minimum for letting an agent anywhere near an action
+that touches money or messaging.
+
+<Callout type="warn">
+  Every tool that writes, charges, or sends should be idempotent before an agent
+  gets near it. The agent is not a polite client that calls once.
+</Callout>
+
+## Fewer tools, better defined
+
+The temptation is to give the agent more tools "just in case". That is the
+opposite of what works. Each extra tool is one more decision that can go wrong,
+more description competing for the model's attention, more surface to audit.
+
+An agent with five well-defined tools solves more, and fails less, than one with
+twenty poorly defined ones. A tool is not a feature you accumulate. It is a
+permission you grant — and extra permission is extra risk.
+
+## The contract breaks in production — now what?
+
+A contract that is good on paper still breaks in production. The tool is defined,
+the levels are right, idempotency is in place — and something will still fail in a
+way you did not predict.
+
+The difference between finding that out from a log or from an angry customer is
+the next topic in the series: actually operating an agent — what the logs have to
+show, what breaks when volume goes up, and how you sleep at night with a system
+that acts on its own.
+
+Architecture, tools, operations. This was the middle one.
