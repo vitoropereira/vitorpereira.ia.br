@@ -1,8 +1,8 @@
 /**
  * translate-post — gera a versão EN (`index.en.mdx`) de um post PT via Claude.
  *
- * Precisa de ANTHROPIC_API_KEY no ambiente. Roda local (autoria) e no CI
- * (.github/workflows/translate-posts.yml, que abre PR com o resultado).
+ * Precisa de ANTHROPIC_API_KEY no ambiente. Roda só local, sob demanda — não há
+ * workflow de CI que chame este script.
  *
  *   pnpm translate content/posts/2026/07/25/ferramentas-como-contrato
  *   pnpm translate --all --dry-run
@@ -14,8 +14,10 @@
  *   --dry-run    imprime o que faria (com --all não chama a API)
  *   --limit <n>  com --all, no máximo n posts nesta rodada (default 3)
  *
- * A tradução NUNCA é publicada direto: o frontmatter EN herda o `draft` do PT,
- * e no CI o resultado vira PR pra revisão humana.
+ * O frontmatter EN herda o `draft` do PT. Ou seja: traduzir um post que já está
+ * publicado gera um `.en.mdx` com `draft: false` e data vencida — ele entra no ar
+ * assim que a branch for mergeada. A revisão humana é o PR, e não existe nenhum
+ * gate além dele.
  */
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
