@@ -3,7 +3,7 @@
 > Fila de pautas do blog. Cadência alvo: **3 posts/semana** (ter/qui/sáb).
 > Fluxo: Claude gera draft → Vitor lê e ajusta → publica (`draft: false`) → PR.
 >
-> Última atualização: 2026-08-04.
+> Última atualização: 2026-08-09.
 
 ## Como usar
 
@@ -45,21 +45,22 @@ dão 404 e não aparecem em listagem, RSS, sitemap, llms.txt nem busca.
 | --- | --- | --- |
 | 2026-05-31 | [Chatbot não é agente](/2026/05/31/chatbot-nao-e-agente) | Agentes #1 |
 | 2026-07-18 | [A arquitetura mental de um agente: 7 perguntas](/2026/07/18/arquitetura-mental-do-agente) | Agentes #2 (âncora) |
+| 2026-07-25 | [Ferramentas como contrato](/2026/07/25/ferramentas-como-contrato) | Agentes #3 (pergunta 3) |
+| 2026-08-04 | [Nove números banidos numa noite](/2026/08/04/nove-numeros-banidos) | War story |
+| 2026-08-06 | [A fila que guarda o payload cru](/2026/08/06/fila-que-guarda-o-payload-cru) | War story |
+| 2026-08-08 | [Um pentester leu a conversa de outro cliente](/2026/08/08/idor-a-fronteira-e-o-servidor) | War story |
 
 ## Agendados — `draft: false`, entram sozinhos na data
 
 | Data | Post | Série | Material-fonte |
 | --- | --- | --- | --- |
-| 2026-07-25 | Ferramentas como contrato | Agentes #3 (pergunta 3) | — |
-| 2026-08-04 | Nove números banidos numa noite | War story | MGM: ban WhatsApp → migração Bubble→Next.js em 2 meses + pivot |
-| 2026-08-06 | A fila que guarda o payload cru | War story | MGM: RabbitMQ → fila no Postgres com payload raw reprocessável |
-| 2026-08-08 | Um pentester leu a conversa de outro cliente | War story | MGM: IDOR achado por hacker ético ~2 meses pós-lançamento |
 | 2026-08-11 | Memória de agente: guardar tudo não é ter memória | Agentes #4 (pergunta 4) | Post-âncora + operação da frota |
 | 2026-08-13 | Acertou a resposta pelo caminho errado: os 4 eixos | Agentes #5 (pergunta 5) | Post-âncora + pipeline ~700 análises/dia + Scale AI |
 | 2026-08-15 | 70 founders ao mesmo tempo | Agentes #6 (pergunta 6) | Agente Sebrae ao vivo: 2.411 msgs / 123 sessões / 70+ simultâneos |
 
-> Os dois primeiros já venceram e ficam públicos no deploy. Os outros cinco
-> entram sozinhos nas respectivas datas, às 10h.
+> Os três entram sozinhos nas respectivas datas, às 10h. Depois do dia 15 a
+> cadência ter/qui/sáb depende de escrever as pautas da semana 34 em diante —
+> elas estão listadas abaixo, mas ainda não viraram draft.
 
 ## Sobras de scaffold — limpar
 
