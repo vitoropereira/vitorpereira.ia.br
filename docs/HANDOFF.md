@@ -2,7 +2,96 @@
 
 > **Como usar**: na próxima sessão, mande "leia `docs/HANDOFF.md`". Eu entendo onde paramos, o que falta, e te guio no próximo passo.
 >
-> **Última atualização**: 2026-08-05 — prova na home, portfólio mostrando resultados, pipeline editorial (3 posts/semana) e 6 drafts na fila.
+> **Última atualização**: 2026-08-09 — blog EN no ar, backlog sincronizado, textos da masterclass de 11/08 prontos pra publicar.
+
+---
+
+## Sessão 2026-08-09 — TabNews, blog EN e masterclass
+
+**A próxima coisa a acontecer é terça 11/08.** Comece por aqui.
+
+### Terça 11/08 — masterclass "Seu Funcionário de IA"
+
+20h–21h30, Google Meet, gratuita. Entrada pelo grupo do WhatsApp
+(`https://chat.whatsapp.com/Cn0ZR3VEkYF9cRMNi8PsB3`). Landing:
+`https://masterclass.vitorpereira.ia.br`.
+
+Os textos de divulgação já estão escritos e revisados, em
+**`docs/blog/masterclass-2026-08-11-divulgacao.md`** — texto A (post
+patrocinado) e texto B (rodapé do crosspost), mais a tabela de execução.
+O Vitor já conferiu os números do texto A; estão liberados.
+
+O que falta é só publicar, e é manual:
+
+| ~10h | `memoria-de-agente` entra sozinho no site (o `date:` resolve) |
+| --- | --- |
+| ~11h | `pnpm crosspost content/posts/2026/08/11/memoria-de-agente --format full --dry-run` → colar o rodapé B no preview → rodar sem `--dry-run` |
+| ~11h | Post patrocinado com o texto A, manual na interface do TabNews |
+
+### O que a análise do TabNews ensinou (e mudou aqui)
+
+Base: post do `@fernandomorais` de 03/08/2026, 30.223 posts e 119.981
+comentários, apuração de 31/07. A thread de comentários rende mais que o post.
+
+- **`--format full`, nunca `summary`.** Texto acima de 2 mil palavras rende
+  10,80 tabcoins de média contra 2,22 abaixo de 100. Link externo ganha 20% mais
+  moeda mas corta 41% dos comentários. Nosso único crosspost anterior
+  ("Chatbot não é agente") saiu como resumo de 176 palavras e fechou com
+  **1 tabcoin, zero voto e zero comentário** — não foi enterrado, foi ignorado.
+- **Promoção crua vai no patrocinado, não no feed.** Bastam 2 votos contra pra
+  um post sair do radar, e 69% dos que perderam relevância levaram no máximo 3.
+  O slot pago custa 100 TabCash; a conta `@vitorpereirasaas` tinha 148.
+- **Título com "?"** traz 39% mais comentários e derruba a chance de ser
+  ignorado de 31% para 14%, ao custo de 33% menos tabcoins.
+- A estreia de um autor decide o resto: quem estreia enterrado volta a 15,7%,
+  quem estreia bem volta a 50,3%.
+
+### O que foi shippado
+
+| PR | O quê |
+| --- | --- |
+| [#27](https://github.com/vitoropereira/vitorpereira.ia.br/pull/27) | Textos da masterclass + plano de execução |
+| [#28](https://github.com/vitoropereira/vitorpereira.ia.br/pull/28) | `docs/blog/backlog.md` sincronizado — 4 posts saíram de "Agendados" pra "Publicado" |
+| [#29](https://github.com/vitoropereira/vitorpereira.ia.br/pull/29) | **Os 6 posts publicados traduzidos pra EN** |
+| [#30](https://github.com/vitoropereira/vitorpereira.ia.br/pull/30) | Corrige o docstring do `translate-post.ts`, que descrevia um CI inexistente |
+
+O `/en` listava zero posts enquanto hreflang, sitemap e `llms.txt` prometiam
+dois idiomas. Verificado em produção depois do merge: `/en/posts` com os 6,
+`llms.txt` com 6, sitemap com 6, `/en/rss.xml` com 6 itens, hreflang pareando
+en ↔ pt-BR nos dois sentidos.
+
+### Duas armadilhas que custaram tempo — não repetir
+
+- **`pnpm translate` não roda: não existe `ANTHROPIC_API_KEY` no projeto**, nem
+  chave de nenhum outro provedor (só Google, Supabase, TabNews e analytics).
+  As 6 traduções foram feitas à mão na sessão, seguindo o `SYSTEM` do script e o
+  formato do `buildEnglishMdx`. Portar pro OpenAI seria reescrever — o script usa
+  `output_config` com `json_schema`, formato da API da Anthropic.
+- **Tradução de post publicado vai ao ar no merge.** O frontmatter EN herda o
+  `draft` do PT, então traduzir post com `draft: false` e data vencida gera um
+  `.en.mdx` que entra em produção assim que a branch é mergeada. Não existe gate
+  além do PR. O docstring dizia o contrário até o #30.
+- Git: os merges são **squash**, então `git rev-list origin/main..branch` mostra
+  branch mergeada como se tivesse trabalho pendente. Confirme pelo estado do PR,
+  não pelo contador.
+
+### Pendências
+
+Nada com prazo além de terça. Em aberto, por ordem de impacto:
+
+- [ ] **Semanas 34 e 35 não viraram draft.** Depois de 15/08 a cadência
+      ter/qui/sáb para. As pautas estão no `backlog.md` com ângulo e
+      material-fonte — faltam 6 posts escritos. É o único pendente com efeito
+      composto.
+- [ ] **Traduzir os 3 posts agendados** (11, 13 e 15/08) depois que cada um
+      subir. Atenção à armadilha acima: vai ao ar no merge.
+- [ ] `legacy-php` — branch local do PR #1, **fechado sem merge**. O conteúdo
+      não está em `main`. Decidir entre arquivar em `docs/old/` ou deixar.
+- [ ] Fixtures `hello-world` e `only-pt-draft` seguem em `content/`. O backlog
+      pede pra decidir se viram teste de verdade ou saem.
+
+Resolvido desde 2026-08-05: os 6 drafts foram publicados em ordem cronológica,
+então os links internos entre eles não dão mais 404.
 
 ---
 
