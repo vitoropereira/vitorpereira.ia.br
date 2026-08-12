@@ -1,0 +1,116 @@
+---
+title: "Minha demo ao vivo travou na frente de três pessoas"
+description: "O que um agente pode mostrar ao vivo e o que ele nunca deveria prometer no palco. A regra dos 5 segundos, e por que a demo que funcionou foi a mais burra de todas."
+date: 2026-08-19T10:00:00-03:00
+draft: false
+tags: [agentes, ia-aplicada, praticas]
+comments: true
+---
+
+Semana passada eu dei uma masterclass sobre agentes de IA. Apareceram três
+pessoas. Perdi os primeiros dezesseis minutos brigando com a minha conexão,
+e das duas demos que eu prometi ao vivo, **nenhuma das duas terminou**.
+
+Escrevo isso porque a lição é técnica, não emocional — e porque eu não consigo
+escrever sobre agentes fingindo que eles sempre respondem em dois segundos.
+
+## O que eu prometi e não entreguei
+
+Duas coisas, no meio da apresentação:
+
+1. *"Deixa eu ver se eu consigo fazer ele me mandar um áudio"* — o áudio nunca
+   chegou.
+2. Uma varredura das minhas conversas de WhatsApp das últimas 24 horas — que
+   ficou *"trabalhando ainda"* até o fim da aula.
+
+As duas funcionam. Eu uso as duas todo dia. O problema não foi o agente estar
+quebrado — foi eu ter colocado no palco uma operação cujo **tempo de resposta eu
+não controlo**.
+
+A varredura de WhatsApp lê milhares de mensagens, resume, classifica e devolve
+um relatório. Isso leva de trinta segundos a dois minutos, dependendo do volume
+do dia e de quanto o modelo está congestionado. Num terminal, dois minutos é
+nada. Num palco, dois minutos de silêncio é uma eternidade — e eu fiz o que
+qualquer pessoa faz: continuei falando, mudei de assunto e nunca voltei.
+
+O efeito é o pior possível. A tese da aula era "o agente age sozinho". O que a
+plateia viu foi ele **não terminar**.
+
+## A regra dos 5 segundos
+
+A regra que eu tirei disso é simples:
+
+> Ao vivo, só se mostra o que responde em menos de cinco segundos de forma
+> determinística. Todo o resto se mostra pré-gravado ou já pronto na tela.
+
+Não é preciosismo de apresentação. É a mesma separação que existe dentro do
+agente entre operação **síncrona** e **assíncrona** — só que aplicada à
+comunicação.
+
+| Tipo | Exemplo | Onde mostrar |
+|---|---|---|
+| Consulta a contexto já indexado | "quem é minha esposa?" | Ao vivo, sem medo |
+| Chamada de ferramenta única | criar um evento na agenda | Ao vivo, com margem |
+| Pipeline de leitura + síntese | resumir 85 mensagens do dia | Tela já pronta |
+| Rotina agendada | briefing das 5h da manhã | Print do resultado real |
+
+A coluna da direita é a que eu errei. As duas demos que falharam estavam nas
+duas últimas linhas e eu tratei as duas como se fossem da primeira.
+
+## A demo que funcionou foi a mais burra
+
+O melhor momento da noite durou vinte segundos. Eu abri o Telegram e perguntei
+ao meu agente:
+
+```
+quem é minha esposa?
+```
+
+E ele respondeu, sem hesitar, que é a Fabiane, e que somos casados desde 2009.
+
+Não tem nada de impressionante nisso — nenhuma ferramenta foi chamada, nenhuma
+API foi consultada, nenhum token foi gasto além do mínimo. É recuperação de
+contexto, a coisa mais barata que um agente faz.
+
+E é exatamente por isso que funciona: **é a única prova que a plateia consegue
+verificar na hora**. Eu não digitei aquilo em lugar nenhum. Não existe prompt de
+sistema com "minha esposa se chama Fabiane". Aquilo foi absorvido de conversas
+ao longo de meses e ficou.
+
+Isso é o que separa um agente de uma janela de chat, e dá pra provar em vinte
+segundos. Todo o resto que eu tentei mostrar — as rotinas, os relatórios, a
+varredura — é consequência disso, não a prova disso.
+
+## O corolário que eu não esperava
+
+Se a demo mais barata é a mais convincente, então o valor do agente **não está
+na tarefa que ele executa**. Está na base sobre a qual ele executa.
+
+Qualquer um monta um fluxo que lê e-mail e manda resumo no Telegram. Isso é uma
+tarde de trabalho. O que não se monta numa tarde é o acervo que faz o resumo
+significar alguma coisa: quem são as pessoas que te escrevem, o que ficou
+pendente com cada uma, o que você já decidiu e não quer decidir de novo.
+
+É por isso que eu insisto que esse acervo tem que ser **seu** — em texto, num
+servidor que você paga, versionado em git. Eu troquei de framework no meio do
+caminho, de OpenClaw para Hermes, e a memória veio junto sem perder uma linha.
+Se ela estivesse presa no produto de alguém, essa troca teria sido um recomeço.
+
+## O que eu mudo na próxima
+
+- As demos assíncronas viram **gravação de tela**, com o tempo real visível.
+  Mostrar que leva noventa segundos é honesto e continua sendo impressionante.
+- A demo de contexto sobe pro começo. É a que prende.
+- Internet com backup de 4G, testado meia hora antes. Dezesseis minutos é caro
+  demais.
+- E vou gravar. Porque alguém pediu a gravação depois, e eu não tinha.
+
+---
+
+Vou fazer a segunda edição em **quinta-feira, 10 de setembro, às 20h**. É
+gratuita, dura cerca de noventa minutos, e dessa vez fica gravada. Se você quer
+entender como um agente desses funciona por dentro — e montar o seu —
+[o convite está aqui](https://masterclass.vitorpereira.ia.br).
+
+Se três pessoas aparecerem de novo, tudo bem. As três da última vez eu nunca
+tinha visto na vida, e as três ficaram.
