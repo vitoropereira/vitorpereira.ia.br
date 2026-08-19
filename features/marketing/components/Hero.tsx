@@ -9,8 +9,8 @@ export function Hero({ locale }: { locale: Locale }) {
     institutionalRoutes[key][locale as "pt" | "en"];
   const pitch =
     locale === "en"
-      ? "No hype, no fake demos. Code, automation, and products that actually work — shown by the person who builds them."
-      : "Sem hype, sem demo fake. Código, automação e produto funcionando de verdade — mostrados por quem constrói.";
+      ? "I design and deploy agents that execute real workflows inside the tools your company already uses — with logs, rules, human approval, and documentation."
+      : "Eu projeto e implanto agentes que executam processos reais dentro das ferramentas que sua empresa já usa — com logs, regras, aprovação humana e documentação.";
   const headline =
     locale === "en"
       ? { lead: "Applied AI in ", accent: "real systems" }
@@ -21,7 +21,7 @@ export function Hero({ locale }: { locale: Locale }) {
       <p className="text-muted-foreground font-mono text-sm tracking-widest uppercase">
         vitor pereira
       </p>
-      <h1 className="font-mono mt-6 text-4xl leading-tight font-semibold tracking-tight md:text-6xl">
+      <h1 className="mt-6 font-mono text-4xl leading-tight font-semibold tracking-tight md:text-6xl">
         {headline.lead}
         <span className="text-primary">{headline.accent}</span>.
       </h1>
@@ -29,14 +29,19 @@ export function Hero({ locale }: { locale: Locale }) {
         {pitch}
       </p>
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link href={r("portfolio")} className={cn(buttonVariants({ size: "lg" }))}>
-          {locale === "en" ? "See the projects" : "Ver os projetos"}
+        <Link
+          href={r("operationalAgent")}
+          className={cn(buttonVariants({ size: "lg" }))}
+        >
+          {locale === "en"
+            ? "Explore the Operational AI Agent"
+            : "Conhecer o Agente Operacional"}
         </Link>
         <Link
-          href={r("postsList")}
+          href="#casos"
           className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
         >
-          {locale === "en" ? "Read the blog" : "Ler o blog"}
+          {locale === "en" ? "See real cases" : "Ver casos reais"}
         </Link>
       </div>
     </section>

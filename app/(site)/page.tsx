@@ -5,6 +5,7 @@ import { Specialties } from "@/features/marketing/components/Specialties";
 import { FeaturedProjects } from "@/features/marketing/components/FeaturedProjects";
 import { LatestPosts } from "@/features/marketing/components/LatestPosts";
 import { ContactCTA } from "@/features/marketing/components/ContactCTA";
+import { CaseStudies } from "@/features/marketing/components/CaseStudies";
 import { buildMetadata } from "@/components/seo/buildMetadata";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -24,6 +25,7 @@ export default function HomePage() {
       <Proof locale="pt" />
       <Specialties locale="pt" />
       <FeaturedProjects locale="pt" />
+      <CaseStudies locale="pt" />
       <LatestPosts locale="pt" />
       <ContactCTA locale="pt" />
     </>

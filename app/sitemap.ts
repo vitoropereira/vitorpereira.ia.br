@@ -8,8 +8,7 @@ import { institutionalRoutes } from "@/lib/i18n/routeMap";
 
 type Entry = MetadataRoute.Sitemap[number];
 
-// sitemap.ts é um Route Handler cacheado por padrão. Sem revalidate, um post
-// agendado só apareceria no sitemap no próximo deploy.
+// ISR mantém o artefato barato e reavalia posts agendados a cada dez minutos.
 export const revalidate = 600;
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -26,12 +25,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
     entries.push({
       url: `${siteConfig.url}${pt}`,
-      lastModified: now,
       alternates: { languages: langs },
     });
     entries.push({
       url: `${siteConfig.url}${en}`,
-      lastModified: now,
       alternates: { languages: langs },
     });
   }
@@ -67,7 +64,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       const base = locale === "pt" ? "/tags" : "/en/tags";
       entries.push({
         url: `${siteConfig.url}${base}/${encodeURIComponent(tag)}`,
-        lastModified: now,
       });
     }
   }

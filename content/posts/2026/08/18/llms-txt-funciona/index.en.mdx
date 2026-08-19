@@ -1,0 +1,153 @@
+---
+title: "Does llms.txt work? What it solves — and what it doesn't"
+description: "The file helps agents find canonical content in a simple format. It does not force crawling, indexing, citations, or rankings. A test on my own site showed the difference."
+date: 2026-08-18T10:30:00-03:00
+draft: false
+tags: [geo, seo, llms-txt, applied-ai, engineering]
+comments: true
+---
+
+`llms.txt` works as a short map of a website for agents that choose to read it. It helps them find canonical pages without spending context on menus, JavaScript, and full HTML documents.
+
+It does not force any crawler to visit. It does not put a page in an index. It does not guarantee a citation. And I found no public evidence that it is a ranking factor in AI-generated answers.
+
+That distinction sounds minor until you install the file, wait for your brand to appear in ChatGPT, and discover that nothing happened.
+
+## What the file is
+
+The [original llms.txt proposal](https://llmstxt.org/) defines a Markdown file, usually at the root of a website, containing:
+
+- the project name and summary;
+- brief context for interpreting the content;
+- links to important pages;
+- an optional description for each link.
+
+The idea is good for a simple reason: websites were built for people. An agent has to cut through navigation, cookie banners, styles, and components to reach the text. A small file points straight to what matters.
+
+On my site, the file lists institutional pages, posts, feeds, and canonical profiles. The whole thing fits in context, and every item links to the detailed source.
+
+That solves discovery **within the site**. It does not solve discovery **of the site**.
+
+## What it does not do
+
+### It does not replace a sitemap
+
+A sitemap tries to enumerate indexable URLs and reports modification dates. `llms.txt` is curated: it tells the agent what is worth reading and provides context for each item.
+
+Both may list the same page, but they have different jobs.
+
+### It does not replace robots.txt
+
+`robots.txt` controls access for crawlers that honor the protocol. `llms.txt` explains content. One file does not override the other.
+
+The distinction is clear in OpenAI's own documentation. `OAI-SearchBot` is used for ChatGPT search. `GPTBot` handles content that may be used to train models. A site can allow one and block the other.
+
+So “block AI” is a vague configuration. Training, automated search, and user-initiated access are different flows.
+
+### It does not fix bad content
+
+If a page does not answer the question, lacks evidence, or contradicts another page on the same domain, the map only leads the agent to the problem faster.
+
+Dates, prices, product names, authors, and canonicals must tell the same story in HTML, Open Graph, structured data, the sitemap, and `llms.txt`.
+
+### It does not create authority
+
+A list of links written by you is still a list of links written by you. It does not replace case studies, external references, public code, articles, or verifiable results.
+
+The file organizes existing authority. It does not manufacture authority.
+
+## The bug I found on my own site
+
+My site already had `llms.txt`. The posts page showed recent articles, but the file did not list two of them.
+
+The content was there. The problem was caching.
+
+The route already used ten-minute ISR, but the response also allowed the shared cache to serve the same version for up to one hour. In practice, the observed list lagged behind the editorial cycle even though regeneration was configured.
+
+I fixed three things:
+
+1. visibility is still decided when the response is generated, now with a test that advances the clock and covers both sides of the publication time;
+2. shared cache duration dropped from one hour to ten minutes;
+3. new institutional pages enter the sitemap and `llms.txt` through the same route table.
+
+This is the kind of failure that shows why “the file exists” is not a success criterion. The file existed, returned `200`, and was wrong.
+
+<Callout type="note">
+  GEO without observability becomes checklist SEO: the item exists, someone
+  marks it done, and nobody tests whether the information being served still
+  matches the site.
+</Callout>
+
+## How I would implement it today
+
+### 1. Generate it from the same source as the site
+
+If the blog uses a CMS or MDX files, the sitemap and `llms.txt` should consume that same collection. A manually maintained list starts correct and becomes stale with the second post.
+
+### 2. Curate instead of dumping
+
+The agent does not need every URL. It needs the canonical pages that answer questions about:
+
+- who the person or company is;
+- what they offer;
+- how it works;
+- what proof exists;
+- which policies and limits apply;
+- where the detailed content lives.
+
+### 3. Keep descriptions factual
+
+Each link description should say what is behind it. This is not the place for a slogan. If the page is a security case study, state the problem and the technical decision it documents.
+
+### 4. Test the artifact being served
+
+At a minimum, I would put these checks in CI:
+
+- no draft appears;
+- a published post appears;
+- a scheduled post appears only after its publication time;
+- every canonical page returns `200`;
+- no URL points to a preview environment;
+- the sitemap and `llms.txt` agree on institutional pages;
+- the cache lets scheduled content appear without a new deployment.
+
+A function test is not enough. Query the file at its production URL after deployment.
+
+### 5. Separate search and training policy
+
+Define the goal before copying a `robots.txt` file from the internet:
+
+- do you want to appear in AI search?
+- do you allow training use?
+- do you allow user-initiated access?
+- is the CDN injecting additional rules?
+
+The answer may differ for each flow.
+
+## How to measure without fooling yourself
+
+After implementation, I would not ask “who is Vitor Pereira?” once in my own ChatGPT. History, location, product, model, and active web search can all change the answer.
+
+I would use a fixed set of questions, clean sessions, more than one run, and separate records for:
+
+- brand mention;
+- domain citation;
+- link shown;
+- position among alternatives;
+- factual accuracy;
+- sources used.
+
+I would measure before the change, publish it, and repeat afterward. Even then, correlation does not prove that `llms.txt` caused the difference. Content, crawling, and external sources change at the same time.
+
+## Is it worth implementing?
+
+Yes, when the cost is low and the file comes from the same pipeline as the site.
+
+No, if the expectation is that it will compensate for generic content, contradictory facts, or a lack of authority. In that scenario it becomes a neat checklist pointing to pages nobody has a reason to cite.
+
+The file is discovery infrastructure. The hard work is still writing something correct, specific, and verifiable.
+
+## Sources
+
+- [The /llms.txt file, v2](https://llmstxt.org/) — proposal and file format.
+- [Overview of OpenAI Crawlers](https://developers.openai.com/api/docs/bots) — distinction between search, training, and user-initiated actions.

@@ -14,8 +14,19 @@ type BlogPostingData = {
 };
 type WebSiteData = { type: "WebSite"; locale: Locale };
 type PersonData = { type: "Person" };
+type ServiceData = {
+  type: "Service";
+  locale: Locale;
+  name: string;
+  description: string;
+  url: string;
+};
 
-export type JsonLdData = BlogPostingData | WebSiteData | PersonData;
+export type JsonLdData =
+  | BlogPostingData
+  | WebSiteData
+  | PersonData
+  | ServiceData;
 
 export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
   const author = {
@@ -46,6 +57,17 @@ export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
     };
   } else if (data.type === "Person") {
     json = { "@context": "https://schema.org", ...author };
+  } else if (data.type === "Service") {
+    json = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: data.name,
+      description: data.description,
+      url: data.url,
+      provider: author,
+      areaServed: { "@type": "Country", name: "Brazil" },
+      inLanguage: data.locale === "pt" ? "pt-BR" : "en",
+    };
   } else {
     json = {
       "@context": "https://schema.org",
@@ -53,7 +75,9 @@ export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
       name: siteConfig.name,
       url: siteConfig.url,
       description:
-        data.locale === "pt" ? siteConfig.statement.pt : siteConfig.statement.en,
+        data.locale === "pt"
+          ? siteConfig.statement.pt
+          : siteConfig.statement.en,
       inLanguage: data.locale === "pt" ? "pt-BR" : "en",
       author,
     };

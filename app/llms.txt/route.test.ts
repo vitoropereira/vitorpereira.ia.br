@@ -23,10 +23,19 @@ vi.mock("@/content", () => ({
       date: "2026-06-01",
       tags: [],
     },
+    {
+      locale: "pt",
+      draft: false,
+      permalink: "/2027/01/02/agendado",
+      title: "Post agendado",
+      excerpt: "Entra sem novo deploy depois da data.",
+      date: "2027-01-02T10:00:00-03:00",
+      tags: [],
+    },
   ],
 }));
 
-import { GET } from "./route";
+import { GET, dynamic, revalidate } from "./route";
 
 const BASE = siteConfig.url;
 
@@ -66,5 +75,32 @@ describe("llms.txt", () => {
   it("serve text/plain utf-8", async () => {
     const res = await GET();
     expect(res.headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
+  });
+
+  it("lista a página canônica do Agente Operacional", async () => {
+    const text = await body();
+    expect(text).toContain(
+      `- [Agente Operacional de IA](${BASE}/servicos/agente-operacional)`,
+    );
+    expect(text).toContain(
+      `- [Operational AI Agent](${BASE}/en/services/operational-ai-agent)`,
+    );
+  });
+
+  it("recalcula posts agendados depois da data e limita o cache a 10 minutos", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2027-01-02T09:00:00-03:00"));
+      expect(await body()).not.toContain("Post agendado");
+
+      vi.setSystemTime(new Date("2027-01-02T11:00:00-03:00"));
+      const res = await GET();
+      expect(await res.text()).toContain("Post agendado");
+      expect(dynamic).toBe("force-dynamic");
+      expect(revalidate).toBe(600);
+      expect(res.headers.get("Cache-Control")).toContain("s-maxage=600");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

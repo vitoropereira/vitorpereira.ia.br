@@ -2,6 +2,10 @@ export const institutionalRoutes: Record<string, { pt: string; en: string }> = {
   home: { pt: "/", en: "/en" },
   about: { pt: "/sobre", en: "/en/about" },
   portfolio: { pt: "/portfolio", en: "/en/portfolio" },
+  operationalAgent: {
+    pt: "/servicos/agente-operacional",
+    en: "/en/services/operational-ai-agent",
+  },
   contact: { pt: "/contato", en: "/en/contact" },
   privacy: { pt: "/privacidade", en: "/en/privacy" },
   terms: { pt: "/termos", en: "/en/terms" },
