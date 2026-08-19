@@ -41,7 +41,10 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
   // real translation exists. Fabricating `en → /en` (or `pt-BR → home`) for an
   // untranslated page creates a non-reciprocal pair that Search Console flags as
   // "no return tag" and then ignores the whole cluster.
-  const languages: Record<string, string> = { "x-default": siteConfig.url };
+  // x-default must stay inside the same semantic cluster. For translated EN
+  // pages, prefer the PT counterpart; otherwise use the page itself.
+  const xDefaultUrl = locale === "en" && altUrl ? altUrl : url;
+  const languages: Record<string, string> = { "x-default": xDefaultUrl };
   languages[locale === "pt" ? "pt-BR" : "en"] = url;
   if (altUrl) {
     languages[locale === "pt" ? "en" : "pt-BR"] = altUrl;

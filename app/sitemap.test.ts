@@ -20,16 +20,23 @@ vi.mock("@/content", () => ({
       tags: [],
       translationSlug: null,
     },
+    {
+      locale: "pt",
+      draft: false,
+      permalink: "/2027/01/02/agendado",
+      date: "2027-01-02T10:00:00-03:00",
+      tags: [],
+      translationSlug: null,
+    },
   ],
 }));
 
-import sitemap from "./sitemap";
+import sitemap, { revalidate } from "./sitemap";
 
 const BASE = siteConfig.url;
 
 describe("sitemap — hreflang alternates", () => {
-  const entries = sitemap();
-  const find = (url: string) => entries.find((e) => e.url === url);
+  const find = (url: string) => sitemap().find((e) => e.url === url);
 
   it("post com tradução: alternates recíprocos pt-BR + en", () => {
     const e = find(`${BASE}/2026/04/21/pair`);
@@ -43,7 +50,30 @@ describe("sitemap — hreflang alternates", () => {
     const e = find(`${BASE}/2026/05/31/solo`);
     expect(e).toBeDefined();
     // Bug: antes emitia `en` = a própria URL PT. Sem par, não há alternates.
-    const langs = e?.alternates?.languages as Record<string, string> | undefined;
+    const langs = e?.alternates?.languages as
+      | Record<string, string>
+      | undefined;
     expect(langs?.en).toBeUndefined();
+  });
+
+  it("inclui as páginas canônicas PT/EN do Agente Operacional", () => {
+    const service = find(`${BASE}/servicos/agente-operacional`);
+    expect(service).toBeDefined();
+    expect(service?.lastModified).toBeUndefined();
+    expect(find(`${BASE}/en/services/operational-ai-agent`)).toBeDefined();
+  });
+
+  it("inclui post agendado quando a janela de ISR reexecuta após a publicação", () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2027-01-02T09:00:00-03:00"));
+      expect(find(`${BASE}/2027/01/02/agendado`)).toBeUndefined();
+
+      vi.setSystemTime(new Date("2027-01-02T11:00:00-03:00"));
+      expect(find(`${BASE}/2027/01/02/agendado`)).toBeDefined();
+      expect(revalidate).toBe(600);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

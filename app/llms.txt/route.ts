@@ -2,7 +2,9 @@ import { getPostsByLocale } from "@/features/blog/lib/queries";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import { siteConfig } from "@/lib/siteConfig";
 
-export const dynamic = "force-static";
+// Recalcula a visibilidade temporal de posts agendados em runtime. O conteúdo
+// continua vindo do build Velite; a decisão público/agendado não fica congelada.
+export const dynamic = "force-dynamic";
 // Sem isto, um post agendado só entraria no feed no próximo deploy.
 export const revalidate = 600;
 
@@ -13,6 +15,10 @@ const PAGE_LABELS: Record<
   home: { pt: "Home", en: "Home" },
   about: { pt: "Sobre", en: "About" },
   portfolio: { pt: "Portfólio", en: "Portfolio" },
+  operationalAgent: {
+    pt: "Agente Operacional de IA",
+    en: "Operational AI Agent",
+  },
   contact: { pt: "Contato", en: "Contact" },
   privacy: { pt: "Privacidade", en: "Privacy" },
   terms: { pt: "Termos", en: "Terms" },
@@ -86,7 +92,7 @@ ${section("Páginas (pt-BR)", pageLines("pt"))}${section("Posts (pt-BR)", postLi
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control":
-        "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400",
+        "public, max-age=0, s-maxage=600, stale-while-revalidate=3600",
     },
   });
 }

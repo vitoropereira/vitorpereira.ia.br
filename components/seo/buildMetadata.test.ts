@@ -26,6 +26,22 @@ describe("buildMetadata — hreflang alternates", () => {
       type: "article",
     });
     const langs = md.alternates?.languages as Langs;
+    expect(langs["x-default"]).toBe(`${BASE}/2026/04/21/hello-world`);
+    expect(langs["pt-BR"]).toBe(`${BASE}/2026/04/21/hello-world`);
+    expect(langs.en).toBe(`${BASE}/en/2026/04/21/hello-world`);
+  });
+
+  it("post EN com tradução PT usa a contraparte PT como x-default", () => {
+    const md = buildMetadata({
+      title: "T",
+      description: "D",
+      path: "/en/2026/04/21/hello-world",
+      locale: "en",
+      alternatePath: "/2026/04/21/hello-world",
+      type: "article",
+    });
+    const langs = md.alternates?.languages as Langs;
+    expect(langs["x-default"]).toBe(`${BASE}/2026/04/21/hello-world`);
     expect(langs["pt-BR"]).toBe(`${BASE}/2026/04/21/hello-world`);
     expect(langs.en).toBe(`${BASE}/en/2026/04/21/hello-world`);
   });
@@ -39,6 +55,7 @@ describe("buildMetadata — hreflang alternates", () => {
       type: "article",
     });
     const langs = md.alternates?.languages as Langs;
+    expect(langs["x-default"]).toBe(`${BASE}/2026/05/31/chatbot-nao-e-agente`);
     expect(langs["pt-BR"]).toBe(`${BASE}/2026/05/31/chatbot-nao-e-agente`);
     // Bug: antes vinha `${BASE}/en` (home EN) → par não-recíproco → "no return tag".
     expect(langs.en).toBeUndefined();
@@ -52,6 +69,7 @@ describe("buildMetadata — hreflang alternates", () => {
       locale: "en",
     });
     const langs = md.alternates?.languages as Langs;
+    expect(langs["x-default"]).toBe(`${BASE}/en/only`);
     expect(langs.en).toBe(`${BASE}/en/only`);
     expect(langs["pt-BR"]).toBeUndefined();
   });
