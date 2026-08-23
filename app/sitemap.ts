@@ -33,6 +33,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
+  // Cartão de visita: existe só em PT. Entra sem `alternates` de propósito —
+  // anunciar um /en/card inexistente cria par hreflang não-recíproco.
+  entries.push({ url: `${siteConfig.url}/card` });
+
   const allPosts = rawPosts as unknown as Post[];
   for (const p of allPosts.filter((x) => isPublic(x, now))) {
     const selfUrl = `${siteConfig.url}${p.permalink}`;

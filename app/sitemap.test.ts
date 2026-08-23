@@ -76,4 +76,14 @@ describe("sitemap — hreflang alternates", () => {
       vi.useRealTimers();
     }
   });
+
+  it("inclui /card sem alternates — a rota não tem contraparte EN", () => {
+    const entries = sitemap();
+    const card = entries.find((e) => e.url === `${siteConfig.url}/card`);
+    expect(card).toBeDefined();
+    expect(card?.alternates).toBeUndefined();
+    expect(entries.some((e) => e.url === `${siteConfig.url}/en/card`)).toBe(
+      false,
+    );
+  });
 });
