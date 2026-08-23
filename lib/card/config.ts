@@ -1,9 +1,9 @@
 /**
  * Cartão de visita digital (/card) — fonte única dos dados pessoais expostos.
  *
- * ⚠️ Os campos marcados com PREENCHER são os únicos que precisam de input do
- * Vitor. A página se degrada sozinha: `whatsapp: null` esconde o botão do
- * WhatsApp em vez de renderizar um link quebrado.
+ * A página se degrada sozinha em vez de mostrar dado inventado: sem número, o
+ * botão do WhatsApp não é renderizado e o vCard sai sem TEL; com `orgs` vazio,
+ * o vCard sai sem ORG.
  */
 
 export interface CardIdentity {
@@ -22,15 +22,15 @@ export interface CardIdentity {
 
 export interface CardContactChannels {
   /**
-   * PREENCHER — telefone em E.164 sem o "+", ex.: "5541999998888".
-   * `null` mantém o botão do WhatsApp fora da página.
+   * Telefone em E.164 sem o "+". `null` mantém o botão do WhatsApp fora da
+   * página e o vCard sem TEL, em vez de renderizar link quebrado.
    */
   whatsapp: string | null;
   /** Mensagem pré-preenchida ao abrir a conversa. */
   whatsappPrefill: string;
   /**
-   * E-mail exibido. Trocar para contato@vitorpereira.ia.br assim que o
-   * Cloudflare Email Routing estiver verificado (ver docs/card/README.md).
+   * E-mail exibido. Trocar para contato@vitorpereira.ia.br quando o Cloudflare
+   * Email Routing estiver verificado — é uma linha (ver docs/card/README.md).
    */
   email: string;
 }
@@ -39,18 +39,20 @@ export const cardIdentity: CardIdentity = {
   fullName: "Vitor Onofre Pereira",
   givenName: "Vitor",
   familyName: "Onofre Pereira",
-  // PREENCHER — confirmar como o Vitor quer aparecer na agenda dos outros.
+  // Confirmado pelo Vitor. Vai no TITLE do vCard — é a linha que aparece
+  // embaixo do nome na agenda de quem salva o contato.
   role: "Engenheiro de software — IA aplicada",
-  // PREENCHER — confirmar quais organizações expor neste cartão pessoal.
+  // Opcional, e vazio de propósito: cartão pessoal não precisa carregar
+  // as empresas. Preencher aqui adiciona a linha ORG ao vCard.
   orgs: [],
   tagline: "IA aplicada em sistemas reais.",
 };
 
 export const cardContact: CardContactChannels = {
-  // PREENCHER — sem isso o botão do WhatsApp não é renderizado.
-  whatsapp: null,
+  // Confirmado pelo Vitor (mesmo número publicado em masterclass.vitorpereira.ia.br).
+  whatsapp: "5581996733973",
   whatsappPrefill: "Oi Vitor! Te conheci no Startup Summit.",
-  email: "contato@vitorpereira.ia.br",
+  email: "vop1234@hotmail.com",
 };
 
 /** Monta o link do WhatsApp, ou null se o número não estiver configurado. */
