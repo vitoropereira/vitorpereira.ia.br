@@ -29,8 +29,9 @@ export interface CardContactChannels {
   /** Mensagem pré-preenchida ao abrir a conversa. */
   whatsappPrefill: string;
   /**
-   * E-mail exibido. Trocar para contato@vitorpereira.ia.br quando o Cloudflare
-   * Email Routing estiver verificado — é uma linha (ver docs/card/README.md).
+   * E-mail exibido na página e gravado no vCard. Endereço do domínio, servido
+   * por Cloudflare Email Routing (ver docs/card/README.md) — encaminha para a
+   * caixa pessoal sem expô-la numa página pública ligada a QR.
    */
   email: string;
 }
@@ -52,7 +53,7 @@ export const cardContact: CardContactChannels = {
   // Confirmado pelo Vitor (mesmo número publicado em masterclass.vitorpereira.ia.br).
   whatsapp: "5581996733973",
   whatsappPrefill: "Oi Vitor! Te conheci no Startup Summit.",
-  email: "vop1234@hotmail.com",
+  email: "contato@vitorpereira.ia.br",
 };
 
 /** Monta o link do WhatsApp, ou null se o número não estiver configurado. */

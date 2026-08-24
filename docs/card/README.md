@@ -3,11 +3,11 @@
 Página standalone pensada para quem escaneia o QR num evento: um trabalho só,
 que é passar o contato pro celular da pessoa antes dela ir embora.
 
-| Rota                                 | O que é                                        |
-| ------------------------------------ | ---------------------------------------------- |
-| `/card`                              | O cartão. Destino do QR.                       |
-| `/card/vitor.vcf`                    | vCard 3.0 servido pelo botão "Salvar contato". |
-| `/qr`                                | Tela para MOSTRAR o QR no celular. `noindex`.  |
+| Rota                               | O que é                                        |
+| ---------------------------------- | ---------------------------------------------- |
+| `/card`                            | O cartão. Destino do QR.                       |
+| `/card/vitor.vcf`                  | vCard 3.0 servido pelo botão "Salvar contato". |
+| `/qr`                              | Tela para MOSTRAR o QR no celular. `noindex`.  |
 | `public/card/qr-card.svg` / `.png` | O mesmo QR para imprimir em crachá/adesivo.    |
 
 ## 1. Antes do evento — preencher
@@ -45,34 +45,40 @@ ele ainda lê) porque crachá amassa e adesivo descasca.
 
 ## 3. `contato@vitorpereira.ia.br` — Cloudflare Email Routing
 
-**Estado verificado em 23/08/2026** (via `dig`): o domínio está nos
-nameservers da Cloudflare (`elijah`/`aron.ns.cloudflare.com`) e **não tem
-nenhum registro MX**. Ou seja, ligar o Email Routing não conflita com nada.
+**Ativo desde 23/08/2026.** O e-mail do cartão é o do domínio; a Cloudflare
+encaminha para a caixa pessoal. Verificado por `dig` e por teste de entrega
+real (mensagem enviada de outro endereço chegou no destino):
 
-Isso mexe no DNS público do domínio, então é o Vitor quem executa:
+```
+MX   5  route3.mx.cloudflare.net
+     30 route1.mx.cloudflare.net
+     52 route2.mx.cloudflare.net
+TXT  v=spf1 include:_spf.mx.cloudflare.net ~all
+```
 
-1. Dashboard da Cloudflare → domínio `vitorpereira.ia.br` → **Email** →
-   **Email Routing**
-2. **Destination addresses** → adicionar `vop1234@hotmail.com`
-3. A Cloudflare manda um e-mail de verificação para o Hotmail — **clicar no
-   link** (sem isso nada funciona)
-4. **Custom addresses** → criar `contato@` → encaminhar para o destino
-5. Aceitar o **"Add records automatically"**, que cria os MX da Cloudflare e o
-   TXT de SPF
+Por que o endereço do domínio e não o pessoal: `/card` é página pública ligada
+a QR impresso. Endereço exposto ali vira alvo de scraping em caráter
+permanente, e e-mail pessoal não se rotaciona. `contato@` desliga ou redireciona
+pelo painel, sem tocar na caixa pessoal.
 
-### Limitação que importa
+### Limitação que continua valendo
 
-Email Routing **só encaminha**. Quando alguém escrever para `contato@` e o
-Vitor responder pelo Hotmail, a pessoa vai ver `vop1234@hotmail.com` no
-remetente. Para _responder como_ `contato@` é preciso configurar "enviar como"
-no cliente de e-mail, com um SMTP — o que o Email Routing não fornece.
+Email Routing **só encaminha**. Ao responder pela caixa pessoal, o destinatário
+vê o endereço pessoal no remetente — o Routing resolve o _receber_, não o
+_responder como_. Para responder como `contato@` é preciso um SMTP, que ele não
+fornece: seria Google Workspace ou Zoho no domínio.
 
-Se isso incomodar, as saídas são um Google Workspace/Zoho no domínio, ou
-deixar o botão de e-mail apontando direto para um endereço que já envia.
+### Se precisar refazer
 
-**Enquanto o passo 3 não estiver feito, e-mail para `contato@` volta.** Se o
-evento chegar antes disso, troque `cardContact.email` para um endereço que já
-recebe.
+1. Dashboard da Cloudflare → domínio → **Email** → **Email Routing**
+2. **Destination addresses** → adicionar a caixa de destino
+3. Clicar no link de verificação que chega nessa caixa — é o passo que trava
+4. **Custom addresses** → criar `contato@` → apontar para o destino
+5. Aceitar **"Add records automatically"** (MX + TXT de SPF)
+
+Depois de configurar, **mandar um e-mail de teste de outro endereço e conferir
+que chegou**, lixo eletrônico incluso. Painel configurado não é entrega
+funcionando, e a falha aqui é silenciosa: o endereço engole mensagem sem avisar.
 
 ## 4. Medição
 
@@ -89,7 +95,8 @@ chegou pelo link.
 
 ## 5. Checklist do dia
 
-- [ ] `lib/card/config.ts` preenchido (WhatsApp, role, orgs, e-mail)
+- [x] `lib/card/config.ts` preenchido (WhatsApp, role, e-mail)
+- [x] Email Routing ativo e testado com entrega real
 - [ ] `pnpm gen:card-assets` rodado depois de qualquer mudança de URL
 - [ ] Deploy em produção feito
 - [ ] **Escanear o QR impresso com um iPhone e com um Android** e salvar o
