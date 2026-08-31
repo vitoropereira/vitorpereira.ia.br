@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, ShieldCheck, Workflow, XCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
+import { siteConfig } from "@/lib/siteConfig";
 import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
@@ -38,10 +39,16 @@ const copy = {
       "a única expectativa é substituir uma equipe inteira no primeiro dia;",
       "não existe responsável humano pelo resultado do sistema.",
     ],
+    investmentLabel: "investimento",
+    investmentTitle: "A partir de R$ 20.000",
+    investmentText:
+      "Escopo fechado de 21 a 30 dias. Projeto que vira software e painel maior fica na faixa de R$ 40.000, e a sustentação mensal é opcional, a partir de R$ 2.000. O número exato sai do diagnóstico de escopo — que já está incluído e não é cobrado à parte.",
     ctaTitle: "Tem um processo assim dentro da empresa?",
     ctaText:
       "Traga o fluxo atual, as ferramentas envolvidas e onde ele costuma quebrar. A primeira conversa serve para decidir se um agente ajuda ou só adiciona complexidade.",
-    cta: "Conversar sobre um processo",
+    cta: "Agendar diagnóstico de escopo",
+    ctaNote: "1 hora, online. Nada é cobrado no agendamento.",
+    ctaSecondary: "Prefiro outro canal",
   },
   en: {
     eyebrow: "operational AI agent",
@@ -75,10 +82,16 @@ const copy = {
       "the expectation is to replace an entire team on day one;",
       "no human is accountable for the system's outcome.",
     ],
+    investmentLabel: "investment",
+    investmentTitle: "From R$ 20,000",
+    investmentText:
+      "Fixed scope, 21 to 30 days. Projects that grow into a larger system and dashboard sit around R$ 40,000, and monthly support is optional, from R$ 2,000. The exact number comes out of the scoping session — already included, never billed separately.",
     ctaTitle: "Do you have a workflow like this?",
     ctaText:
       "Bring the current flow, the tools involved, and where it usually breaks. The first conversation is for deciding whether an agent helps or merely adds complexity.",
-    cta: "Discuss a workflow",
+    cta: "Book a scoping session",
+    ctaNote: "One hour, online. Nothing is charged at booking.",
+    ctaSecondary: "I prefer another channel",
   },
 } as const;
 
@@ -99,7 +112,9 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
           {text.intro}
         </p>
         <Link
-          href={contact}
+          href={siteConfig.booking.operationalAgent}
+          target="_blank"
+          rel="noopener noreferrer"
           className={cn(buttonVariants({ size: "lg" }), "mt-8")}
         >
           {text.cta}
@@ -179,17 +194,42 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
         </div>
       </section>
 
+      <section className="border-y">
+        <div className="mx-auto max-w-4xl px-6 py-16">
+          <p className="text-primary font-mono text-sm tracking-widest uppercase">
+            {text.investmentLabel}
+          </p>
+          <h2 className="font-heading mt-4 text-3xl font-bold">
+            {text.investmentTitle}
+          </h2>
+          <p className="text-muted-foreground mt-4 max-w-3xl">
+            {text.investmentText}
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-4xl px-6 py-16 text-center">
         <h2 className="font-heading text-3xl font-bold">{text.ctaTitle}</h2>
         <p className="text-muted-foreground mx-auto mt-4 max-w-2xl">
           {text.ctaText}
         </p>
-        <Link
-          href={contact}
-          className={cn(buttonVariants({ size: "lg" }), "mt-7")}
-        >
-          {text.cta}
-        </Link>
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href={siteConfig.booking.operationalAgent}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: "lg" }))}
+          >
+            {text.cta}
+          </Link>
+          <Link
+            href={contact}
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+          >
+            {text.ctaSecondary}
+          </Link>
+        </div>
+        <p className="text-muted-foreground mt-3 text-sm">{text.ctaNote}</p>
       </section>
     </>
   );

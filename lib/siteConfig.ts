@@ -23,6 +23,13 @@ export const siteConfig = {
     youtube: "https://www.youtube.com/@vitoropereira",
     tabnews: "https://www.tabnews.com.br/vitorpereirasaas",
   },
+  booking: {
+    // Catálogo público de agendamento (Quaddro). Os IDs são estáveis por serviço.
+    base: "https://pro.quaddro.co/vitoropereira/agendar",
+    diagnostic: "https://pro.quaddro.co/vitoropereira/agendar/servicos/w3nQIY",
+    operationalAgent:
+      "https://pro.quaddro.co/vitoropereira/agendar/servicos/YRRFiK",
+  },
   twitterHandle: "@VITORONOFRE",
   featuredCategories: [] as string[],
   defaultLocale: "pt" as Locale,

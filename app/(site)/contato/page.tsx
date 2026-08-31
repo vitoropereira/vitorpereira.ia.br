@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { buildMetadata } from "@/components/seo/buildMetadata";
 import {
   GithubIcon,
@@ -14,7 +16,7 @@ import {
 export const metadata: Metadata = buildMetadata({
   title: "Contato",
   description:
-    "Sou mais ativo nas redes sociais. LinkedIn, GitHub, X, Instagram, YouTube e TabNews — escolha a que preferir.",
+    "Agende um diagnóstico de automação de 30 minutos, sem custo — ou fale comigo pelo LinkedIn, GitHub, X, Instagram, YouTube e TabNews.",
   path: "/contato",
   locale: "pt",
   alternatePath: "/en/contact",
@@ -67,9 +69,43 @@ export default function ContactPage() {
         Vamos conversar
       </h1>
       <p className="text-muted-foreground mb-10 max-w-2xl">
-        Sou mais ativo nas redes abaixo. Escolha a que preferir — respondo em
-        todas.
+        Se o assunto é um processo da sua empresa, o caminho mais rápido é
+        marcar uma conversa. Para o resto, escolha a rede que preferir —
+        respondo em todas.
       </p>
+
+      <div className="bg-muted/40 mb-12 rounded-lg border p-6">
+        <h2 className="font-heading text-2xl font-bold tracking-tight">
+          Diagnóstico de automação
+        </h2>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          Trinta minutos para olhar um processo da sua operação e responder o
+          que dá para automatizar hoje, o que ainda não vale a pena e qual seria
+          o caminho técnico. Sem custo e sem apresentação comercial.
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Link
+            href={siteConfig.booking.diagnostic}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: "lg" }))}
+          >
+            Agendar 30 minutos
+          </Link>
+          <Link
+            href={siteConfig.booking.base}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+          >
+            Ver todos os serviços
+          </Link>
+        </div>
+      </div>
+
+      <h2 className="font-heading mb-4 text-2xl font-bold tracking-tight">
+        Outros canais
+      </h2>
       <ul className="grid gap-4 md:grid-cols-2">
         {items.map((item) => (
           <li key={item.name}>
