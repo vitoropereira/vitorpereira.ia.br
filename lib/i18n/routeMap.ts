@@ -6,6 +6,7 @@ export const institutionalRoutes: Record<string, { pt: string; en: string }> = {
     pt: "/servicos/agente-operacional",
     en: "/en/services/operational-ai-agent",
   },
+  booking: { pt: "/agendar", en: "/en/booking" },
   contact: { pt: "/contato", en: "/en/contact" },
   privacy: { pt: "/privacidade", en: "/en/privacy" },
   terms: { pt: "/termos", en: "/en/terms" },

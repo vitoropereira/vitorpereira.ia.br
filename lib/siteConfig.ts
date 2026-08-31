@@ -24,11 +24,20 @@ export const siteConfig = {
     tabnews: "https://www.tabnews.com.br/vitorpereirasaas",
   },
   booking: {
-    // Catálogo público de agendamento (Quaddro). Os IDs são estáveis por serviço.
-    base: "https://pro.quaddro.co/vitoropereira/agendar",
-    diagnostic: "https://pro.quaddro.co/vitoropereira/agendar/servicos/w3nQIY",
-    operationalAgent:
-      "https://pro.quaddro.co/vitoropereira/agendar/servicos/YRRFiK",
+    /** Perfil no Cal.com. O agendamento roda embutido no próprio site. */
+    calHandle: "vitorpereira",
+    /** Rotas internas — o cliente nunca sai de vitorpereira.ia.br. */
+    routes: {
+      index: { pt: "/agendar", en: "/en/booking" },
+      diagnostic: {
+        pt: "/agendar/diagnostico-30min",
+        en: "/en/booking/diagnostico-30min",
+      },
+      operationalAgent: {
+        pt: "/agendar/escopo-software-30-dias",
+        en: "/en/booking/escopo-software-30-dias",
+      },
+    },
   },
   twitterHandle: "@VITORONOFRE",
   featuredCategories: [] as string[],

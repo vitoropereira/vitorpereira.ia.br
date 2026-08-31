@@ -109,20 +109,16 @@ export default function ContactPageEn() {
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
-            href={siteConfig.booking.diagnostic}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={siteConfig.booking.routes.diagnostic.en}
             className={cn(buttonVariants({ size: "lg" }))}
           >
             Book 30 minutes
           </Link>
           <Link
-            href={siteConfig.booking.base}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={siteConfig.booking.routes.index.en}
             className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
           >
-            See all services
+            See all formats
           </Link>
         </div>
       </div>

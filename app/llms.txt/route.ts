@@ -19,6 +19,7 @@ const PAGE_LABELS: Record<
     pt: "Agente Operacional de IA",
     en: "Operational AI Agent",
   },
+  booking: { pt: "Agendar", en: "Book" },
   contact: { pt: "Contato", en: "Contact" },
   privacy: { pt: "Privacidade", en: "Privacy" },
   terms: { pt: "Termos", en: "Terms" },
