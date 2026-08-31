@@ -43,6 +43,30 @@ describe("catálogo de agendamento", () => {
     ).toBe("2 hours");
   });
 
+  it("formata o preço no separador do idioma de quem lê", () => {
+    // Regressão: toLocaleString("pt-BR") rodava nos dois locales, então o leitor
+    // inglês via "R$ 20.000" — que em convenção en-US se lê como vinte reais.
+    const projeto = getBookingService("escopo-software-30-dias")!;
+    expect(formatPrice(projeto, "pt")).toBe("A partir de R$ 20.000");
+    expect(formatPrice(projeto, "en")).toBe("From R$ 20,000");
+    expect(formatPrice(getBookingService("agente-pessoal")!, "en")).toBe(
+      "R$ 3,500",
+    );
+  });
+
+  it("decide 'a partir de' por atributo do serviço, não por limiar de preço", () => {
+    for (const service of bookingServices) {
+      const pt = formatPrice(service, "pt");
+      expect(pt.startsWith("A partir de")).toBe(Boolean(service.priceFrom));
+    }
+  });
+
+  it("formata duração fracionária sem separador decimal", () => {
+    const noventa = { ...getBookingService("mentoria")!, durationMinutes: 90 };
+    expect(formatDuration(noventa, "pt")).toBe("1h30");
+    expect(formatDuration(noventa, "en")).toBe("1h30");
+  });
+
   it("tem copy nos dois idiomas para todo serviço", () => {
     for (const service of bookingServices) {
       expect(service.pt.name.length).toBeGreaterThan(3);

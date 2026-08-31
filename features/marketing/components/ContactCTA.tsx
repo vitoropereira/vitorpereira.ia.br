@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
-import { siteConfig } from "@/lib/siteConfig";
+import { bookingRoutes } from "@/features/booking/routes";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -20,7 +20,7 @@ export function ContactCTA({ locale }: { locale: Locale }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href={siteConfig.booking.routes.diagnostic[locale]}
+          href={bookingRoutes.diagnostic(locale)}
           className={cn(buttonVariants({ size: "lg" }))}
         >
           {locale === "pt"

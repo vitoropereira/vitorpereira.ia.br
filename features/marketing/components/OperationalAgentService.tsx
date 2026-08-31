@@ -2,7 +2,8 @@ import Link from "next/link";
 import { CheckCircle2, ShieldCheck, Workflow, XCircle } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
-import { siteConfig } from "@/lib/siteConfig";
+import { bookingRoutes } from "@/features/booking/routes";
+import { formatPrice, getBookingService } from "@/features/booking/services";
 import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,6 @@ const copy = {
       "não existe responsável humano pelo resultado do sistema.",
     ],
     investmentLabel: "investimento",
-    investmentTitle: "A partir de R$ 20.000",
     investmentText:
       "Escopo fechado de 21 a 30 dias. Projeto que vira software e painel maior fica na faixa de R$ 40.000, e a sustentação mensal é opcional, a partir de R$ 2.000. O número exato sai do diagnóstico de escopo — que já está incluído e não é cobrado à parte.",
     ctaTitle: "Tem um processo assim dentro da empresa?",
@@ -83,7 +83,6 @@ const copy = {
       "no human is accountable for the system's outcome.",
     ],
     investmentLabel: "investment",
-    investmentTitle: "From R$ 20,000",
     investmentText:
       "Fixed scope, 21 to 30 days. Projects that grow into a larger system and dashboard sit around R$ 40,000, and monthly support is optional, from R$ 2,000. The exact number comes out of the scoping session — already included, never billed separately.",
     ctaTitle: "Do you have a workflow like this?",
@@ -98,6 +97,10 @@ const copy = {
 export function OperationalAgentService({ locale }: { locale: Locale }) {
   const text = copy[locale];
   const contact = institutionalRoutes.contact[locale];
+  // Preço vem do catálogo de agendamento: o mesmo serviço não pode mostrar um
+  // número aqui e outro em /agendar.
+  const service = getBookingService("escopo-software-30-dias");
+  const investmentTitle = service ? formatPrice(service, locale) : "";
 
   return (
     <>
@@ -112,7 +115,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
           {text.intro}
         </p>
         <Link
-          href={siteConfig.booking.routes.operationalAgent[locale]}
+          href={bookingRoutes.operationalAgent(locale)}
           className={cn(buttonVariants({ size: "lg" }), "mt-8")}
         >
           {text.cta}
@@ -198,7 +201,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
             {text.investmentLabel}
           </p>
           <h2 className="font-heading mt-4 text-3xl font-bold">
-            {text.investmentTitle}
+            {investmentTitle}
           </h2>
           <p className="text-muted-foreground mt-4 max-w-3xl">
             {text.investmentText}
@@ -213,7 +216,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href={siteConfig.booking.routes.operationalAgent[locale]}
+            href={bookingRoutes.operationalAgent(locale)}
             className={cn(buttonVariants({ size: "lg" }))}
           >
             {text.cta}

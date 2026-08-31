@@ -26,17 +26,16 @@ export const siteConfig = {
   booking: {
     /** Perfil no Cal.com. O agendamento roda embutido no próprio site. */
     calHandle: "vitorpereira",
-    /** Rotas internas — o cliente nunca sai de vitorpereira.ia.br. */
-    routes: {
-      index: { pt: "/agendar", en: "/en/booking" },
-      diagnostic: {
-        pt: "/agendar/diagnostico-30min",
-        en: "/en/booking/diagnostico-30min",
-      },
-      operationalAgent: {
-        pt: "/agendar/escopo-software-30-dias",
-        en: "/en/booking/escopo-software-30-dias",
-      },
+    /** Prefixo das rotas internas — o cliente nunca sai de vitorpereira.ia.br. */
+    basePath: { pt: "/agendar", en: "/en/booking" },
+    /**
+     * Slugs referenciados por CTA fora do catálogo. Não são strings soltas:
+     * `bookingRoutes` resolve cada um contra `bookingServices` e o teste falha
+     * se alguém renomear o serviço sem atualizar aqui.
+     */
+    entrySlugs: {
+      diagnostic: "diagnostico-30min",
+      operationalAgent: "escopo-software-30-dias",
     },
   },
   twitterHandle: "@VITORONOFRE",

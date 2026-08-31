@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
-import { useTheme } from "next-themes";
 
 type Props = {
   /** Slug completo no Cal.com, ex.: "vitorpereira/diagnostico-30min". */
@@ -12,15 +11,10 @@ type Props = {
 };
 
 export function BookingEmbed({ calLink, namespace }: Props) {
-  const { resolvedTheme } = useTheme();
-
   useEffect(() => {
     (async () => {
       const cal = await getCalApi({ namespace });
-      cal("ui", {
-        hideEventTypeDetails: false,
-        layout: "month_view",
-      });
+      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
     })();
   }, [namespace]);
 
@@ -31,7 +25,12 @@ export function BookingEmbed({ calLink, namespace }: Props) {
       style={{ width: "100%", height: "100%", overflow: "scroll" }}
       config={{
         layout: "month_view",
-        theme: resolvedTheme === "light" ? "light" : "dark",
+        // "auto" deixa o iframe seguir o prefers-color-scheme do visitante.
+        // Passar o tema resolvido do next-themes não funcionaria: o embed-react
+        // guarda a init num ref e ignora mudanças de `config` depois do primeiro
+        // render, então o iframe ficava travado no tema do mount enquanto o
+        // resto do site trocava no ThemeToggle.
+        theme: "auto",
       }}
     />
   );

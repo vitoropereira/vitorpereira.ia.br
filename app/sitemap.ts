@@ -5,6 +5,8 @@ import { isPublic } from "@/features/blog/lib/visibility";
 import type { Post } from "@/features/blog/types";
 import { siteConfig } from "@/lib/siteConfig";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
+import { bookingServices } from "@/features/booking/services";
+import { bookingRoute } from "@/features/booking/routes";
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -31,6 +33,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteConfig.url}${en}`,
       alternates: { languages: langs },
     });
+  }
+
+  // Páginas de agendamento por serviço: estáticas, com hreflang recíproco.
+  // O laço acima só cobre o índice /agendar, e sem isto as páginas comerciais
+  // do site dependeriam apenas de link interno para serem descobertas.
+  for (const service of bookingServices) {
+    const pt = `${siteConfig.url}${bookingRoute(service.slug, "pt")}`;
+    const en = `${siteConfig.url}${bookingRoute(service.slug, "en")}`;
+    const langs = { "pt-BR": pt, en };
+    entries.push({ url: pt, alternates: { languages: langs } });
+    entries.push({ url: en, alternates: { languages: langs } });
   }
 
   // Cartão de visita: existe só em PT. Entra sem `alternates` de propósito —
