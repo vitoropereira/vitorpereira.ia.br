@@ -112,9 +112,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
           {text.intro}
         </p>
         <Link
-          href={siteConfig.booking.operationalAgent}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={siteConfig.booking.routes.operationalAgent[locale]}
           className={cn(buttonVariants({ size: "lg" }), "mt-8")}
         >
           {text.cta}
@@ -215,9 +213,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href={siteConfig.booking.operationalAgent}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={siteConfig.booking.routes.operationalAgent[locale]}
             className={cn(buttonVariants({ size: "lg" }))}
           >
             {text.cta}

@@ -8,7 +8,7 @@ describe("ContactCTA — próximo passo", () => {
     expect(screen.getByText(/tem um processo repetitivo/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /agendar diagnóstico de 30 min/i }),
-    ).toHaveAttribute("href", siteConfig.booking.diagnostic);
+    ).toHaveAttribute("href", siteConfig.booking.routes.diagnostic.pt);
     expect(
       screen.getByRole("link", { name: /outros canais/i }),
     ).toHaveAttribute("href", "/contato");
@@ -18,7 +18,7 @@ describe("ContactCTA — próximo passo", () => {
     render(<ContactCTA locale="en" />);
     expect(
       screen.getByRole("link", { name: /book a 30-min diagnostic/i }),
-    ).toHaveAttribute("href", siteConfig.booking.diagnostic);
+    ).toHaveAttribute("href", siteConfig.booking.routes.diagnostic.en);
     expect(
       screen.getByRole("link", { name: /other channels/i }),
     ).toHaveAttribute("href", "/en/contact");

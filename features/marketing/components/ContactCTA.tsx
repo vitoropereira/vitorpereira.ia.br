@@ -20,9 +20,7 @@ export function ContactCTA({ locale }: { locale: Locale }) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <Link
-          href={siteConfig.booking.diagnostic}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={siteConfig.booking.routes.diagnostic[locale]}
           className={cn(buttonVariants({ size: "lg" }))}
         >
           {locale === "pt"

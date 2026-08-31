@@ -24,7 +24,10 @@ describe("OperationalAgentService", () => {
     });
     expect(links).toHaveLength(2);
     for (const link of links)
-      expect(link).toHaveAttribute("href", siteConfig.booking.operationalAgent);
+      expect(link).toHaveAttribute(
+        "href",
+        siteConfig.booking.routes.operationalAgent.pt,
+      );
 
     expect(
       screen.getByRole("link", { name: /prefiro outro canal/i }),
@@ -46,7 +49,10 @@ describe("OperationalAgentService", () => {
     });
     expect(links).toHaveLength(2);
     for (const link of links)
-      expect(link).toHaveAttribute("href", siteConfig.booking.operationalAgent);
+      expect(link).toHaveAttribute(
+        "href",
+        siteConfig.booking.routes.operationalAgent.en,
+      );
 
     expect(
       screen.getByRole("link", { name: /i prefer another channel/i }),
