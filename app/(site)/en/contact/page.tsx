@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { buildMetadata } from "@/components/seo/buildMetadata";
 
 export const metadata: Metadata = buildMetadata({
@@ -87,13 +89,47 @@ const items = [
 export default function ContactPageEn() {
   return (
     <section className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="mb-4 font-heading text-4xl font-bold tracking-tight">
+      <h1 className="font-heading mb-4 text-4xl font-bold tracking-tight">
         Let&apos;s talk
       </h1>
       <p className="text-muted-foreground mb-10 max-w-2xl">
-        I&apos;m most active on the networks below. Pick the one you prefer — I
-        answer on all of them.
+        If this is about a workflow inside your company, booking a call is the
+        fastest path. For anything else, pick the network you prefer — I answer
+        on all of them.
       </p>
+
+      <div className="bg-muted/40 mb-12 rounded-lg border p-6">
+        <h2 className="font-heading text-2xl font-bold tracking-tight">
+          Automation diagnostic
+        </h2>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          Thirty minutes to look at one workflow in your operation and answer
+          what can be automated today, what is not worth it yet, and what the
+          technical path would be. Free, and no sales deck.
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Link
+            href={siteConfig.booking.diagnostic}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: "lg" }))}
+          >
+            Book 30 minutes
+          </Link>
+          <Link
+            href={siteConfig.booking.base}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+          >
+            See all services
+          </Link>
+        </div>
+      </div>
+
+      <h2 className="font-heading mb-4 text-2xl font-bold tracking-tight">
+        Other channels
+      </h2>
       <ul className="grid gap-4 md:grid-cols-2">
         {items.map((item) => (
           <li key={item.name}>
