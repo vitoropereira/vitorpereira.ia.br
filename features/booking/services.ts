@@ -12,6 +12,8 @@ export type BookingService = {
   durationMinutes: number;
   /** Preço em BRL. `null` = gratuito. */
   priceBRL: number | null;
+  /** Preço é piso, não valor fechado — muda a copy para "a partir de". */
+  priceFrom?: boolean;
   /** Destaque na listagem: a porta de entrada do funil. */
   featured?: boolean;
   pt: { name: string; summary: string };
@@ -41,6 +43,7 @@ export const bookingServices: BookingService[] = [
     calSlug: "escopo-software-30-dias",
     durationMinutes: 60,
     priceBRL: 20000,
+    priceFrom: true,
     pt: {
       name: "Software Operacional com IA em 30 dias",
       summary:
@@ -124,10 +127,14 @@ export function getBookingService(slug: string): BookingService | undefined {
 
 export function formatPrice(service: BookingService, locale: Locale): string {
   if (service.priceBRL === null) return locale === "pt" ? "Grátis" : "Free";
-  const value = service.priceBRL.toLocaleString("pt-BR");
+  // O valor é sempre em real, mas o separador segue o idioma de quem lê:
+  // "R$ 20.000" para o leitor pt-BR e "R$ 20,000" para o de en-US — que leria
+  // o ponto como decimal, ou seja, vinte reais.
+  const value = service.priceBRL.toLocaleString(
+    locale === "pt" ? "pt-BR" : "en-US",
+  );
   const prefix = locale === "pt" ? "A partir de " : "From ";
-  const useFrom = service.priceBRL >= 20000;
-  return `${useFrom ? prefix : ""}R$ ${value}`;
+  return `${service.priceFrom ? prefix : ""}R$ ${value}`;
 }
 
 export function formatDuration(
@@ -136,7 +143,11 @@ export function formatDuration(
 ): string {
   const { durationMinutes } = service;
   if (durationMinutes < 60) return `${durationMinutes} min`;
-  const hours = durationMinutes / 60;
+  const hours = Math.floor(durationMinutes / 60);
+  const rest = durationMinutes % 60;
+  // 90 min vira "1h30", não "1.5 horas" — que além de feio usa o separador
+  // decimal errado em pt-BR.
+  if (rest > 0) return `${hours}h${String(rest).padStart(2, "0")}`;
   if (locale === "pt") return hours === 1 ? "1 hora" : `${hours} horas`;
   return hours === 1 ? "1 hour" : `${hours} hours`;
 }

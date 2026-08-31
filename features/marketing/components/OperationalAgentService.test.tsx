@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { OperationalAgentService } from "./OperationalAgentService";
-import { siteConfig } from "@/lib/siteConfig";
+import { bookingRoutes } from "@/features/booking/routes";
 
 describe("OperationalAgentService", () => {
   it("define escopo, controles, investimento e CTA em português", () => {
@@ -26,7 +26,7 @@ describe("OperationalAgentService", () => {
     for (const link of links)
       expect(link).toHaveAttribute(
         "href",
-        siteConfig.booking.routes.operationalAgent.pt,
+        bookingRoutes.operationalAgent("pt"),
       );
 
     expect(
@@ -51,7 +51,7 @@ describe("OperationalAgentService", () => {
     for (const link of links)
       expect(link).toHaveAttribute(
         "href",
-        siteConfig.booking.routes.operationalAgent.en,
+        bookingRoutes.operationalAgent("en"),
       );
 
     expect(

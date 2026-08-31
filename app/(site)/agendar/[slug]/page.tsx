@@ -19,15 +19,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = getBookingService(slug);
   if (!service) {
-    return buildMetadata({
-      title: "Agendar",
-      description:
-        "Escolha um formato e marque uma conversa sobre um processo da sua operação.",
-      path: "/agendar",
-      locale: "pt",
-      alternatePath: "/en/booking",
-      type: "website",
-    });
+    // Slug inexistente responde 404. Sem `noindex` aqui a página anunciaria o
+    // canonical de /agendar, e o Google trataria a URL inválida como duplicata
+    // da listagem — soft-404 clássico.
+    return { title: "Agendar", robots: { index: false, follow: false } };
   }
   return buildMetadata({
     title: service.pt.name,

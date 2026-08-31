@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { ContactCTA } from "./ContactCTA";
-import { siteConfig } from "@/lib/siteConfig";
+import { bookingRoutes } from "@/features/booking/routes";
 
 describe("ContactCTA — próximo passo", () => {
   it("leva ao agendamento do diagnóstico em PT, mantendo o contato como alternativa", () => {
@@ -8,7 +8,7 @@ describe("ContactCTA — próximo passo", () => {
     expect(screen.getByText(/tem um processo repetitivo/i)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /agendar diagnóstico de 30 min/i }),
-    ).toHaveAttribute("href", siteConfig.booking.routes.diagnostic.pt);
+    ).toHaveAttribute("href", bookingRoutes.diagnostic("pt"));
     expect(
       screen.getByRole("link", { name: /outros canais/i }),
     ).toHaveAttribute("href", "/contato");
@@ -18,7 +18,7 @@ describe("ContactCTA — próximo passo", () => {
     render(<ContactCTA locale="en" />);
     expect(
       screen.getByRole("link", { name: /book a 30-min diagnostic/i }),
-    ).toHaveAttribute("href", siteConfig.booking.routes.diagnostic.en);
+    ).toHaveAttribute("href", bookingRoutes.diagnostic("en"));
     expect(
       screen.getByRole("link", { name: /other channels/i }),
     ).toHaveAttribute("href", "/en/contact");

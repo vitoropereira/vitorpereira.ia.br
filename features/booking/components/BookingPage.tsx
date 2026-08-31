@@ -7,11 +7,25 @@ import {
   type BookingService,
 } from "@/features/booking/services";
 import { siteConfig } from "@/lib/siteConfig";
+import { bookingIndex } from "@/features/booking/routes";
+import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import type { Locale } from "@/lib/i18n/config";
 
 const copy = {
-  pt: { back: "Todos os formatos", note: "Nada é cobrado no agendamento." },
-  en: { back: "All formats", note: "Nothing is charged at booking." },
+  pt: {
+    back: "Todos os formatos",
+    note: "Nada é cobrado no agendamento.",
+    fallback: "O calendário não carregou?",
+    fallbackLink: "Abrir em nova aba",
+    fallbackAlt: "ou fale por outro canal",
+  },
+  en: {
+    back: "All formats",
+    note: "Nothing is charged at booking.",
+    fallback: "Calendar did not load?",
+    fallbackLink: "Open in a new tab",
+    fallbackAlt: "or reach out another way",
+  },
 } as const;
 
 export function BookingPage({
@@ -23,7 +37,8 @@ export function BookingPage({
 }) {
   const text = copy[locale];
   const content = service[locale];
-  const basePath = locale === "pt" ? "/agendar" : "/en/booking";
+  const basePath = bookingIndex(locale);
+  const calLink = `${siteConfig.booking.calHandle}/${service.calSlug}`;
 
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
@@ -51,11 +66,30 @@ export function BookingPage({
       </div>
 
       <div className="mt-10 min-h-[640px] overflow-hidden rounded-lg border">
-        <BookingEmbed
-          namespace={service.slug}
-          calLink={`${siteConfig.booking.calHandle}/${service.calSlug}`}
-        />
+        <BookingEmbed namespace={service.slug} calLink={calLink} />
       </div>
+
+      {/* Saída para quando o iframe do Cal não renderiza — bloqueador de
+          rastreadores, rede ruim ou event type ainda inexistente. Sem isto o
+          CTA principal do site termina num retângulo sem link nenhum. */}
+      <p className="text-muted-foreground mt-4 text-sm">
+        {text.fallback}{" "}
+        <a
+          href={`https://cal.com/${calLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary underline underline-offset-4"
+        >
+          {text.fallbackLink}
+        </a>{" "}
+        <Link
+          href={institutionalRoutes.contact[locale]}
+          className="hover:text-foreground underline underline-offset-4"
+        >
+          {text.fallbackAlt}
+        </Link>
+        .
+      </p>
     </section>
   );
 }

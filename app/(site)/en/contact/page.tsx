@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { bookingRoutes } from "@/features/booking/routes";
 import { siteConfig } from "@/lib/siteConfig";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -109,13 +110,13 @@ export default function ContactPageEn() {
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Link
-            href={siteConfig.booking.routes.diagnostic.en}
+            href={bookingRoutes.diagnostic("en")}
             className={cn(buttonVariants({ size: "lg" }))}
           >
             Book 30 minutes
           </Link>
           <Link
-            href={siteConfig.booking.routes.index.en}
+            href={bookingRoutes.index("en")}
             className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
           >
             See all formats

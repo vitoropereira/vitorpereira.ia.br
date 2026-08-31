@@ -7,7 +7,9 @@ function req(qs: string): Request {
 
 describe("GET /api/track", () => {
   it("destino válido → 302 com UTM (sem env, não loga)", async () => {
-    const to = encodeURIComponent("https://vitorpereira.ia.br/2026/05/31/ancora");
+    const to = encodeURIComponent(
+      "https://vitorpereira.ia.br/2026/05/31/ancora",
+    );
     const res = await GET(req(`?to=${to}&f=summary`));
     expect(res.status).toBe(302);
     const loc = res.headers.get("location") ?? "";
@@ -16,7 +18,9 @@ describe("GET /api/track", () => {
   });
 
   it("open-redirect externo → volta pro site, NÃO pro destino", async () => {
-    const res = await GET(req(`?to=${encodeURIComponent("https://evil.com/phish")}`));
+    const res = await GET(
+      req(`?to=${encodeURIComponent("https://evil.com/phish")}`),
+    );
     expect(res.status).toBe(302);
     expect(res.headers.get("location") ?? "").toContain("vitorpereira.ia.br");
     expect(res.headers.get("location") ?? "").not.toContain("evil.com");
@@ -28,12 +32,19 @@ describe("GET /api/track", () => {
   });
 
   it("bot (unfurler) ainda é redirecionado (só não conta como clique)", async () => {
-    const to = encodeURIComponent("https://vitorpereira.ia.br/2026/05/31/ancora");
-    const request = new Request(`https://vitorpereira.ia.br/api/track?to=${to}&f=summary`, {
-      headers: { "user-agent": "WhatsApp/2.23" },
-    });
+    const to = encodeURIComponent(
+      "https://vitorpereira.ia.br/2026/05/31/ancora",
+    );
+    const request = new Request(
+      `https://vitorpereira.ia.br/api/track?to=${to}&f=summary`,
+      {
+        headers: { "user-agent": "WhatsApp/2.23" },
+      },
+    );
     const res = await GET(request);
     expect(res.status).toBe(302);
-    expect(res.headers.get("location") ?? "").toContain("vitorpereira.ia.br/2026/05/31/ancora");
+    expect(res.headers.get("location") ?? "").toContain(
+      "vitorpereira.ia.br/2026/05/31/ancora",
+    );
   });
 });

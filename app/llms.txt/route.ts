@@ -1,5 +1,7 @@
 import { getPostsByLocale } from "@/features/blog/lib/queries";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
+import { bookingServices } from "@/features/booking/services";
+import { bookingRoute } from "@/features/booking/routes";
 import { siteConfig } from "@/lib/siteConfig";
 
 // Recalcula a visibilidade temporal de posts agendados em runtime. O conteúdo
@@ -55,6 +57,15 @@ function postLines(locale: "pt" | "en"): string {
     .join("\n");
 }
 
+function bookingLines(locale: "pt" | "en"): string {
+  return bookingServices
+    .map((service) => {
+      const url = `${siteConfig.url}${bookingRoute(service.slug, locale)}`;
+      return `- [${service[locale].name}](${url}): ${oneLine(service[locale].summary)}`;
+    })
+    .join("\n");
+}
+
 function pageLines(locale: "pt" | "en"): string {
   return (
     Object.keys(institutionalRoutes) as Array<keyof typeof institutionalRoutes>
@@ -80,7 +91,7 @@ export async function GET() {
 ${siteConfig.author.name} — desenvolvedor e empreendedor. Escreve sobre IA aplicada,
 agentes, automação e engenharia de software em sistemas que rodam em produção.
 Conteúdo bilíngue: português (raiz) e inglês (prefixo \`/en\`).
-${section("Páginas (pt-BR)", pageLines("pt"))}${section("Posts (pt-BR)", postLines("pt"))}${section("Pages (en)", pageLines("en"))}${section("Posts (en)", postLines("en"))}${section(
+${section("Páginas (pt-BR)", pageLines("pt"))}${section("Agendar (pt-BR)", bookingLines("pt"))}${section("Posts (pt-BR)", postLines("pt"))}${section("Pages (en)", pageLines("en"))}${section("Book (en)", bookingLines("en"))}${section("Posts (en)", postLines("en"))}${section(
     "Feeds",
     [
       `- [RSS (pt-BR)](${siteConfig.url}/rss.xml)`,

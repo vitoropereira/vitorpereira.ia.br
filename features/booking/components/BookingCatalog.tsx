@@ -5,6 +5,7 @@ import {
   formatDuration,
   formatPrice,
 } from "@/features/booking/services";
+import { bookingIndex } from "@/features/booking/routes";
 import type { Locale } from "@/lib/i18n/config";
 
 const copy = {
@@ -26,7 +27,7 @@ const copy = {
 
 export function BookingCatalog({ locale }: { locale: Locale }) {
   const text = copy[locale];
-  const basePath = locale === "pt" ? "/agendar" : "/en/booking";
+  const basePath = bookingIndex(locale);
 
   return (
     <section className="mx-auto max-w-4xl px-6 py-16">
