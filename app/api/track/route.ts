@@ -1,10 +1,4 @@
-import {
-  resolveTrackRedirect,
-  buildClickPayload,
-  logClick,
-  isLikelyBot,
-  SITE_ORIGIN,
-} from "@/lib/analytics/click";
+import { resolveTrackRedirect, buildClickPayload, logClick, isLikelyBot, SITE_ORIGIN } from "@/lib/analytics/click";
 
 // Redirect de rastreio; sempre por-request (nunca cacheado).
 export const dynamic = "force-dynamic";
