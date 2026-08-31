@@ -63,14 +63,7 @@ export default async function Image({
         {title}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div
-          style={{
-            width: 60,
-            height: 6,
-            background: "#24C8FF",
-            borderRadius: 3,
-          }}
-        />
+        <div style={{ width: 60, height: 6, background: "#24C8FF", borderRadius: 3 }} />
         <div style={{ fontSize: 26, color: "#8593AB" }}>{date}</div>
       </div>
     </div>,
