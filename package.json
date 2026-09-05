@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@calcom/embed-react": "^1.5.3",
     "@giscus/react": "^3.1.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
