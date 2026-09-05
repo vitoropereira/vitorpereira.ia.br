@@ -26,7 +26,7 @@ Personal blog and portfolio of Vitor Pereira, built with Next.js 16.
 
 ## Scripts
 
-- `pnpm dev` — Velite watch + Next dev server on http://localhost:3003
+- `pnpm dev` — Velite watch + Next dev server on http://localhost:3000
 - `pnpm build` — `velite build && next build`
 - `pnpm start` — Next production server
 - `pnpm test` — Vitest (unit)
