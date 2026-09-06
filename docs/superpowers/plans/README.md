@@ -98,9 +98,10 @@ Files that matter for migration:
   when inside (e.g., `app/layout.tsx` means
   `/Users/vop12/projects/vitorpereira.ia.br/app/layout.tsx`).
 - **Commands** assume CWD is `/Users/vop12/projects/vitorpereira.ia.br/`.
-- **Package manager:** `pnpm`. If `pnpm` is unavailable install it first
-  (`npm i -g pnpm` or via corepack). `npm`/`yarn` work if the engineer
-  prefers — swap commands accordingly.
+- **Package manager:** `pnpm`, and only `pnpm`. The repo is locked with
+  `pnpm-lock.yaml` and relies on `pnpm-workspace.yaml`, so `npm`/`yarn` would
+  write a competing lockfile. If `pnpm` is unavailable install it first
+  (`npm i -g pnpm` or via corepack).
 - **TDD:** follow it strictly for queries and library code; for pure UI
   components (listings, cards, layout) visual verification in `pnpm dev` is
   acceptable.

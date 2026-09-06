@@ -632,7 +632,8 @@ consentimento explícito**.
 - PRs → deploy de preview com URL `vitorpereira-ia-br-git-<branch>.vercel.app`
   (bloqueadas por `robots.txt`)
 - Build: `velite build && next build`
-- Install: `pnpm install` (prefere pnpm; npm/yarn funcionam também)
+- Install: `pnpm install` (só pnpm — o lockfile do repo é `pnpm-lock.yaml`;
+  npm/yarn escreveriam um lockfile concorrente)
 
 ### 11.2 Variáveis de ambiente
 
