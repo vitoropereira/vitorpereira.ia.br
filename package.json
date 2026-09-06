@@ -2,7 +2,9 @@
   "name": "vitorpereira-ia-br",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
+    "preinstall": "npx --yes only-allow pnpm",
     "predev": "velite build",
     "dev": "concurrently -k -n velite,next -c magenta,cyan \"velite dev\" \"next dev\"",
     "build": "velite build && next build",
