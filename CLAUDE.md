@@ -106,6 +106,18 @@ data. Toda consulta passa por `isPublic` / `previewEnabled`.
 Regra prática: se é específico de um domínio, vai em `features/`; se três telas
 diferentes usam, vai em `components/` ou `lib/`.
 
+### O agendamento tem uma metade fora do repo
+
+`features/booking/services.ts` declara os serviços agendáveis, e cada `slug`
+vira ao mesmo tempo uma rota `/agendar/<slug>` e o `calSlug` de um event type
+no Cal.com. A rota o repo garante; o event type não — ele vive na conta do
+Cal.com.
+
+Serviço novo no catálogo sem event type correspondente publica uma página com
+calendário morto, sem erro de build. `pnpm cal:setup` fecha isso: compara
+catálogo e Cal.com, cria o que falta com `--apply` e relata divergência de
+duração ou event type oculto, que ele não corrige sozinho.
+
 ### Analytics tem duas travas, não uma
 
 Clarity e GA4 só carregam com a env var preenchida **e** o cookie de consent

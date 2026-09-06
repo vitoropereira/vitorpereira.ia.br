@@ -20,7 +20,8 @@
     "gen:cover": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/gen-cover.ts",
     "crosspost": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost.ts",
     "crosspost:stats": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost-stats.ts",
-    "gen:card-assets": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-card-assets.ts"
+    "gen:card-assets": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-card-assets.ts",
+    "cal:setup": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/setup-cal-event-types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
