@@ -41,6 +41,7 @@ Personal blog and portfolio of Vitor Pereira, built with Next.js 16.
 - `pnpm gen:cover --post <dir>` — generates the post cover from `cover.prompt.txt`; needs `GOOGLE_API_KEY`
 - `pnpm crosspost <post-dir>` — syndicates to TabNews; needs `TABNEWS_EMAIL` / `TABNEWS_PASSWORD`
 - `pnpm crosspost:stats` — syndication stats
+- `pnpm cal:setup` — provisions the Cal.com event types declared in `features/booking/services.ts` (dry-run; `--apply` writes); needs `CAL_API_KEY`
 
 Editorial queue and cadence: `docs/blog/backlog.md`.
 

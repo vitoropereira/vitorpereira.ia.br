@@ -23,6 +23,21 @@ export const siteConfig = {
     youtube: "https://www.youtube.com/@vitoropereira",
     tabnews: "https://www.tabnews.com.br/vitorpereirasaas",
   },
+  booking: {
+    /** Perfil no Cal.com. O agendamento roda embutido no próprio site. */
+    calHandle: "vitorpereira",
+    /** Prefixo das rotas internas — o cliente nunca sai de vitorpereira.ia.br. */
+    basePath: { pt: "/agendar", en: "/en/booking" },
+    /**
+     * Slugs referenciados por CTA fora do catálogo. Não são strings soltas:
+     * `bookingRoutes` resolve cada um contra `bookingServices` e o teste falha
+     * se alguém renomear o serviço sem atualizar aqui.
+     */
+    entrySlugs: {
+      diagnostic: "diagnostico-30min",
+      operationalAgent: "escopo-software-30-dias",
+    },
+  },
   twitterHandle: "@VITORONOFRE",
   featuredCategories: [] as string[],
   defaultLocale: "pt" as Locale,

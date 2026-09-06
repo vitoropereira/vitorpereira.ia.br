@@ -6,6 +6,7 @@ export const institutionalRoutes: Record<string, { pt: string; en: string }> = {
     pt: "/servicos/agente-operacional",
     en: "/en/services/operational-ai-agent",
   },
+  booking: { pt: "/agendar", en: "/en/booking" },
   contact: { pt: "/contato", en: "/en/contact" },
   privacy: { pt: "/privacidade", en: "/en/privacy" },
   terms: { pt: "/termos", en: "/en/terms" },
@@ -16,6 +17,17 @@ export function swapLocale(path: string, target: "pt" | "en"): string {
   for (const entry of Object.values(institutionalRoutes)) {
     if (entry.pt === path) return entry.en;
     if (entry.en === path) return entry.pt;
+  }
+  // Rotas aninhadas cujo segmento pai muda de nome entre os idiomas
+  // (/agendar/<slug> <-> /en/booking/<slug>): troca o prefixo e preserva a
+  // cauda. Sem isto o fallback de posts geraria /en/agendar/<slug>, que é 404.
+  for (const entry of Object.values(institutionalRoutes)) {
+    if (entry.pt !== "/" && path.startsWith(`${entry.pt}/`)) {
+      return `${entry.en}${path.slice(entry.pt.length)}`;
+    }
+    if (entry.en !== "/en" && path.startsWith(`${entry.en}/`)) {
+      return `${entry.pt}${path.slice(entry.en.length)}`;
+    }
   }
   // Posts share slug between locales: /YYYY/MM/DD/slug  <->  /en/YYYY/MM/DD/slug
   if (target === "en" && !path.startsWith("/en")) return `/en${path}`;

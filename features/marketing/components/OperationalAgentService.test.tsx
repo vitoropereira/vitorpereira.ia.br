@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { OperationalAgentService } from "./OperationalAgentService";
+import { bookingRoutes } from "@/features/booking/routes";
 
 describe("OperationalAgentService", () => {
-  it("define escopo, controles e CTA em português", () => {
+  it("define escopo, controles, investimento e CTA em português", () => {
     render(<OperationalAgentService locale="pt" />);
 
     expect(
@@ -14,11 +15,23 @@ describe("OperationalAgentService", () => {
     expect(
       screen.getByText(/logs, regras e aprovação humana/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /a partir de r\$ 20\.000/i }),
+    ).toBeInTheDocument();
+
     const links = screen.getAllByRole("link", {
-      name: /conversar sobre um processo/i,
+      name: /agendar diagnóstico de escopo/i,
     });
     expect(links).toHaveLength(2);
-    for (const link of links) expect(link).toHaveAttribute("href", "/contato");
+    for (const link of links)
+      expect(link).toHaveAttribute(
+        "href",
+        bookingRoutes.operationalAgent("pt"),
+      );
+
+    expect(
+      screen.getByRole("link", { name: /prefiro outro canal/i }),
+    ).toHaveAttribute("href", "/contato");
   });
 
   it("mantém o contrato em inglês", () => {
@@ -27,9 +40,22 @@ describe("OperationalAgentService", () => {
     expect(
       screen.getByRole("heading", { name: /one real workflow/i }),
     ).toBeInTheDocument();
-    const links = screen.getAllByRole("link", { name: /discuss a workflow/i });
+    expect(
+      screen.getByRole("heading", { name: /from r\$ 20,000/i }),
+    ).toBeInTheDocument();
+
+    const links = screen.getAllByRole("link", {
+      name: /book a scoping session/i,
+    });
     expect(links).toHaveLength(2);
     for (const link of links)
-      expect(link).toHaveAttribute("href", "/en/contact");
+      expect(link).toHaveAttribute(
+        "href",
+        bookingRoutes.operationalAgent("en"),
+      );
+
+    expect(
+      screen.getByRole("link", { name: /i prefer another channel/i }),
+    ).toHaveAttribute("href", "/en/contact");
   });
 });
