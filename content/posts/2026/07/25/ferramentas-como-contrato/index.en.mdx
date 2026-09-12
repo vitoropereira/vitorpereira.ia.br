@@ -160,9 +160,12 @@ A contract that is good on paper still breaks in production. The tool is defined
 the levels are right, idempotency is in place — and something will still fail in a
 way you did not predict.
 
-The difference between finding that out from a log or from an angry customer is
-the next topic in the series: actually operating an agent — what the logs have to
-show, what breaks when volume goes up, and how you sleep at night with a system
-that acts on its own.
+In production, the difference between finding a break from a log or from an angry
+customer is the execution trail: input, tool call, output, retry, and failure. A
+tool contract does not replace operations; it makes operations auditable.
 
-Architecture, tools, operations. This was the middle one.
+## Next step
+
+If there is a workflow in your operation that needs to query data, act within
+limits, and leave an audit trail, [bring it to a 30-minute
+diagnostic](/en/booking/diagnostico-30min).

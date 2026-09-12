@@ -16,7 +16,13 @@ describe("OperationalAgentService", () => {
       screen.getByText(/logs, regras e aprovação humana/i),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /a partir de r\$ 20\.000/i }),
+      screen.getByRole("heading", {
+        name: /piloto de um workflow operacional/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/a partir de r\$ 20\.000/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/sistema ampliado.*r\$ 40\.000/i),
     ).toBeInTheDocument();
 
     const links = screen.getAllByRole("link", {
@@ -41,7 +47,13 @@ describe("OperationalAgentService", () => {
       screen.getByRole("heading", { name: /one real workflow/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /from r\$ 20,000/i }),
+      screen.getByRole("heading", {
+        name: /pilot for one operational workflow/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/from r\$ 20,000/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/expanded system.*r\$ 40,000/i),
     ).toBeInTheDocument();
 
     const links = screen.getAllByRole("link", {

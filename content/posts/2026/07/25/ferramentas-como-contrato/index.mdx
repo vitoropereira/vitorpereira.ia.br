@@ -158,9 +158,17 @@ Um contrato bom no papel ainda quebra em produção. A tool está definida, os n
 estão certos, a idempotência está lá — e mesmo assim algo vai falhar de um jeito
 que você não previu.
 
-A diferença entre descobrir isso por um log ou por um cliente irritado é o próximo
-assunto da série: operar agente de verdade — o que os logs precisam mostrar, o que
-quebra quando o volume sobe, e como você dorme tranquilo com um sistema que age
-sozinho.
+Em produção, a diferença entre descobrir uma quebra por um log ou por um cliente
+irritado é o rastro da execução: entrada, tool chamada, saída, tentativa e falha.
+Contrato de ferramenta não substitui operação; ele torna a operação auditável.
 
-Arquitetura, ferramentas, operação. Esta era a do meio.
+## Continue a série
+
+Ferramentas bem definidas não resolvem o que o agente precisa carregar entre
+execuções. A pergunta 4 é [memória de agente](/2026/08/11/memoria-de-agente).
+
+## Próximo passo
+
+Se existe um processo na sua operação que precisa consultar dados, agir com
+limites e deixar rastro, [traga o fluxo para um diagnóstico de
+30 minutos](/agendar/diagnostico-30min).
