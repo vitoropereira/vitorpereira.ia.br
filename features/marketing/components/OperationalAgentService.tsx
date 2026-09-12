@@ -41,8 +41,12 @@ const copy = {
       "não existe responsável humano pelo resultado do sistema.",
     ],
     investmentLabel: "investimento",
+    investmentPilotTitle: "Piloto de um workflow operacional",
     investmentText:
-      "Escopo fechado de 21 a 30 dias. Projeto que vira software e painel maior fica na faixa de R$ 40.000, e a sustentação mensal é opcional, a partir de R$ 2.000. O número exato sai do diagnóstico de escopo — que já está incluído e não é cobrado à parte.",
+      "Escopo fechado de 21 a 30 dias para um processo delimitado. O número exato sai do diagnóstico de escopo — que já está incluído e não é cobrado à parte.",
+    expandedSystemText:
+      "Sistema ampliado — com mais integrações, painel e operação: em torno de R$ 40.000.",
+    supportText: "A sustentação mensal é opcional, a partir de R$ 2.000.",
     ctaTitle: "Tem um processo assim dentro da empresa?",
     ctaText:
       "Traga o fluxo atual, as ferramentas envolvidas e onde ele costuma quebrar. A primeira conversa serve para decidir se um agente ajuda ou só adiciona complexidade.",
@@ -83,8 +87,12 @@ const copy = {
       "no human is accountable for the system's outcome.",
     ],
     investmentLabel: "investment",
+    investmentPilotTitle: "Pilot for one operational workflow",
     investmentText:
-      "Fixed scope, 21 to 30 days. Projects that grow into a larger system and dashboard sit around R$ 40,000, and monthly support is optional, from R$ 2,000. The exact number comes out of the scoping session — already included, never billed separately.",
+      "A fixed 21-to-30-day scope for one bounded workflow. The exact number comes out of the scoping session — already included, never billed separately.",
+    expandedSystemText:
+      "Expanded system — with more integrations, dashboard, and operations: around R$ 40,000.",
+    supportText: "Monthly support is optional, from R$ 2,000.",
     ctaTitle: "Do you have a workflow like this?",
     ctaText:
       "Bring the current flow, the tools involved, and where it usually breaks. The first conversation is for deciding whether an agent helps or merely adds complexity.",
@@ -201,10 +209,13 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
             {text.investmentLabel}
           </p>
           <h2 className="font-heading mt-4 text-3xl font-bold">
-            {investmentTitle}
+            {text.investmentPilotTitle}
           </h2>
           <p className="text-muted-foreground mt-4 max-w-3xl">
-            {text.investmentText}
+            <strong>{investmentTitle}.</strong> {text.investmentText}
+          </p>
+          <p className="text-muted-foreground mt-4 max-w-3xl">
+            <strong>{text.expandedSystemText}</strong> {text.supportText}
           </p>
         </div>
       </section>
