@@ -34,7 +34,7 @@ describe("trilha editorial de agentes", () => {
     const body = postBody(date, slug);
 
     expect(body).toContain("## Próximo passo");
-    expect(body).toContain("](/agendar/diagnostico-30min)");
+    expect(body).toContain('<DiagnosticCTA locale="pt">');
   });
 
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
@@ -48,7 +48,7 @@ describe("trilha editorial de agentes", () => {
       "index.en.mdx",
     );
     expect(tools).toContain("## Next step");
-    expect(tools).toContain("](/en/booking/diagnostico-30min)");
+    expect(tools).toContain('<DiagnosticCTA locale="en">');
     expect(tools).not.toContain("what the logs have to show");
   });
 });
