@@ -1,0 +1,165 @@
+---
+title: "Um agente não amadurece no prompt"
+description: "Internet instável, um canal bloqueado e um QR Code impresso mostraram a diferença entre testar IA e operar um agente de verdade."
+date: 2026-09-13T00:00:00-03:00
+draft: false
+tags: [agentes, operacao, arquitetura, ia-aplicada]
+comments: true
+---
+
+No vídeo abaixo, eu conto o que aconteceu depois de passar três dias apresentando
+agentes em um evento. O plano original encontrou uma internet que não segurava o
+fluxo, um número de WhatsApp bloqueado e um QR Code já impresso apontando para o
+lugar errado.
+
+Não foi uma história sobre um prompt que falhou. Foi uma história sobre o que
+acontece quando a IA sai da tela de quem construiu e encontra o mundo real.
+
+<Video id="DjAUEtUpdbM" title="Passei 3 dias explicando agentes — o mercado ainda está no nível 1" />
+
+O vídeo é a fonte deste texto. Aqui eu quero puxar a conclusão operacional: um
+agente não amadurece porque a resposta ficou mais inteligente. Ele amadurece
+quando o workflow continua funcionando depois que uma premissa quebra.
+
+## O nível 1 ainda depende de uma pessoa segurando o fluxo
+
+Tem muita coisa útil no nível 1. Você abre o ChatGPT, descreve o problema, cola
+um contexto, recebe uma resposta e decide o que fazer com ela. É rápido. Ajuda a
+pensar. Pode economizar bastante trabalho.
+
+Mas o sistema inteiro ainda está na cabeça de uma pessoa:
+
+- ela sabe qual contexto importa;
+- ela percebe quando a resposta não serve;
+- ela escolhe o próximo canal;
+- ela executa a ação final;
+- ela lembra do que aconteceu ontem.
+
+Isso não é um defeito. É só outra categoria de ferramenta. O erro começa quando
+a empresa chama esse uso de "agente" e espera que ele sobreviva a volume, troca
+de canal, indisponibilidade ou uma decisão que precisa deixar rastro.
+
+No [texto sobre arquitetura de agentes](/2026/07/18/arquitetura-mental-do-agente),
+eu organizo o problema em sete perguntas. O prompt vem depois delas. O que
+aconteceu no evento foi a versão prática dessa regra: um prompt bom não resolve
+uma ferramenta indisponível, não desbloqueia um canal e não troca um destino
+impresso.
+
+## Um evento quebra as premissas rápido demais para o improviso parecer plano
+
+Três falhas do vídeo importam mais que a história em si.
+
+**A conexão não era confiável.** Se a experiência depende de uma única página,
+uma única rede ou um único caminho de entrada, o sistema precisa ter uma forma
+clara de degradar. Não basta torcer para a infraestrutura estar disponível no
+dia.
+
+**O canal pode desaparecer.** Quando um número foi bloqueado, a pergunta deixou
+de ser "como deixo o agente mais convincente?". Virou: a identidade do agente,
+o contexto e o fluxo estão presos ao canal ou conseguem continuar em outro
+lugar?
+
+**O físico não acompanha seu deploy.** Um QR Code impresso não aceita hotfix. O
+jeito seguro de usar um artefato físico é apontá-lo para uma camada que você
+controle — uma URL estável, uma página de transição ou um redirecionamento — e
+não para o último endpoint que parecia certo na véspera.
+
+Esses problemas não são exceções embaraçosas. São testes de arquitetura. Eles
+revelam se existe sistema ou só uma demo com o caminho feliz bem ensaiado.
+
+<Callout type="note">
+  Quando trocar uma premissa exige reconstruir o fluxo, a premissa era parte da
+  arquitetura — mesmo que ninguém tivesse escrito isso no diagrama.
+</Callout>
+
+## A diferença entre agente pessoal e operação não é o modelo
+
+A régua que usei no vídeo separa três momentos: conversar com IA, ter um agente
+pessoal e operar uma empresa com agentes. A fronteira entre eles não é o nome do
+modelo nem quantas automações aparecem no diagrama.
+
+É a quantidade de trabalho que ainda depende de memória humana e improviso.
+
+Um agente pessoal já pode buscar informação, usar ferramentas e preparar
+trabalho. Mas ele ainda costuma ter um dono que conhece as exceções, corrige o
+contexto e abre a conversa certa quando algo muda.
+
+Uma operação com agentes precisa carregar essas decisões para fora da cabeça do
+dono:
+
+1. **Fonte de verdade.** O fluxo sabe onde buscar a informação atual, em vez de
+   depender de alguém colar um briefing novo a cada conversa.
+2. **Ferramentas com contrato.** Cada integração recebe entrada clara, devolve
+   saída verificável e falha de um jeito que dá para tratar. É o ponto que eu
+   detalhei em [ferramentas como contrato](/2026/07/25/ferramentas-como-contrato).
+3. **Canal separado da lógica.** WhatsApp, página, QR Code ou e-mail são portas
+   de entrada. Eles não deveriam ser o lugar onde a identidade e a regra de
+   negócio ficam presas.
+4. **Caminho de exceção.** Quando o fluxo normal cai, alguém sabe qual é o
+   fallback e como retomar sem apagar o que já aconteceu.
+5. **Registro do que aconteceu.** Sem logs de decisão, chamada de ferramenta e
+   falha, o primeiro diagnóstico vem de quem estava do outro lado do problema.
+
+Nada disso deixa uma apresentação mais glamourosa. É exatamente por isso que
+muita gente pula essa parte. Só que é onde o produto começa.
+
+## O teste não é "o agente respondeu?"
+
+Em uma demo, a pergunta costuma ser: "ele respondeu?". Em operação, essa é a
+pergunta mais fácil.
+
+As perguntas que importam aparecem quando alguma coisa sai do roteiro:
+
+- Se o canal cair, o workflow continua por onde?
+- Se o destino mudar, o link antigo ainda leva a uma decisão controlada?
+- Se uma pessoa precisar assumir, ela consegue entender o estado sem pedir
+  contexto para quem montou tudo?
+- Se a ferramenta falhar no meio, o pedido foi perdido, duplicado ou ficou
+  registrado para reprocessar?
+- Se a resposta parecer correta, como alguém confere o caminho que ela tomou?
+
+Essa é a diferença entre colocar um modelo em cima de um processo e redesenhar o
+processo para ter IA dentro dele.
+
+A mesma lógica vale para limites. Um agente que age não pode depender de uma
+frase no prompt para não passar do ponto. A ferramenta, o escopo e a aprovação
+precisam carregar essa regra. O post sobre [limites de agente](/2026/08/15/limites-do-agente)
+mostra como eu separo leitura, preparação e escrita para não transformar
+autonomia em acesso irrestrito.
+
+## O que eu mudaria antes de abrir de novo
+
+O valor de um incidente pequeno é que ele mostra onde a abstração estava fina
+demais. Antes de abrir um agente para um público, eu deixaria cinco coisas
+explícitas:
+
+1. **Qual é o registro canônico** do evento, pedido ou conversa?
+2. **Qual canal pode ser substituído** sem reescrever a regra de negócio?
+3. **Qual artefato externo precisa de uma camada de redirecionamento** para
+   continuar corrigível depois de impresso ou compartilhado?
+4. **Qual é o fallback manual** quando a infraestrutura não entrega o caminho
+   ideal?
+5. **O que fica registrado** para retomar, explicar e corrigir a execução?
+
+Não é burocracia de arquitetura. É o que impede a equipe de descobrir, no meio
+do evento, que o único plano era o caminho feliz.
+
+## O mercado sai do nível 1 quando começa a operar
+
+O nível 1 não é usar pouco IA. É usar IA sem transferir responsabilidade
+operacional para um sistema verificável.
+
+Você sai dele quando o agente deixa de depender da pessoa que lembra de tudo:
+quando ferramentas têm contrato, canais são intercambiáveis, exceções têm
+caminho e cada decisão deixa rastro.
+
+O modelo continua importante. Mas ele não é a parte que segura a operação quando
+a internet cai, um canal some ou uma mudança chega tarde demais para o QR Code.
+
+[Assista ao vídeo completo no YouTube](https://www.youtube.com/watch?v=DjAUEtUpdbM).
+
+## Próximo passo
+
+Se você já tem um fluxo com IA, mas ainda depende de improviso quando algo sai do
+caminho feliz, <DiagnosticCTA locale="pt">traga o workflow para um diagnóstico de
+30 minutos</DiagnosticCTA>.

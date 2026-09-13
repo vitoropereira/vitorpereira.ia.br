@@ -37,6 +37,16 @@ describe("trilha editorial de agentes", () => {
     expect(body).toContain('<DiagnosticCTA locale="pt">');
   });
 
+  it("publica o complemento operacional do vídeo sobre agentes", () => {
+    const article = postBody("09/13", "agente-nao-amadurece-no-prompt");
+
+    expect(article).toContain('<Video id="DjAUEtUpdbM"');
+    expect(article).toContain("](/2026/07/18/arquitetura-mental-do-agente)");
+    expect(article).toContain("](/2026/07/25/ferramentas-como-contrato)");
+    expect(article).toContain("](/2026/08/15/limites-do-agente)");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+  });
+
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
     expect(
       postBody("07/18", "arquitetura-mental-do-agente", "index.en.mdx"),
