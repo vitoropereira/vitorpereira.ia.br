@@ -38,7 +38,7 @@ Personal blog and portfolio of Vitor Pereira, built with Next.js 16.
 
 - `pnpm new:post "Título"` — scaffolds `content/posts/YYYY/MM/DD/slug/index.mdx` as a draft
 - `pnpm translate <post-dir>` — generates the EN sibling (`index.en.mdx`) via Claude; needs `ANTHROPIC_API_KEY`
-- `pnpm gen:cover --post <dir>` — generates the post cover from `cover.prompt.txt`; needs `GOOGLE_API_KEY`
+- `pnpm gen:cover --post <dir> [--attach-frontmatter]` — gera capa localmente a partir de `cover.prompt.txt`; aceita `GOOGLE_API_KEY`, `GEMINI_API_KEY` ou `GOOGLE_GEMINI_API_KEY`. Não sobrescreve capa sem `--force`; retry de modalidade exige `--allow-modality-retry`.
 - `pnpm crosspost <post-dir>` — syndicates to TabNews; needs `TABNEWS_EMAIL` / `TABNEWS_PASSWORD`
 - `pnpm crosspost:stats` — syndication stats
 - `pnpm cal:setup` — provisions the Cal.com event types declared in `features/booking/services.ts` (dry-run; `--apply` writes); needs `CAL_API_KEY`

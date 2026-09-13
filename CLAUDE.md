@@ -35,7 +35,7 @@ que o CI roda.
 ```bash
 pnpm new:post "Título"       # scaffold do post como draft
 pnpm translate <post-dir>    # gera o irmão .en.mdx — precisa de ANTHROPIC_API_KEY
-pnpm gen:cover --post <dir>  # capa a partir de cover.prompt.txt — precisa de GOOGLE_API_KEY
+pnpm gen:cover --post <dir> [--attach-frontmatter]  # capa via `cover.prompt.txt`; aceita GOOGLE_API_KEY, GEMINI_API_KEY ou GOOGLE_GEMINI_API_KEY; --force sobrescreve e --allow-modality-retry pode consumir segunda chamada
 pnpm crosspost <post-dir>    # sindica no TabNews
 pnpm crosspost:stats         # métricas da sindicação
 ```
