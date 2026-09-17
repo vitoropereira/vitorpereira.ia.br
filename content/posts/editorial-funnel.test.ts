@@ -47,6 +47,21 @@ describe("trilha editorial de agentes", () => {
     expect(article).toContain('<DiagnosticCTA locale="pt">');
   });
 
+  it("publica o guia de logs como próximo passo verificável da série", () => {
+    const article = postBody("09/17", "logs-para-operar-agentes");
+
+    expect(article).toContain("date: 2026-09-17T10:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain("](/2026/07/25/ferramentas-como-contrato)");
+    expect(article).toContain("](/2026/08/06/fila-que-guarda-o-payload-cru)");
+    expect(article).toContain("](/2026/08/15/limites-do-agente)");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article).toContain("https://www.w3.org/TR/trace-context/");
+    expect(article).toContain(
+      "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html",
+    );
+  });
+
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
     expect(
       postBody("07/18", "arquitetura-mental-do-agente", "index.en.mdx"),
