@@ -1,0 +1,195 @@
+---
+title: "Os 5 registros que mostram se seu agente está operando — ou só respondendo"
+description: "Resposta final não explica uma execução. Para recuperar um workflow com IA, registre correlação, decisão, chamada de ferramenta, transição de estado e handoff — sem despejar dados sensíveis no log."
+date: 2026-09-17T10:00:00-03:00
+draft: false
+tags: [agentes, operacao, observabilidade, arquitetura]
+comments: true
+---
+
+Quando um agente responde errado, a pergunta inicial quase sempre é ruim:
+
+> "Qual foi o prompt?"
+
+O prompt pode importar. Mas não explica sozinho por que uma execução escolheu
+uma ferramenta, falhou no meio, repetiu uma ação ou entregou o caso para uma
+pessoa sem contexto suficiente.
+
+Para operar um workflow com IA, você precisa conseguir reconstruir a execução
+sem depender da memória de quem estava online. Isso não pede um data lake no
+dia um. Pede cinco registros que respondem perguntas diferentes.
+
+## 1. Um ID que atravessa o workflow
+
+A mesma execução pode passar por uma página, uma fila, o modelo, duas
+integrações e uma pessoa. Se cada parte grava uma linha sem um identificador
+comum, o diagnóstico vira arqueologia.
+
+Crie um `execution_id` na entrada e propague-o. Se houver tracing distribuído,
+use também o `trace_id` da plataforma. A recomendação do [W3C Trace
+Context](https://www.w3.org/TR/trace-context/) existe justamente para carregar
+uma identificação única quando uma transação cruza componentes diferentes.
+
+O registro mínimo é simples:
+
+```text
+execution_id=ex_01J...
+trace_id=4bf92f...
+workflow=qualificar-lead
+started_at=2026-09-17T13:00:04Z
+```
+
+Não use e-mail, telefone, token de sessão ou o texto do pedido como chave de
+correlação. Identificador técnico precisa apontar para a execução, não vazar a
+pessoa.
+
+## 2. A decisão que o agente tomou
+
+"Chamou a ferramenta X" não diz por quê. O segundo registro precisa mostrar a
+transição de estado que o sistema escolheu.
+
+```text
+event=decision
+from_state=triagem
+chosen_path=pedir-aprovacao
+rule_version=2026-09-17.1
+reason_code=external_write_requires_human
+```
+
+O ponto não é registrar uma explicação longa gerada pelo modelo e tratá-la como
+verdade. É registrar **qual regra, versão de workflow ou aprovação** autorizou
+a próxima etapa.
+
+Isso separa dois problemas que parecem iguais na tela:
+
+- o agente classificou a entrada na categoria errada;
+- a categoria estava certa, mas a regra daquela categoria estava errada.
+
+Sem esse registro, os dois viram "a IA errou" e ninguém sabe o que corrigir.
+
+## 3. A ferramenta chamada e o resultado verificável
+
+A tool call é onde uma resposta vira efeito no mundo. Por isso ela precisa ter
+um registro próprio, antes e depois da chamada.
+
+```text
+event=tool_call
+name=crm.create_draft
+idempotency_key=ex_01J...:crm.create_draft:1
+input_schema_version=3
+outcome=success
+external_reference=draft_4821
+```
+
+Guarde o nome da ferramenta, a versão do contrato, o resultado e uma referência
+segura ao recurso externo. Para entrada sensível, guarde só os campos necessários
+para reproduzir o diagnóstico — ou um hash/ponteiro com acesso controlado. Não
+copie o payload inteiro para um log só porque é conveniente.
+
+O [OpenAI Agents SDK documenta](https://openai.github.io/openai-agents-python/tracing/)
+um modelo útil para pensar nisso: uma execução ponta a ponta é uma _trace_,
+composta por _spans_ com início, fim, relação de parentesco e dados da operação.
+No SDK, chamadas de função, guardrails e handoffs podem ter spans separados.
+Não é uma obrigação de adotar esse SDK. É um bom lembrete de que geração,
+ferramenta e aprovação não são o mesmo evento.
+
+Essa separação conversa com [ferramentas como contrato](/2026/07/25/ferramentas-como-contrato): se a entrada e a saída da integração não são
+verificáveis, o log só registra que alguma coisa misteriosa aconteceu.
+
+## 4. O estado final — inclusive quando não terminou
+
+O erro mais caro não é a falha explícita. É uma execução que desaparece entre
+"recebido" e "concluído".
+
+Modele estados que uma pessoa consegue operar:
+
+```text
+received → validated → processing → awaiting_approval → completed
+                                      ↘ failed_retriable → queued_for_retry
+                                      ↘ failed_terminal → human_review
+```
+
+Cada mudança precisa ter timestamp, tentativa e motivo. Assim, quando uma
+integração responde `429`, você sabe se o item ficou pronto para retentativa,
+se alguém já assumiu ou se ele foi descartado sem querer.
+
+Isso não substitui guardar a entrada original quando o negócio exige
+reprocessamento. O post sobre [payload cru](/2026/08/06/fila-que-guarda-o-payload-cru)
+trata essa camada: receber e interpretar são etapas diferentes. O log explica a
+execução; o registro canônico preserva o que chegou.
+
+## 5. O handoff e a ação humana
+
+Um agente que não pode seguir sozinho não deveria terminar com "não consegui".
+Ele precisa deixar uma próxima ação acionável.
+
+```text
+event=handoff
+owner_queue=operacoes-comerciais
+required_action=aprovar_rascunho
+context_ref=ex_01J...
+blocked_by=external_write_requires_human
+```
+
+O handoff é parte do workflow, não um comentário de erro. Ele diz **quem**
+assume, **o que** precisa decidir e **onde** está o contexto mínimo para fazê-lo.
+
+É assim que aprovação humana deixa de ser uma pessoa caçando conversa em cinco
+abas. Também é a continuação prática dos [limites de um agente](/2026/08/15/limites-do-agente): ações sensíveis precisam de uma fronteira verificável,
+não de uma frase no prompt.
+
+## Logs não são licença para guardar tudo
+
+A reação comum é registrar prompt, resposta, request HTTP e banco inteiro em
+cada linha. Isso cria outro incidente: um lugar novo com dados que não deveriam
+estar ali.
+
+A [OWASP recomenda](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+definir a coleta proporcional ao risco e normalmente remover, mascarar,
+hashear ou proteger dados como tokens de acesso, identificadores de sessão,
+credenciais e PII sensível.
+
+A regra operacional é menos glamourosa e mais útil:
+
+1. registre o suficiente para explicar a decisão e retomar o trabalho;
+2. preserve o dado original apenas na fonte apropriada, com acesso adequado;
+3. use referência ou hash no log quando o conteúdo não precisa estar exposto;
+4. defina retenção e acesso antes de o incidente obrigar você a procurar isso;
+5. teste se uma pessoa que não construiu o fluxo consegue investigar uma
+   execução com os registros permitidos.
+
+<Callout type="note">
+  Observabilidade não é um mural de textos do modelo. É a capacidade de
+  responder, com evidência, o que entrou, qual regra escolheu o caminho, qual
+  efeito ocorreu e quem assume a exceção.
+</Callout>
+
+## Um teste de dez minutos
+
+Pegue uma execução recente e tente responder estas cinco perguntas sem abrir o
+código:
+
+1. Qual `execution_id` liga todas as etapas?
+2. Qual decisão mudou o workflow de caminho?
+3. Qual ferramenta foi chamada, com qual resultado e referência externa?
+4. Em que estado ela parou e quantas tentativas ocorreram?
+5. Se parou para humano, quem precisa agir e com qual contexto?
+
+Se qualquer resposta depende de "fala com quem fez", o agente ainda está
+operando pela memória da equipe.
+
+O primeiro ganho de logs bons não é um dashboard bonito. É conseguir recuperar
+um caso ruim na mesma tarde em que ele aconteceu — sem adivinhar, sem vazar dado
+e sem rodar a ação de novo por acidente.
+
+## Fontes
+
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/) — correlação de uma transação através de componentes distribuídos e considerações de privacidade.
+- [OpenAI Agents SDK: Tracing](https://openai.github.io/openai-agents-python/tracing/) — traces, spans, chamadas de função, guardrails e handoffs.
+- [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) — seleção de eventos e dados que devem ser removidos, mascarados, hasheados ou protegidos.
+
+## Próximo passo
+
+Se o seu workflow com IA já toma ações, mas uma execução problemática ainda exige
+arqueologia manual, <DiagnosticCTA locale="pt">traga o fluxo para um diagnóstico
+de 30 minutos</DiagnosticCTA>.
