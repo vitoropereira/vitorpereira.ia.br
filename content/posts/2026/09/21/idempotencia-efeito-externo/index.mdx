@@ -1,0 +1,188 @@
+---
+title: "O retry não é o problema. Repetir o efeito é."
+description: "Um timeout não diz se a escrita externa aconteceu. Antes de automatizar uma ação com IA, defina a chave que representa a intenção, o registro do efeito e o caminho para conflito."
+date: 2026-09-21T11:00:00-03:00
+draft: false
+tags: [agentes, operacao, arquitetura, qualidade]
+comments: true
+---
+
+O agente fez uma chamada para criar um registro no CRM. A conexão caiu antes da
+resposta. Agora você tem duas escolhas ruins:
+
+- tentar de novo e arriscar criar dois registros;
+- não tentar e arriscar perder o pedido.
+
+O timeout não informa se o efeito externo aconteceu. Ele só informa que o seu
+sistema não recebeu uma confirmação confiável.
+
+Esse é o momento em que muita automação deixa de ser um fluxo e vira uma aposta.
+A saída não é proibir retry. É projetar a escrita para que repetir a mesma
+**intenção** não produza um novo efeito.
+
+## A pergunta vem antes da chave
+
+Uma chave de idempotência não é um UUID jogado no header a cada tentativa. Se a
+chave muda no retry, o destino não tem como reconhecer que as duas chamadas
+representam o mesmo pedido.
+
+Comece definindo a unidade de efeito. Em um workflow de triagem, por exemplo,
+ela pode ser:
+
+```text
+criar um rascunho para a solicitação req_8F3
+```
+
+Não é:
+
+```text
+executar a tentativa 2 às 14:07
+```
+
+A primeira frase descreve uma intenção de negócio. A segunda descreve um detalhe
+de transporte. O retry pode mudar; a intenção não.
+
+Então a chave precisa nascer de algo estável, que o workflow consegue recuperar:
+
+```text
+idempotency_key = req_8F3:crm.create_draft:v1
+```
+
+O sufixo de versão é útil quando o contrato da ação muda de forma incompatível.
+O identificador da solicitação é útil porque liga todas as tentativas ao mesmo
+caso. Mas não coloque e-mail, telefone, token ou o texto completo do pedido na
+chave. Ela costuma atravessar logs, filas e integrações.
+
+Muitas APIs de escrita oferecem uma chave de idempotência para tornar o retry
+seguro. A política de expiração e o tratamento de uma chave reutilizada com
+payload diferente precisam estar explícitos no contrato da integração. Isso não
+é detalhe de SDK; é contrato entre quem chama e quem produz o efeito.
+
+## Retry é transporte; deduplicação é regra de negócio
+
+O desenho mínimo tem três registros separados:
+
+```text
+intent_id=req_8F3
+idempotency_key=req_8F3:crm.create_draft:v1
+attempt=2
+```
+
+- `intent_id` aponta para o pedido que existe no seu sistema;
+- `idempotency_key` identifica o efeito que só pode ocorrer uma vez;
+- `attempt` conta as tentativas de transporte.
+
+Misturar os três cria bugs estranhos. Se `attempt` entra na chave, toda tentativa
+parece nova. Se a chave substitui o `intent_id`, você perde o vínculo com a
+origem. Se nenhum deles é registrado, um timeout vira investigação manual.
+
+O post sobre [logs para operar agentes](/2026/09/17/logs-para-operar-agentes)
+já separa a ferramenta chamada do resultado verificável. Idempotência completa
+essa separação: o log não deve dizer apenas que a ferramenta foi chamada; ele
+precisa permitir provar se uma repetição criou, reaproveitou ou conflitou com um
+efeito externo.
+
+```text
+event=tool_call
+intent_id=req_8F3
+idempotency_key=req_8F3:crm.create_draft:v1
+attempt=2
+outcome=replayed
+external_reference=draft_4821
+```
+
+`replayed` não é falha. É uma confirmação de que o destino reconheceu a mesma
+intenção e devolveu o resultado já associado a ela.
+
+A documentação de [requisições idempotentes da Stripe](https://docs.stripe.com/api/idempotent_requests)
+ilustra uma implementação concreta: a API associa a primeira resposta à chave e
+retorna o mesmo status e corpo quando a chave é usada novamente. Não copie o
+comportamento sem olhar o contrato da sua integração. O ponto é exigir uma
+semântica explícita antes de permitir retries em uma escrita externa.
+
+## O payload igual importa
+
+A chave sozinha não autoriza reutilizar qualquer coisa.
+
+Imagine que a primeira tentativa cria um rascunho para `contato A` e a segunda,
+por erro no seu código, reaproveita a chave para `contato B`. Se o destino aceitar
+silenciosamente, você mascarou uma inconsistência. Se criar outro rascunho, você
+perdeu a proteção.
+
+Para ações importantes, registre uma representação estável dos campos que
+definem o efeito — ou um hash dela — junto com a chave. No retry, compare antes
+de reenviar:
+
+```text
+idempotency_key=req_8F3:crm.create_draft:v1
+request_fingerprint=sha256:...
+```
+
+Quando a chave é a mesma e o fingerprint muda, pare. Isso é conflito de intenção,
+não retry. O workflow deve abrir uma exceção para revisão humana, com o contexto
+mínimo para decidir qual estado é válido.
+
+Essa regra conversa com a separação entre receber e interpretar. O [payload
+cru](/2026/08/06/fila-que-guarda-o-payload-cru) preserva o que entrou; a chave de
+idempotência protege o efeito produzido depois. Um não substitui o outro.
+
+## Onde a proteção precisa morar
+
+Colocar a chave só no prompt não resolve nada. O modelo pode esquecer, escolher
+outra ferramenta ou montar uma chamada diferente. A fronteira tem de estar no
+adapter que escreve no mundo externo.
+
+Uma ferramenta de escrita deveria receber algo próximo disto:
+
+```ts
+type CreateDraftInput = {
+  intentId: string;
+  idempotencyKey: string;
+  requestFingerprint: string;
+  payload: DraftPayload;
+};
+```
+
+E devolver um resultado que o workflow consegue operar:
+
+```ts
+type CreateDraftResult =
+  | { status: "created"; externalReference: string }
+  | { status: "replayed"; externalReference: string }
+  | { status: "conflict"; reason: string }
+  | { status: "retryable_failure"; reason: string };
+```
+
+O modelo pode decidir que precisa preparar um rascunho. Não deveria decidir como
+o sistema deduplica a escrita. Essa é uma das fronteiras de execução tratadas em
+[limites de um agente](/2026/08/15/limites-do-agente): regra de segurança e
+integridade precisa viver no contrato e no código que aplica o efeito.
+
+## O teste que encontra a falha antes do incidente
+
+Antes de liberar uma tool que cria, envia, cobra ou atualiza algo externo, teste
+quatro cenários:
+
+1. primeira chamada com uma chave nova cria o efeito uma vez;
+2. mesma chave e mesmo fingerprint retornam a referência já criada;
+3. mesma chave e fingerprint diferente retornam conflito, sem escrever de novo;
+4. timeout depois do envio permite uma consulta ou retry seguro, sem adivinhação.
+
+Se a integração não aceita chave de idempotência, você ainda precisa de uma
+estratégia: registrar uma intenção local antes da chamada, consultar o destino
+por uma referência única ou colocar a ação em revisão humana. O que não vale é
+tratar `timeout` como sinônimo de "não aconteceu".
+
+<Callout type="note">
+  Idempotência não torna uma integração perfeita. Ela transforma a pergunta
+  perigosa — "posso tentar de novo?" — em uma regra verificável do workflow.
+</Callout>
+
+## Fonte
+
+- [Stripe API — Idempotent requests](https://docs.stripe.com/api/idempotent_requests) — exemplo de API que persiste a primeira resposta, reapresenta o resultado para a mesma chave e rejeita parâmetros divergentes.
+
+## Próximo passo
+
+Se o seu agente já escreve em CRM, e-mail, ERP ou outro sistema externo, mas um
+timeout ainda deixa a equipe sem saber se deve reenviar, <DiagnosticCTA locale="pt">traga o workflow para um diagnóstico de 30 minutos</DiagnosticCTA>.

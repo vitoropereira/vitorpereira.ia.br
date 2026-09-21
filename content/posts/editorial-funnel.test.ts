@@ -62,6 +62,21 @@ describe("trilha editorial de agentes", () => {
     );
   });
 
+  it("publica idempotência como controle do efeito externo", () => {
+    const article = postBody("09/21", "idempotencia-efeito-externo");
+
+    expect(article).toContain("date: 2026-09-21T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain("](/2026/09/17/logs-para-operar-agentes)");
+    expect(article).toContain("](/2026/08/06/fila-que-guarda-o-payload-cru)");
+    expect(article).toContain("](/2026/08/15/limites-do-agente)");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://docs.stripe.com/api/idempotent_requests",
+    );
+  });
+
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
     expect(
       postBody("07/18", "arquitetura-mental-do-agente", "index.en.mdx"),
