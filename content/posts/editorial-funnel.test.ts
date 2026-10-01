@@ -77,6 +77,22 @@ describe("trilha editorial de agentes", () => {
     );
   });
 
+  it("publica o contrato editorial de MDX como rota pública", () => {
+    const article = postBody("10/01", "mdx-nao-e-so-texto");
+
+    expect(article).toContain("date: 2026-10-01T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain("](/2026/09/21/idempotencia-efeito-externo)");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts",
+    );
+    expect(article).toContain(
+      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts",
+    );
+  });
+
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
     expect(
       postBody("07/18", "arquitetura-mental-do-agente", "index.en.mdx"),

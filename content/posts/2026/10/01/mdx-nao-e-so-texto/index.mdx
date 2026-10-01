@@ -1,0 +1,140 @@
+---
+title: "MDX não é só texto quando gera uma rota pública"
+description: "Quando frontmatter e caminho do arquivo definem URL, visibilidade, sitemap e CTA, conteúdo precisa passar por um release verificável — não apenas por revisão de texto."
+date: 2026-10-01T11:00:00-03:00
+draft: false
+tags: [engenharia, qualidade, operacao, automacao]
+comments: true
+---
+
+Um arquivo MDX pode parecer inofensivo: título, parágrafos e um botão no final.
+
+Até ele definir uma URL que vai para o sitemap, aparecer em uma listagem pública,
+gerar metadados e apontar alguém para um agendamento. A partir daí, o artigo virou
+parte do sistema em produção.
+
+A consequência é simples: revisão editorial continua necessária, mas não basta. O
+post precisa passar pelo mesmo tipo de verificação que protege uma mudança de rota:
+contrato de entrada, build e smoke do artefato final.
+
+## O caminho do arquivo já é uma decisão pública
+
+Neste site, o padrão de arquivos em `content/posts` não serve só para organizar
+pastas. A configuração do [Velite](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts#L66-L123)
+aceita apenas posts no formato `posts/AAAA/MM/DD/slug/index.mdx` e deriva a URL a
+partir desse caminho.
+
+```text
+content/posts/2026/10/01/mdx-nao-e-so-texto/index.mdx
+→ /2026/10/01/mdx-nao-e-so-texto
+```
+
+O frontmatter completa o contrato. `title`, `description`, `date`, `draft`, tags e
+comentários não são anotações que o renderer pode ignorar. São dados que entram na
+coleção de posts e alimentam páginas, listagens e metadados.
+
+Por isso, trocar um slug no fim da escrita não é uma revisão estética. É trocar um
+endereço público. Antes de considerar o texto pronto, confirme o caminho final,
+links internos e os campos que o build exige.
+
+## Publicar não é só trocar `draft` para `false`
+
+O estado público deste blog depende de duas condições: o post não pode ser draft e
+a data precisa já ter chegado. A regra está explícita na
+[função de visibilidade](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts#L25-L34).
+
+```text
+publico = !draft && date <= agora
+```
+
+Isso evita dois erros de operação diferentes:
+
+- colocar no ar um rascunho que ainda não terminou;
+- vazar um post agendado porque algum trecho de código filtrou apenas `draft`.
+
+A data precisa ter timezone explícito. `2026-10-01T11:00:00-03:00` descreve um
+instante; “1º de outubro às 11h” depende de quem está lendo e de qual servidor
+está calculando a visibilidade.
+
+A mesma separação aparece em automações que escrevem fora do sistema. No post sobre
+[idempotência em efeitos externos](/2026/09/21/idempotencia-efeito-externo), retry e
+efeito são tratados como coisas diferentes. Em conteúdo, rascunho, agendamento e
+publicação também precisam ser estados distintos. Misturá-los produz publicação
+acidental ou um post pronto que nunca aparece.
+
+## PT-only também é uma decisão de release
+
+Traduzir um post é útil quando a versão em inglês mantém os fatos e os links. Mas
+criar uma rota EN só para parecer bilíngue deixa uma falha pública para alguém
+encontrar.
+
+O pipeline deste site só preenche `translationSlug` quando encontra o arquivo irmão
+no mesmo slug. O
+[sitemap](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/app/sitemap.ts#L53-L75)
+só anuncia `hreflang` quando essa contraparte existe. Sem par, o post PT continua
+válido e não ganha uma alternância para uma página inexistente.
+
+A regra prática é menos elegante em planilha e mais segura no navegador:
+
+1. publique PT quando a fonte e a revisão estiverem fechadas;
+2. publique EN apenas quando houver paridade factual real;
+3. teste as duas URLs quando o par existir;
+4. não derive rota por string e torça para ela resolver.
+
+## O build é onde texto encontra runtime
+
+Um arquivo pode estar bem escrito e ainda falhar na única condição que importa: ser
+renderizado no build que vai para produção.
+
+No repositório deste site, `pnpm build` executa primeiro a geração do Velite e depois
+o build do Next.js, como definido no
+[`package.json`](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/package.json).
+Esse é o ponto de encontro entre frontmatter, MDX, componentes, tipos e rotas.
+
+Depois do build, ainda falta a verificação que o comando não enxerga sozinho:
+
+- iniciar o artefato final;
+- pedir a URL nova por HTTP;
+- confirmar `200`, título e trecho principal;
+- conferir canonical e, se houver, alternates de idioma;
+- seguir o CTA e validar o destino real.
+
+Uma revisão que só abre o arquivo fonte pode aprovar um link quebrado, uma rota
+inexistente ou uma CTA que perdeu o destino. Um smoke só de HTTP pode aprovar uma
+página vazia. Os dois gates se complementam.
+
+## Um release pequeno, mas completo
+
+Para conteúdo que cria superfície pública, o fluxo mínimo é este:
+
+```text
+fonte verificável
+→ MDX com contrato válido
+→ links e frontmatter revisados
+→ lint, tipo, testes e build
+→ smoke da rota gerada
+→ PR, CI e deploy
+→ smoke em produção
+```
+
+Isso não transforma cada artigo em um projeto de engenharia de duas semanas. Só
+elimina a suposição perigosa de que texto não quebra produção.
+
+<Callout type="note">
+  Automação editorial madura não publica porque conseguiu gerar um arquivo. Ela
+  publica quando o arquivo, a rota e o caminho para a próxima ação sobreviveram
+  à verificação.
+</Callout>
+
+## Fontes
+
+- [Velite config do site](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts#L66-L123) — schema, padrão de caminho, URL derivada e pareamento de idiomas.
+- [Regra de visibilidade](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts#L25-L34) — draft e data como condições independentes de publicação.
+- [Sitemap do site](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/app/sitemap.ts#L53-L75) — inclusão de posts públicos e alternates apenas para pares reais.
+- [Scripts de build](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/package.json) — geração de conteúdo antes do build do Next.js.
+
+## Próximo passo
+
+Se sua equipe já publica documentação ou conteúdo que cria rotas, integrações e
+CTAs, mas a aprovação termina no texto, <DiagnosticCTA locale="pt">traga esse
+workflow para um diagnóstico de 30 minutos</DiagnosticCTA>.
