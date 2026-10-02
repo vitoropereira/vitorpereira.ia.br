@@ -1,83 +1,68 @@
 ---
 title: "Privacy Policy"
-description: "How vitorpereira.ia.br collects, uses, and stores data, in compliance with LGPD/GDPR."
+description: "How vitorpereira.ia.br and the Cobrança Inteligente tool process data under Brazil's LGPD."
 ---
 
-Last updated: **April 21, 2026**.
+Last updated: **October 2, 2026**.
 
 ## Who we are
 
-The website vitorpereira.ia.br is maintained by **Vitor Onofre Pereira**,
-individual, based in Brazil. For privacy-related questions, contact us
-through one of the channels listed at [/en/contact](/en/contact).
+vitorpereira.ia.br and the **Cobrança Inteligente** MCP tool are maintained by **Vitor Onofre Pereira**, an individual based in Brazil. For privacy questions or support, use one of the channels at [/en/contact](/en/contact).
 
 ## Data we collect
 
-**With your explicit consent**, we collect anonymous usage data through
-Google Analytics 4 and Microsoft Clarity, including:
+### Website browsing
 
-- IP address (partially obfuscated by Google)
-- Browser, operating system, device
-- Pages visited, time on page, traffic source
-- Session recordings and heatmaps (Clarity) without sensitive data capture
+**With your explicit consent**, Google Analytics 4 and Microsoft Clarity may process usage data such as partially obfuscated IP address, browser, device, visited pages, traffic source, and session recordings/heatmaps without intentionally capturing sensitive fields.
 
-**Without consent**, only aggregated Vercel Analytics data is collected —
-this service **does not use cookies** and does not identify individual
-users.
+**Without consent**, Vercel Analytics may receive aggregated usage data without cookies and without individually identifying visitors.
 
-No form on the site requests personally identifiable information. If you
-reach out through social networks, those platforms' privacy policies
-apply.
+### Cobrança Inteligente (MCP)
+
+When you call the tool, it processes **only** the invoices provided in that call. Depending on what you send, fields may include customer name and identifier, invoice identifier, due date, amount, status, and a do-not-contact flag. Those fields may be personal or financial data.
+
+Use the tool only with data you are authorized to process. It does not request passwords, API keys, card data, identity documents, full conversation histories, or data not needed for the analysis.
+
+## Purpose and limits
+
+Invoice data is used solely to calculate an explainable collection-priority queue. The tool:
+
+- does not send messages, emails, or payment requests;
+- does not access CRM, ERP, banking, WhatsApp, or any external system;
+- does not change records, negotiate, grant credit, or process payments;
+- does not use submitted content for advertising, behavioral profiling, or its own model training.
+
+## Retention
+
+The tool payload is processed in memory while producing the response and is not persisted by the application to a database, file, queue, or application log. After the response ends, the application deliberately retains no copy of the submitted portfolio.
+
+Cloudflare and Vercel operate website delivery and hosting and may process technical request metadata, such as IP address, timestamp, route, status, and security information, under their own policies and retention periods. The application does not deliberately log invoice request bodies with those providers.
 
 ## Legal basis
 
-- **Vercel Analytics:** legitimate interest (Art. 6(1)(f) GDPR / Art. 7 IX
-  LGPD)
-- **Google Analytics and Microsoft Clarity:** consent (Art. 6(1)(a) GDPR /
-  Art. 7 I LGPD), via the banner on first visit.
+- **Google Analytics and Clarity metrics:** consent (LGPD Art. 7(I)), collected through the cookie banner.
+- **Vercel Analytics and operational security:** legitimate interest (LGPD Art. 7(IX)), limited to operating and protecting the service.
+- **Portfolio analysis submitted to the MCP:** execution of the functionality requested by the user (LGPD Art. 7(V)), limited to the requested response.
 
 ## Sharing
 
-Collected data is processed by:
+Browsing data and technical metadata may be processed by:
 
 - Google LLC (Google Analytics)
 - Microsoft Corporation (Clarity)
 - Vercel Inc. (hosting and Analytics)
+- Cloudflare, Inc. (network, security, and delivery)
 
-These providers have their own privacy policies. We do not sell data to
-third parties.
+We do not sell personal data. The MCP tool does not forward invoice data to CRMs, ERPs, messaging providers, or other third parties.
 
 ## Your rights
 
-You have the right to:
-
-- Confirm the existence of processing
-- Access the data
-- Rectify incomplete or outdated data
-- Request anonymization, blocking, or deletion
-- Withdraw consent at any time ("Manage cookies" link in the footer)
-
-To exercise these rights, contact us via [/en/contact](/en/contact).
+Where applicable, you may request confirmation of processing, access, correction, anonymization, blocking, deletion, and information about sharing. To exercise these rights, use [/en/contact](/en/contact).
 
 ## Cookies
 
-We use cookies:
-
-- `NEXT_LOCALE` — stores language preference (required)
-- `consent` — records analytics choice (required)
-- Google Analytics cookies (`_ga`, `_gid`) — only with consent
-- Microsoft Clarity cookies (`_clck`, `_clsk`) — only with consent
+We use `NEXT_LOCALE` (language) and `consent` (analytics preference) cookies. Google Analytics (`_ga`, `_gid`) and Microsoft Clarity (`_clck`, `_clsk`) cookies are used only after consent.
 
 ## Changes to this policy
 
-We may update this policy. The latest update date will always appear at
-the top.
-
-## Contact
-
-For any questions, reach out via social channels at
-[/en/contact](/en/contact).
-
-> **Note:** this document is a template. **Review with your lawyer before
-> treating it as final**, especially if the site starts collecting
-> contact forms, newsletter signups, or processing payments.
+We may update this policy when the service or its providers change. The latest update date will always appear at the top of this document.
