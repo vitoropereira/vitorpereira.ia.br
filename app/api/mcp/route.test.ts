@@ -68,6 +68,121 @@ describe("MCP route", () => {
     });
   });
 
+  it("rejects a browser request from an unapproved origin", async () => {
+    const request = mcpRequest("POST", {
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/list",
+      params: {},
+    });
+    request.headers.set("Origin", "https://evil.example");
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { message: "Forbidden origin" },
+    });
+  });
+
+  it("rejects a request whose declared body exceeds 1 MiB", async () => {
+    const request = mcpRequest("POST", {
+      jsonrpc: "2.0",
+      id: 4,
+      method: "tools/list",
+      params: {},
+    });
+    request.headers.set("Content-Length", "1048577");
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+  });
+
+  it("rejects a streamed body over 1 MiB without a Content-Length header", async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("x".repeat(1_048_577)));
+        controller.close();
+      },
+    });
+    const request = new Request("https://vitorpereira.ia.br/api/mcp", {
+      method: "POST",
+      headers: {
+        Accept: "application/json, text/event-stream",
+        "Content-Type": "application/json",
+      },
+      body,
+      duplex: "half",
+    } as RequestInit);
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+  });
+
+  it("rejects an invalid calendar date instead of normalizing it", async () => {
+    const response = await POST(
+      mcpRequest("POST", {
+        jsonrpc: "2.0",
+        id: 5,
+        method: "tools/call",
+        params: {
+          name: "collections.analyze_portfolio",
+          arguments: {
+            asOf: "2026-02-31",
+            invoices: [
+              {
+                id: "demo-1",
+                customerId: "acme",
+                customerName: "ACME Serviços",
+                dueDate: "2026-02-28",
+                amountCents: 10000,
+                status: "open",
+                doNotContact: false,
+              },
+            ],
+          },
+        },
+      }),
+    );
+    const payload = await response.text();
+    const message = payload.match(/^data: (.+)$/m)?.[1];
+
+    expect(JSON.parse(message ?? "{}")).toMatchObject({ result: { isError: true } });
+  });
+
+  it("rejects invoice amounts that could overflow aggregated cents", async () => {
+    const response = await POST(
+      mcpRequest("POST", {
+        jsonrpc: "2.0",
+        id: 6,
+        method: "tools/call",
+        params: {
+          name: "collections.analyze_portfolio",
+          arguments: {
+            asOf: "2026-10-01",
+            invoices: [
+              {
+                id: "demo-1",
+                customerId: "acme",
+                customerName: "ACME Serviços",
+                dueDate: "2026-09-01",
+                amountCents: 18_014_398_509_482,
+                status: "open",
+                doNotContact: false,
+              },
+            ],
+          },
+        },
+      }),
+    );
+    const payload = await response.text();
+    const message = payload.match(/^data: (.+)$/m)?.[1];
+
+    expect(JSON.parse(message ?? "{}")).toMatchObject({ result: { isError: true } });
+  });
+
   it("does not expose a GET endpoint for portfolio data", async () => {
     const response = await GET();
 
