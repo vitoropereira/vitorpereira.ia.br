@@ -8,10 +8,28 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const MAX_REQUEST_BODY_BYTES = 1_048_576;
+const MAX_PORTFOLIO_ITEMS = 500;
+const MAX_INVOICE_CENTS = Math.floor(Number.MAX_SAFE_INTEGER / MAX_PORTFOLIO_ITEMS);
 const ALLOWED_BROWSER_ORIGINS = new Set([
   "https://vitorpereira.ia.br",
   "https://www.vitorpereira.ia.br",
 ]);
+
+function isValidIsoCalendarDate(value: string): boolean {
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  );
+}
+
+const isoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine(isValidIsoCalendarDate, { message: "Expected a real ISO calendar date" });
 
 function rejectUnapprovedOrigin(request: Request): Response | undefined {
   const origin = request.headers.get("origin");
@@ -32,8 +50,8 @@ const invoiceSchema = z.object({
   id: z.string().min(1).max(128),
   customerId: z.string().min(1).max(128),
   customerName: z.string().min(1).max(200),
-  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  amountCents: z.number().int().positive(),
+  dueDate: isoDateSchema,
+  amountCents: z.number().int().positive().max(MAX_INVOICE_CENTS),
   status: z.enum(["open", "paid", "void"]),
   doNotContact: z.boolean(),
 });
@@ -64,8 +82,8 @@ function createMcpServer(): McpServer {
       description:
         "Use when a finance operator explicitly provides a small invoice portfolio and wants a read-only, explainable collection priority queue. It only analyzes the supplied invoices; it never sends messages, accesses a CRM, changes records, or makes payment decisions.",
       inputSchema: {
-        asOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        invoices: z.array(invoiceSchema).min(1).max(500),
+        asOf: isoDateSchema,
+        invoices: z.array(invoiceSchema).min(1).max(MAX_PORTFOLIO_ITEMS),
       },
       outputSchema: analysisSchema.shape,
       annotations: {
