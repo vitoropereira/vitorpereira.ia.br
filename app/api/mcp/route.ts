@@ -5,11 +5,33 @@ import { analyzePortfolio } from "@/lib/collections/portfolio";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 30;
+
+const MAX_REQUEST_BODY_BYTES = 1_048_576;
+const ALLOWED_BROWSER_ORIGINS = new Set([
+  "https://vitorpereira.ia.br",
+  "https://www.vitorpereira.ia.br",
+]);
+
+function rejectUnapprovedOrigin(request: Request): Response | undefined {
+  const origin = request.headers.get("origin");
+
+  if (origin !== null && !ALLOWED_BROWSER_ORIGINS.has(origin)) {
+    return Response.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32000, message: "Forbidden origin" },
+      },
+      { status: 403 },
+    );
+  }
+}
 
 const invoiceSchema = z.object({
-  id: z.string().min(1),
-  customerId: z.string().min(1),
-  customerName: z.string().min(1),
+  id: z.string().min(1).max(128),
+  customerId: z.string().min(1).max(128),
+  customerName: z.string().min(1).max(200),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   amountCents: z.number().int().positive(),
   status: z.enum(["open", "paid", "void"]),
@@ -72,8 +94,14 @@ function createMcpServer(): McpServer {
 
 /** MCP stateless: o processo recebe somente o payload desta request e não o persiste. */
 export async function POST(request: Request): Promise<Response> {
+  const rejected = rejectUnapprovedOrigin(request);
+  if (rejected) return rejected;
+
   const server = createMcpServer();
-  const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    maxRequestBodySize: MAX_REQUEST_BODY_BYTES,
+  });
 
   await server.connect(transport);
   return transport.handleRequest(request);

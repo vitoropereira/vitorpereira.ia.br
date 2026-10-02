@@ -68,6 +68,37 @@ describe("MCP route", () => {
     });
   });
 
+  it("rejects a browser request from an unapproved origin", async () => {
+    const request = mcpRequest("POST", {
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/list",
+      params: {},
+    });
+    request.headers.set("Origin", "https://evil.example");
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({
+      error: { message: "Forbidden origin" },
+    });
+  });
+
+  it("rejects a request whose declared body exceeds 1 MiB", async () => {
+    const request = mcpRequest("POST", {
+      jsonrpc: "2.0",
+      id: 4,
+      method: "tools/list",
+      params: {},
+    });
+    request.headers.set("Content-Length", "1048577");
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(413);
+  });
+
   it("does not expose a GET endpoint for portfolio data", async () => {
     const response = await GET();
 
