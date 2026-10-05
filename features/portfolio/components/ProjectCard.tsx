@@ -9,6 +9,17 @@ const STATUS_LABEL: Record<Project["status"], { pt: string; en: string }> = {
   mvp: { pt: "MVP", en: "MVP" },
 };
 
+// Extrai o domínio de uma URL, removendo protocolo, www e caminho.
+// Retorna null se a URL for inválida ou nula.
+export function domainOf(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export function ProjectCard({
   project,
   locale,
@@ -17,15 +28,30 @@ export function ProjectCard({
   locale: Locale;
 }) {
   return (
-    <article className="bg-card flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
+    <article className="bg-card group card-interactive flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
       {project.cover && (
-        <Image
-          src={`/images/projects/${project.cover}`}
-          alt=""
-          width={640}
-          height={360}
-          className="aspect-video w-full object-cover"
-        />
+        <div data-browser-frame className="border-b">
+          <div className="bg-muted flex items-center gap-1.5 px-3 py-2">
+            <span className="size-2 rounded-full bg-[#FF5F57]" aria-hidden />
+            <span className="size-2 rounded-full bg-[#FEBC2E]" aria-hidden />
+            <span className="size-2 rounded-full bg-[#28C840]" aria-hidden />
+            {domainOf(project.url) && (
+              <span className="text-muted-foreground ml-2 truncate font-mono text-[11px]">
+                {domainOf(project.url)}
+              </span>
+            )}
+          </div>
+          <div className="overflow-hidden">
+            <Image
+              src={`/images/projects/${project.cover}`}
+              alt=""
+              width={1280}
+              height={800}
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            />
+          </div>
+        </div>
       )}
       <div className="flex flex-1 flex-col p-6">
         <header className="flex items-start justify-between gap-2">
