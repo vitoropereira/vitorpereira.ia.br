@@ -1,10 +1,23 @@
 import { calloutsToBlockquotes, videosToLinks, absolutizeInternalLinks } from "./transforms.ts";
-import { SITE_URL, MAX_BODY } from "../syndication/config.ts";
+import { SITE_URL, MAX_BODY, DIAGNOSTIC_PATH } from "../syndication/config.ts";
 
 export type SyndicationFormat = "summary" | "teaser" | "full";
 
 function transformInline(md: string): string {
   return absolutizeInternalLinks(videosToLinks(calloutsToBlockquotes(md)), SITE_URL);
+}
+
+/**
+ * `<DiagnosticCTA locale="x">texto</DiagnosticCTA>` → link markdown para o
+ * agendamento, pelo mesmo `/api/track` dos outros links que saem pro TabNews —
+ * no site o componente mede o clique; fora dele, quem mede é o redirect.
+ */
+function diagnosticCtasToLinks(md: string, format: SyndicationFormat): string {
+  return md.replace(
+    /<DiagnosticCTA\s+locale=["'](pt|en)["']\s*>([\s\S]*?)<\/DiagnosticCTA>/g,
+    (_m, locale: "pt" | "en", inner: string) =>
+      `[${inner.replace(/\s+/g, " ").trim()}](${trackUrl(SITE_URL + DIAGNOSTIC_PATH[locale], format)})`,
+  );
 }
 
 function firstSentence(text: string): string {
@@ -30,6 +43,31 @@ function findRealHeadingLines(lines: string[]): boolean[] {
   return isHeading;
 }
 
+/**
+ * Quebra uma seção em blocos separados por linha em branco, sem partir bloco
+ * de código cercado (que pode ter linha em branco dentro).
+ */
+function splitBlocks(lines: string[]): string[] {
+  const blocks: string[] = [];
+  let cur: string[] = [];
+  let inFence = false;
+  for (const line of lines) {
+    if (/^```/.test(line)) inFence = !inFence;
+    if (!inFence && line.trim() === "" && !/^```/.test(line)) {
+      if (cur.length) blocks.push(cur.join("\n"));
+      cur = [];
+    } else cur.push(line);
+  }
+  if (cur.length) blocks.push(cur.join("\n"));
+  return blocks;
+}
+
+/** Tabela, lista, código, citação e subtítulo viram lixo numa linha só — o resumo quer prosa. */
+function isProse(block: string): boolean {
+  const first = block.trimStart();
+  return !/^(```|\||[-*+]\s|\d+[.)]\s|>|#)/.test(first);
+}
+
 function extractSummary(body: string): string {
   const lines = body.split("\n");
   const isHeading = findRealHeadingLines(lines);
@@ -40,8 +78,8 @@ function extractSummary(body: string): string {
     if (!h) continue;
     const rest: string[] = [];
     for (let j = i + 1; j < lines.length && !isHeading[j]; j++) rest.push(lines[j]);
-    const para = rest.join("\n").trim().split(/\n\s*\n/)[0] ?? "";
-    items.push(`- **${h[1].trim()}** — ${firstSentence(para)}`);
+    const para = splitBlocks(rest).find(isProse);
+    items.push(para ? `- **${h[1].trim()}** — ${firstSentence(para)}` : `- **${h[1].trim()}**`);
   }
   return items.join("\n");
 }
@@ -72,7 +110,8 @@ export function toTabNewsMarkdown(input: {
   canonicalUrl: string;
   format: SyndicationFormat;
 }): string {
-  const { body, title, canonicalUrl, format } = input;
+  const { title, canonicalUrl, format } = input;
+  const body = diagnosticCtasToLinks(input.body, format);
   let out: string;
   if (format === "summary") {
     const summary = extractSummary(transformInline(body));
