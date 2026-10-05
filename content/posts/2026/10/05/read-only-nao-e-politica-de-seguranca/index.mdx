@@ -1,0 +1,113 @@
+---
+title: "Read-only não é uma política de segurança"
+description: "Uma tool MCP que não executa ações externas ainda precisa de contrato, autorização, limite de uso e saída tratada. O rótulo readOnlyHint não aplica nenhuma dessas garantias."
+date: 2026-10-05T11:00:00-03:00
+draft: false
+tags: [agentes, mcp, seguranca, arquitetura]
+comments: true
+---
+
+Marcar uma tool como _read-only_ é útil. Diz ao cliente que ela não deveria alterar o mundo.
+
+Mas o rótulo não valida entrada, não decide quem pode chamar, não limita volume e não impede que uma mudança futura acrescente uma escrita atrás da mesma interface.
+
+Em MCP, essa diferença é explícita: anotações descrevem o comportamento da tool, e os clientes devem tratá-las como não confiáveis quando o servidor não é confiável. A própria especificação também exige que o servidor valide entradas, aplique controle de acesso, limite invocações e sanitize saídas. [Não é uma recomendação de estilo; é a fronteira do protocolo.](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#security-considerations)
+
+A tese prática é simples: _read-only é uma propriedade da operação. Segurança é um conjunto de controles verificáveis em volta dela._
+
+## O contrato vem antes do agente
+
+Uma tool pública recente deste site ilustra a separação. Ela expõe uma única operação, `collections.analyze_portfolio`, para receber uma carteira fornecida pelo operador e devolver uma fila de prioridade. O contrato declara o que entra, o que sai e o que a tool não faz. O código está [aberto no commit de publicação](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts#L8-L81).
+
+A entrada não é “qualquer JSON que o modelo conseguir montar”. Ela define, entre outras coisas:
+
+- uma data de referência;
+- de uma a 500 faturas por chamada;
+- status fechado em `open`, `paid` ou `void`;
+- valor inteiro positivo em centavos;
+- uma flag `doNotContact`.
+
+A saída também é contrato: total aberto, contas priorizadas, data mais antiga em atraso, prioridade e ação recomendada. A [especificação de tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#output-schema) explica por que um `outputSchema` importa: ele permite validação e dá ao cliente uma estrutura para tratar a resposta sem depender de texto livre.
+
+Isso reduz ambiguidade. Não substitui controle de segurança.
+
+## Limite de payload não é rate limit
+
+O limite de 500 itens é uma defesa útil contra uma chamada desproporcional. Ainda assim, ele não diz quantas chamadas alguém pode fazer por minuto, por origem ou por identidade.
+
+São problemas diferentes:
+
+```text
+limite de payload → quanto trabalho uma chamada provoca
+rate limit        → quantas chamadas um ator pode provocar
+controle de acesso → quem pode provocar chamadas
+```
+
+Confundir essas camadas produz uma falsa sensação de segurança. Um schema perfeito continua aceitando uso abusivo se qualquer pessoa puder chamá-lo sem limite. Um rate limit bem configurado continua permitindo uma ação indevida se a autorização estiver errada. E autorização não corrige uma saída que devolve mais dados do que a interface deveria revelar.
+
+A especificação do MCP lista as quatro obrigações do servidor juntas por um motivo: validar entrada, controlar acesso, limitar invocações e sanitizar saída são controles complementares, não alternativas entre si.
+
+## A decisão operacional precisa aparecer no resultado
+
+O algoritmo da ferramenta separa fatos da próxima ação. Ele considera apenas faturas abertas, remove da fila clientes marcados com `doNotContact` e recomenda `human_review` ou `prepare_reminder` conforme a prioridade. [A implementação e o teste de contrato estão públicos.](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/lib/collections/portfolio.ts#L31-L74)
+
+Esse desenho faz duas coisas certas:
+
+1. uma regra operacional sensível fica no código, não em uma instrução improvisada no prompt;
+2. o resultado recomendado não executa cobrança, mensagem, pagamento ou mudança de cadastro.
+
+É uma diferença importante. Um agente pode ajudar a ordenar trabalho. Ele não ganha automaticamente permissão para executar o trabalho que ordenou.
+
+O mesmo princípio aparece em [ferramentas como contrato](/2026/07/25/ferramentas-como-contrato): uma tool confiável precisa dizer o que aceita, o que devolve e onde termina sua responsabilidade. Para uma ação externa, a fronteira deve ser ainda mais rígida, com autorização explícita, idempotência e trilha de auditoria.
+
+## Quatro perguntas antes de expor uma tool
+
+Antes de colocar uma tool MCP em uma URL, responda estas perguntas no código e nos testes:
+
+### 1. O schema rejeita o que não faz sentido?
+
+Formato não basta. Uma string no padrão `AAAA-MM-DD` pode ainda representar uma data impossível ou incompatível com a regra de negócio. Valide tipo, tamanho, faixas numéricas, datas semânticas e limites de coleção.
+
+### 2. Quem pode usar esta operação?
+
+“Não escreve” não significa “qualquer pessoa pode ler”. Dados de uma consulta, de um relatório ou de uma análise podem continuar sendo sensíveis. Defina autenticação e autorização para a superfície real da tool, não apenas para a interface web que a cerca.
+
+### 3. Qual é o custo de repetir a chamada?
+
+Meça CPU, banco, APIs externas e volume de resposta. Então aplique um limite durável no edge ou na infraestrutura que recebe o tráfego. Uma variável em memória de uma função serverless não é uma defesa confiável quando o processo escala ou reinicia.
+
+### 4. O resultado expõe só o necessário?
+
+Saída estruturada não é sinônimo de saída segura. Remova campos que não ajudam na decisão, evite ecoar payloads inteiros e trate texto vindo de fontes externas como dado, não como instrução para o modelo.
+
+## O teste que evita o rótulo decorativo
+
+`tools/list` mostrar `readOnlyHint: true` é só o começo. O teste de release precisa provar comportamento:
+
+```text
+entrada válida                 → resposta dentro do outputSchema
+payload maior que o limite     → rejeição
+valor ou data inválidos        → rejeição sem executar a lógica
+identidade sem permissão       → bloqueio
+origem acima do limite         → bloqueio
+saída com campo proibido       → ausência comprovada
+```
+
+Só depois disso faz sentido dizer que a operação é limitada. Antes, ela é apenas uma função com uma anotação otimista.
+
+<Callout type="note">
+  O uso correto de read-only não é prometer que nada pode dar errado. É reduzir
+  a superfície de efeito e deixar claro quais controles ainda precisam existir
+  para a tool operar com segurança.
+</Callout>
+
+## Fontes
+
+- [MCP Specification: Tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools): anotações de tool, `outputSchema` e requisitos de segurança para servidores.
+- [Endpoint MCP publicado](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts): schema de entrada e saída, anotações e ausência de ação externa na tool exposta.
+- [Implementação de priorização](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/lib/collections/portfolio.ts): filtragem de faturas e retorno de uma recomendação sem efeito externo.
+- [PR #49](https://github.com/vitoropereira/vitorpereira.ia.br/pull/49): publicação do endpoint Streamable HTTP e verificações declaradas no release.
+
+## Próximo passo
+
+Se seu agente já consulta ou prepara ações sobre dados operacionais, mas o contrato ainda mistura análise, permissão e efeito externo, <DiagnosticCTA locale="pt">traga o workflow para um diagnóstico de 30 minutos</DiagnosticCTA>.
