@@ -55,7 +55,7 @@ export function CountUp({
 
   return (
     <span className={className}>
-      <span ref={ref} aria-hidden="true">
+      <span key={value} ref={ref} aria-hidden="true">
         {value}
       </span>
       <span className="sr-only">{value}</span>

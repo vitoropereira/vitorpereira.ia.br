@@ -259,10 +259,33 @@
   }
   .card-interactive:hover,
   .card-interactive:focus-visible,
-  .card-interactive:focus-within {
+  .card-interactive:has(:focus-visible) {
     transform: translateY(-2px);
     border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
     box-shadow: 0 8px 24px -12px color-mix(in oklab, var(--brand) 35%, transparent);
+  }
+
+  /* Reveal + card-interactive no MESMO elemento: as duas regras acima setam o
+     shorthand `transition` com a mesma especificidade, então a última vence e
+     some o fade (ou o delay do stagger). Esta regra mais específica junta as
+     duas listas. O transition-delay vale o do estado FINAL da mudança, então o
+     stagger precisa ficar no estado revelado; hover/foco zeram o delay pra o
+     lift ser imediato. */
+  [data-reveal].card-interactive {
+    transition:
+      opacity var(--dur-slow) var(--ease-out),
+      transform var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .js [data-reveal].card-interactive:not([data-revealed]) {
+    transition-delay: 0ms;
+  }
+  [data-reveal].card-interactive:hover,
+  [data-reveal].card-interactive:focus-visible,
+  [data-reveal].card-interactive:has(:focus-visible) {
+    transition-delay: 0ms;
   }
 }
 
@@ -282,7 +305,7 @@
   .card-interactive,
   .card-interactive:hover,
   .card-interactive:focus-visible,
-  .card-interactive:focus-within {
+  .card-interactive:has(:focus-visible) {
     transform: none;
     transition: none;
   }

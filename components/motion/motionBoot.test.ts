@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { MOTION_BOOT_SCRIPT } from "./motionBoot";
 
 function runBoot() {
-   
   new Function(MOTION_BOOT_SCRIPT)();
 }
 

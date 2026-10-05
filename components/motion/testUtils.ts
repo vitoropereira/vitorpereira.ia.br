@@ -3,11 +3,15 @@ type Callback = (entries: Partial<IntersectionObserverEntry>[]) => void;
 
 export function mockIntersectionObserver() {
   const original = globalThis.IntersectionObserver;
-  const instances: { cb: Callback; disconnected: boolean }[] = [];
+  const instances: {
+    cb: Callback;
+    disconnected: boolean;
+    options?: IntersectionObserverInit;
+  }[] = [];
   class FakeIO {
-    private self: { cb: Callback; disconnected: boolean };
-    constructor(cb: Callback) {
-      this.self = { cb, disconnected: false };
+    private self: (typeof instances)[number];
+    constructor(cb: Callback, options?: IntersectionObserverInit) {
+      this.self = { cb, disconnected: false, options };
       instances.push(this.self);
     }
     observe() {}

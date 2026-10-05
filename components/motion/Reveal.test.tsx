@@ -53,13 +53,23 @@ describe("Reveal", () => {
   });
 
   it("sem IntersectionObserver revela de imediato", () => {
-    io.restore();
     const original = globalThis.IntersectionObserver;
-    // @ts-expect-error simulando navegador antigo
-    delete globalThis.IntersectionObserver;
-    render(<Reveal>w</Reveal>);
-    expect(screen.getByText("w")).toHaveAttribute("data-revealed");
-    globalThis.IntersectionObserver = original;
+    try {
+      // @ts-expect-error simulando navegador antigo
+      delete globalThis.IntersectionObserver;
+      render(<Reveal>w</Reveal>);
+      expect(screen.getByText("w")).toHaveAttribute("data-revealed");
+    } finally {
+      globalThis.IntersectionObserver = original;
+    }
+  });
+
+  it("observa com threshold 0 e rootMargin 0 (blocos altos e fim da página)", () => {
+    render(<Reveal>t</Reveal>);
+    expect(io.instances[0].options).toEqual({
+      threshold: 0,
+      rootMargin: "0px",
+    });
   });
 
   it("sinaliza ao boot script que a hidratação aconteceu", () => {

@@ -54,4 +54,12 @@ describe("CountUp", () => {
     act(() => io.trigger(true));
     expect(container.querySelector("[aria-hidden]")).toHaveTextContent("N/A");
   });
+
+  it("troca de value atualiza o nó animado (reduced-motion, sem animação)", () => {
+    restoreMM();
+    restoreMM = mockMatchMedia(true);
+    const { container, rerender } = render(<CountUp value="70+" />);
+    rerender(<CountUp value="90+" />);
+    expect(container.querySelector("[aria-hidden]")).toHaveTextContent("90+");
+  });
 });
