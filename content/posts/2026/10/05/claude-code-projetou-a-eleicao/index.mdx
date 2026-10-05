@@ -1,0 +1,104 @@
+---
+title: "Com 36% das urnas apuradas, o Claude Code projetou a eleição. O que fez dar certo não foi o modelo"
+description: "Na noite do 1º turno de 2026, um agente leu os arquivos públicos do TSE, projetou o resultado com 36,6% apurado e errou por menos de 1 ponto. O que segurou a noite foi dado verificável, fonte cruzada e premissa escrita."
+date: 2026-10-05T16:00:00-03:00
+draft: false
+tags: [agentes, claude-code, dados, ia-aplicada]
+comments: true
+---
+
+Na noite do 1º turno, às 18:32, o TSE tinha 36,6% das seções apuradas. A
+contagem parcial mostrava uma distância de 9,4 pontos entre os dois primeiros
+colocados.
+
+Pedi para o Claude Code ler os arquivos públicos do TSE e projetar o resultado
+final. Ele projetou uma distância de 3,6 pontos. O resultado com 100% apurado
+fechou em 1,9.
+
+Não escrevi código. Foram conversas. O vídeo mostra a noite inteira:
+
+<Video id="xIYXf9-lqRc" title="Pedi pro Claude Code projetar a eleição com 36% apurado" />
+
+Aqui eu quero registrar o que fez a noite funcionar, porque não foi o modelo
+acertar um palpite. Foram três decisões que valem para qualquer agente que
+trabalha com dado de verdade.
+
+## 1. O dado era público e verificável
+
+| Leitura | Apurado | 1º colocado | 2º colocado |
+| --- | --- | --- | --- |
+| Parcial às 18:32 | 36,6% | 50,63% | 41,23% |
+| Projeção feita às 18:32 | — | 47,8% | 44,2% |
+| Resultado final | 100% | 47,03% | 45,16% |
+
+A projeção errou 0,8 ponto num candidato e 1,0 no outro. Dá para conferir isso
+sem confiar em mim: cada leitura da noite está salva no
+[repositório](https://github.com/vitoropereira/eleicoes2026), com o painel
+exatamente como estava naquele momento.
+
+Esse é o ponto que mais importa. Um agente que trabalha sobre dado que ninguém
+consegue conferir produz resposta. Um agente que trabalha sobre dado público,
+com cada passo salvo, produz algo que dá para auditar.
+
+## 2. A fonte principal travou, e o agente tinha outra para cruzar
+
+O TSE publica um arquivo nacional e um arquivo por estado. Por volta das 19:14,
+o arquivo nacional parou em 64,81% e ficou assim por cerca de meia hora. Os
+arquivos dos estados continuaram atualizando.
+
+Quem olhasse só o nacional veria a apuração congelada. O agente passou a
+calcular o total pela soma dos estados mais o exterior. Às 19:32, a soma já
+estava em 84,93%.
+
+Quando o nacional destravou, os números bateram: 84,96% apurado, 48,47% contra
+43,49%, o mesmo da soma. O total de seções (499.248) e de eleitores
+(158.745.502) também era igual nas duas fontes. O episódio está registrado em
+[`comparacao_fontes.json`](https://github.com/vitoropereira/eleicoes2026/blob/main/marcos/75pct/comparacao_fontes.json).
+
+Isso não é inteligência do modelo. É arquitetura: ter uma segunda fonte que
+mede a mesma coisa e uma regra para usá-la quando a primeira para. É a mesma
+lógica de [registrar o que o agente fez](/2026/09/17/logs-para-operar-agentes):
+sem o rastro, ninguém saberia dizer depois por que o número da tela andou
+enquanto o do TSE estava parado.
+
+## 3. A premissa ficou escrita
+
+A projeção é simples. O voto que falta em cada estado segue o percentual já
+apurado naquele estado. Por cima disso, uma simulação de 20 mil rodadas soma um
+desvio nacional e um ruído por estado.
+
+Esses desvios são premissas escolhidas, não estimadas a partir de eleições
+passadas. Não é um modelo estatístico validado. E isso está escrito no
+[README](https://github.com/vitoropereira/eleicoes2026#como-os-n%C3%BAmeros-s%C3%A3o-calculados),
+não escondido atrás de uma porcentagem bonita.
+
+Acertar com uma premissa declarada vale mais do que acertar com uma caixa-preta.
+Se a premissa estiver errada no 2º turno, dá para ver exatamente onde.
+
+## O pedido claro fez o resto
+
+Os pedidos da noite foram curtos e específicos:
+
+- "analisa os dados do TSE, estado por estado, e compara com as pesquisas";
+- "gera um HTML com gráficos";
+- "quando passar de 50% e de 75%, salva o painel".
+
+O último virou um vigia que consultava o TSE a cada minuto e salvava os marcos
+sozinho. No fim da noite, a mesma conversa virou o
+[site de resultados](https://eleicoes2026.vitorpereira.ia.br), com o histórico
+da apuração leitura a leitura.
+
+O agente foi bem porque o pedido dizia o que entregar, o dado permitia conferir
+e a premissa estava à vista. Tira qualquer um dos três e a mesma noite vira um
+palpite com gráfico.
+
+## Fontes
+
+- [Site com o resultado e o histórico da apuração](https://eleicoes2026.vitorpereira.ia.br): resultado final, apuração ao vivo e o painel de cada leitura.
+- [Repositório `eleicoes2026`](https://github.com/vitoropereira/eleicoes2026): código, dados brutos do TSE e o log da noite (código MIT, dados CC BY 4.0).
+- [Resultados oficiais do TSE](https://resultados.tse.jus.br): a fonte de todos os números.
+
+## Próximo passo
+
+Se você tem um processo que depende de dado público ou interno e quer um agente
+que trabalhe sobre ele de forma auditável, <DiagnosticCTA locale="pt">traga o caso para um diagnóstico de 30 minutos</DiagnosticCTA>.
