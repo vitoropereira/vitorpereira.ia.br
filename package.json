@@ -18,6 +18,7 @@
     "new:post": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/new-post.ts",
     "translate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/translate-post.ts",
     "gen:cover": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/gen-cover.ts",
+    "gen:screenshots": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-screenshots.ts",
     "crosspost": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost.ts",
     "crosspost:stats": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost-stats.ts",
     "gen:card-assets": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-card-assets.ts",
