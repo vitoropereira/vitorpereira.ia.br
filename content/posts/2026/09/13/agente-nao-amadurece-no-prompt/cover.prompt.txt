@@ -1,0 +1,1 @@
+On the left, a lone terminal tile with a caret glyph; on the right, the same agent cube surrounded by real-world tiles: a wifi glyph with a dimmed bar, a blocked channel glyph, and a printed QR-like square pattern tile (abstract squares, no readable code); blue wires reconnect them.
