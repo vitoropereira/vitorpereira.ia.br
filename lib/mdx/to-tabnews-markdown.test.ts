@@ -49,12 +49,11 @@ describe("toTabNewsMarkdown", () => {
     expect(out).toContain("/api/track?to=");
     expect(out).toContain("f=teaser");
   });
-  it("full: corpo inteiro + rodapé de origem pelo /api/track", () => {
+  it("full: corpo inteiro sem rodapé de origem (o TabNews já mostra a Fonte pelo source_url)", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "full" });
     expect(out).toContain("## 1. Objetivo");
-    expect(out).toContain("Publicado originalmente");
-    expect(out).toContain("/api/track?to=");
-    expect(out).toContain("f=full");
+    expect(out).not.toContain("Publicado originalmente");
+    expect(out.trimEnd().endsWith("O erro comum é excesso, não falta. Mais uma frase.")).toBe(true);
   });
   it("estoura acima de 20k chars", () => {
     expect(() => toTabNewsMarkdown({ ...base, body: "x".repeat(20001), format: "full" })).toThrow(/20/);
@@ -137,5 +136,62 @@ describe("toTabNewsMarkdown — componentes e blocos", () => {
     expect(out).toContain("- **Fontes**\n");
     expect(out).toMatch(/- \*\*Só código\*\*(\n|$)/);
     expect(out).not.toContain("print(1)");
+  });
+
+  describe("parágrafos quebrados à mão no MDX", () => {
+    const WRAPPED = `Primeira linha do parágrafo
+continua aqui
+e termina aqui.
+
+Outro parágrafo
+em duas linhas.
+
+| a | b |
+| --- | --- |
+| 1 | 2 |
+
+\`\`\`python
+x = 1
+y = 2
+\`\`\`
+
+- item um
+  continua o item um
+- item dois
+
+> citação linha um
+> citação linha dois
+
+## Título
+Texto logo abaixo
+do título.
+
+<Callout type="note">
+  dentro do componente
+  em duas linhas
+</Callout>`;
+
+    const full = () => toTabNewsMarkdown({ ...base, body: WRAPPED, format: "full" });
+
+    it("junta as linhas de cada parágrafo numa só", () => {
+      expect(full()).toContain("Primeira linha do parágrafo continua aqui e termina aqui.");
+      expect(full()).toContain("Outro parágrafo em duas linhas.");
+      expect(full()).toContain("## Título\nTexto logo abaixo do título.");
+    });
+
+    it("preserva tabela, código e citação linha a linha", () => {
+      expect(full()).toContain("| a | b |\n| --- | --- |\n| 1 | 2 |");
+      expect(full()).toContain("\`\`\`python\nx = 1\ny = 2\n\`\`\`");
+      expect(full()).toContain("citação linha um\n");
+    });
+
+    it("mantém cada item de lista na própria linha, juntando só a continuação", () => {
+      expect(full()).toContain("- item um continua o item um\n- item dois");
+    });
+
+    it("teaser também junta as linhas da lede", () => {
+      const out = toTabNewsMarkdown({ ...base, body: WRAPPED, format: "teaser" });
+      expect(out).toContain("Primeira linha do parágrafo continua aqui e termina aqui.");
+    });
   });
 });

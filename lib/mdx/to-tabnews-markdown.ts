@@ -4,7 +4,7 @@ import { SITE_URL, MAX_BODY, DIAGNOSTIC_PATH } from "../syndication/config.ts";
 export type SyndicationFormat = "summary" | "teaser" | "full";
 
 function transformInline(md: string): string {
-  return absolutizeInternalLinks(videosToLinks(calloutsToBlockquotes(md)), SITE_URL);
+  return unwrapParagraphs(absolutizeInternalLinks(videosToLinks(calloutsToBlockquotes(md)), SITE_URL));
 }
 
 /**
@@ -18,6 +18,44 @@ function diagnosticCtasToLinks(md: string, format: SyndicationFormat): string {
     (_m, locale: "pt" | "en", inner: string) =>
       `[${inner.replace(/\s+/g, " ").trim()}](${trackUrl(SITE_URL + DIAGNOSTIC_PATH[locale], format)})`,
   );
+}
+
+/** Linha que abre um bloco próprio do markdown — nunca é continuação de parágrafo. */
+const BLOCK_START = /^\s*(```|\||#|>|[-*+]\s|\d+[.)]\s|<)/;
+
+/**
+ * No site, as quebras manuais do MDX (parágrafo quebrado a ~80 colunas) somem
+ * no render; no TabNews viram quebra de linha visível no meio da frase. Junta as
+ * linhas de cada parágrafo — e a continuação de um item de lista ao item — sem
+ * tocar em código cercado, tabela, citação, título, HTML/componente nem em
+ * quebra forçada (dois espaços ou `\` no fim da linha).
+ */
+function unwrapParagraphs(md: string): string {
+  const out: string[] = [];
+  let inFence = false;
+  let joinable = false;
+  for (const line of md.split("\n")) {
+    if (/^\s*```/.test(line)) {
+      inFence = !inFence;
+      out.push(line);
+      joinable = false;
+      continue;
+    }
+    if (inFence || line.trim() === "") {
+      out.push(line);
+      joinable = false;
+      continue;
+    }
+    if (joinable && !BLOCK_START.test(line)) {
+      out[out.length - 1] = `${out[out.length - 1].trimEnd()} ${line.trim()}`;
+    } else {
+      out.push(line);
+    }
+    const last = out[out.length - 1];
+    const isList = /^\s*([-*+]|\d+[.)])\s/.test(last);
+    joinable = (isList || !BLOCK_START.test(last)) && !/( {2}|\\)$/.test(last);
+  }
+  return out.join("\n");
 }
 
 function firstSentence(text: string): string {
@@ -120,7 +158,8 @@ export function toTabNewsMarkdown(input: {
   } else if (format === "teaser") {
     out = extractTeaser(transformInline(body)) + cta(title, canonicalUrl, format);
   } else {
-    out = `${transformInline(body)}\n\n---\n\nPublicado originalmente em ${trackUrl(canonicalUrl, "full")}`;
+    // Sem rodapé de origem: o TabNews já mostra "Fonte" com o source_url (a canônica).
+    out = transformInline(body);
   }
   if (out.length > MAX_BODY)
     throw new Error(`Body de ${out.length} chars excede o limite de ${MAX_BODY.toLocaleString("pt-BR")} do TabNews.`);
