@@ -331,23 +331,26 @@ export function classifyNavigation(
 }
 
 // ── CDP mínimo ────────────────────────────────────────────────────────────
-type Pending = { resolve: (v: any) => void; reject: (e: Error) => void };
+// Mensagens CDP chegam como JSON solto; cada uso faz o cast do campo que lê.
+type Json = Record<string, unknown>;
+type CdpMsg = { id?: number; method?: string; params?: Json; result?: Json; error?: { message: string } };
+type Pending = { resolve: (v: Json) => void; reject: (e: Error) => void };
 
 class Cdp {
   private ws: WebSocket;
   private seq = 0;
   private pending = new Map<number, Pending>();
-  private listeners: ((m: any) => void)[] = [];
+  private listeners: ((m: CdpMsg) => void)[] = [];
 
   constructor(ws: WebSocket) {
     this.ws = ws;
     ws.addEventListener("message", (ev) => {
-      const msg = JSON.parse(String(ev.data));
+      const msg = JSON.parse(String(ev.data)) as CdpMsg;
       if (msg.id && this.pending.has(msg.id)) {
         const p = this.pending.get(msg.id)!;
         this.pending.delete(msg.id);
         if (msg.error) p.reject(new Error(msg.error.message));
-        else p.resolve(msg.result);
+        else p.resolve(msg.result ?? {});
       } else {
         for (const l of this.listeners) l(msg);
       }
@@ -363,13 +366,13 @@ class Cdp {
     return new Cdp(ws);
   }
 
-  send(method: string, params: object = {}): Promise<any> {
+  send(method: string, params: object = {}): Promise<Json> {
     const id = ++this.seq;
     this.ws.send(JSON.stringify({ id, method, params }));
-    return new Promise((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    return new Promise<Json>((resolve, reject) => this.pending.set(id, { resolve, reject }));
   }
 
-  on(fn: (m: any) => void): () => void {
+  on(fn: (m: CdpMsg) => void): () => void {
     this.listeners.push(fn);
     return () => {
       this.listeners = this.listeners.filter((l) => l !== fn);
@@ -408,8 +411,8 @@ const DISMISS_COOKIES = `(() => {
 async function capture(cdp: Cdp, t: Target): Promise<"ok" | "http-error" | "no-response"> {
   let status: number | undefined;
   const off = cdp.on((m) => {
-    if (m.method === "Network.responseReceived" && m.params.type === "Document" && status === undefined) {
-      status = m.params.response.status;
+    if (m.method === "Network.responseReceived" && m.params?.type === "Document" && status === undefined) {
+      status = (m.params.response as { status: number }).status;
     }
   });
   const loaded = new Promise<void>((res) => {
@@ -423,8 +426,9 @@ async function capture(cdp: Cdp, t: Target): Promise<"ok" | "http-error" | "no-r
   await cdp.send("Page.navigate", { url: t.url });
   await Promise.race([loaded, new Promise((r) => setTimeout(r, NAV_TIMEOUT_MS))]);
   off();
-  const { result } = await cdp.send("Runtime.evaluate", { expression: "location.href", returnByValue: true });
-  const verdict = classifyNavigation(status, String(result.value ?? ""));
+  const evalRes = await cdp.send("Runtime.evaluate", { expression: "location.href", returnByValue: true });
+  const href = (evalRes.result as { value?: string } | undefined)?.value ?? "";
+  const verdict = classifyNavigation(status, href);
   if (verdict !== "ok") return verdict;
 
   await cdp.send("Runtime.evaluate", { expression: DISMISS_COOKIES, returnByValue: true });
@@ -432,7 +436,7 @@ async function capture(cdp: Cdp, t: Target): Promise<"ok" | "http-error" | "no-r
   const shot = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
   const out = outputPathFor(t.id);
   await mkdir(path.dirname(out), { recursive: true });
-  await sharp(Buffer.from(shot.data, "base64")).resize({ width: OUT_WIDTH }).webp({ quality: 82 }).toFile(out);
+  await sharp(Buffer.from(String(shot.data), "base64")).resize({ width: OUT_WIDTH }).webp({ quality: 82 }).toFile(out);
   return "ok";
 }
 
