@@ -49,11 +49,12 @@ describe("toTabNewsMarkdown", () => {
     expect(out).toContain("/api/track?to=");
     expect(out).toContain("f=teaser");
   });
-  it("full: corpo inteiro sem rodapé de origem (o TabNews já mostra a Fonte pelo source_url)", () => {
+  it("full: corpo inteiro com um link curto e rastreado de volta ao blog, sem a URL longa", () => {
     const out = toTabNewsMarkdown({ ...base, body: BODY, format: "full" });
     expect(out).toContain("## 1. Objetivo");
     expect(out).not.toContain("Publicado originalmente");
-    expect(out.trimEnd().endsWith("O erro comum é excesso, não falta. Mais uma frase.")).toBe(true);
+    expect(out).toContain("O erro comum é excesso, não falta. Mais uma frase.\n\n---\n\n[Leia no blog →](");
+    expect(out).toMatch(/\[Leia no blog →\]\([^)]*\/api\/track\?to=[^)]*&f=full\)$/);
   });
   it("estoura acima de 20k chars", () => {
     expect(() => toTabNewsMarkdown({ ...base, body: "x".repeat(20001), format: "full" })).toThrow(/20/);

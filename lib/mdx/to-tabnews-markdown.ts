@@ -158,8 +158,9 @@ export function toTabNewsMarkdown(input: {
   } else if (format === "teaser") {
     out = extractTeaser(transformInline(body)) + cta(title, canonicalUrl, format);
   } else {
-    // Sem rodapé de origem: o TabNews já mostra "Fonte" com o source_url (a canônica).
-    out = transformInline(body);
+    // O TabNews já mostra "Fonte" com a canônica, mas esse link não passa pelo
+    // /api/track. O link curto no fim mantém a medição sem expor a URL longa.
+    out = `${transformInline(body).trimEnd()}\n\n---\n\n[Leia no blog →](${trackUrl(canonicalUrl, format)})`;
   }
   if (out.length > MAX_BODY)
     throw new Error(`Body de ${out.length} chars excede o limite de ${MAX_BODY.toLocaleString("pt-BR")} do TabNews.`);
