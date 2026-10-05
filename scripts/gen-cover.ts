@@ -22,6 +22,8 @@
  *   --attach-frontmatter adiciona cover: aos MDX PT/EN só depois de preflight completo
  *   --force            permite substituir uma capa existente
  *   --allow-modality-retry permite uma segunda tentativa de modalidade (pode cobrar outra chamada)
+ *
+ *   O conteúdo de content/cover-style.txt é prefixado a todo prompt lido de arquivo.
  */
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -184,6 +186,19 @@ export function validateModeCompatibility(o: Options): void {
   }
 }
 
+const STYLE_FILE = path.join("content", "cover-style.txt");
+
+// O estilo vive num arquivo só para as capas novas saírem coesas com as
+// existentes sem cada cover.prompt.txt repetir (e divergir) o preâmbulo.
+export function composeCoverPrompt(style: string, subject: string): string {
+  const s = subject.trim();
+  if (!s) throw new Error("Prompt da capa vazio.");
+  if (/^TODO\b/.test(s)) {
+    throw new Error("cover.prompt.txt ainda está no placeholder TODO — escreva o assunto antes de gerar.");
+  }
+  return `${style.trim()}\n\nComposition for this post:\n${s}`;
+}
+
 async function resolvePrompt(o: Options): Promise<string> {
   if (o.prompt) return o.prompt;
   const file = o.promptFile ?? (o.post ? path.join(o.post, "cover.prompt.txt") : undefined);
@@ -191,7 +206,12 @@ async function resolvePrompt(o: Options): Promise<string> {
   if (!existsSync(file)) fail(`Arquivo de prompt não encontrado: ${file}`);
   const text = (await readFile(file, "utf8")).trim();
   if (!text) fail(`Prompt vazio em: ${file}`);
-  return text;
+  const style = existsSync(STYLE_FILE) ? await readFile(STYLE_FILE, "utf8") : "";
+  try {
+    return style ? composeCoverPrompt(style, text) : composeCoverPrompt("", text).trimStart();
+  } catch (e) {
+    return fail(errMsg(e));
+  }
 }
 
 function resolveOut(o: Options): string {
