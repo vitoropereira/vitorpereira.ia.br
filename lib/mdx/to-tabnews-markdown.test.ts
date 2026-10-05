@@ -81,3 +81,61 @@ describe("toTabNewsMarkdown", () => {
     expect(out).toContain("## Heading real depois do fence");
   });
 });
+
+const BODY_CTA = `Intro.
+
+## Próximo passo
+
+Se fizer sentido, <DiagnosticCTA locale="pt">traga o caso para um
+diagnóstico de 30 minutos</DiagnosticCTA>.`;
+
+const BODY_TABLE_LIST = `Intro.
+
+## Dados
+
+| Leitura | Valor |
+| --- | --- |
+| A | 1 |
+
+A projeção errou 0,8 ponto. Mais texto.
+
+## Fontes
+
+- [Site](https://exemplo.com): descrição.
+
+## Só código
+
+\`\`\`py
+print(1)
+\`\`\``;
+
+describe("toTabNewsMarkdown — componentes e blocos", () => {
+  it.each(["summary", "full"] as const)("%s: DiagnosticCTA vira link rastreado pro agendamento", (format) => {
+    const out = toTabNewsMarkdown({ ...base, body: BODY_CTA, format });
+    expect(out).not.toContain("DiagnosticCTA");
+    const target = encodeURIComponent("https://vitorpereira.ia.br/agendar/diagnostico-30min");
+    expect(out).toContain(
+      `[traga o caso para um diagnóstico de 30 minutos](https://vitorpereira.ia.br/api/track?to=${target}&f=${format})`,
+    );
+  });
+
+  it("DiagnosticCTA em inglês aponta pra rota EN", () => {
+    const out = toTabNewsMarkdown({
+      ...base,
+      body: `## Next\n\n<DiagnosticCTA locale="en">book it</DiagnosticCTA>.`,
+      format: "full",
+    });
+    expect(out).toContain(encodeURIComponent("https://vitorpereira.ia.br/en/booking/diagnostico-30min"));
+  });
+
+  it("summary: pula tabela, lista e código e usa o primeiro parágrafo de texto", () => {
+    const out = toTabNewsMarkdown({ ...base, body: BODY_TABLE_LIST, format: "summary" });
+    expect(out).toContain("- **Dados** — A projeção errou 0,8 ponto.");
+    expect(out).not.toContain("| --- |");
+    expect(out).not.toContain("- - ");
+    // seção sem parágrafo de texto: só o título, sem travessão vazio
+    expect(out).toContain("- **Fontes**\n");
+    expect(out).toMatch(/- \*\*Só código\*\*(\n|$)/);
+    expect(out).not.toContain("print(1)");
+  });
+});
