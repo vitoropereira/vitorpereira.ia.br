@@ -46,4 +46,12 @@ describe("classifyNavigation", () => {
       "no-response",
     );
   });
+  it("load que não disparou no prazo é no-response, mesmo com status 200", () => {
+    expect(classifyNavigation(200, "https://x.com/", false)).toBe(
+      "no-response",
+    );
+  });
+  it("load disparado explicitamente mantém ok", () => {
+    expect(classifyNavigation(200, "https://x.com/", true)).toBe("ok");
+  });
 });
