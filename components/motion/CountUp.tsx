@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { formatStat, parseStat } from "./countUp";
+import { formatStat, parseStat } from "./stat";
 import { prefersReducedMotion } from "./reducedMotion";
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);

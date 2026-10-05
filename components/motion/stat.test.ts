@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatStat, parseStat } from "./countUp";
+import { formatStat, parseStat } from "./stat";
 
 describe("parseStat", () => {
   it.each([

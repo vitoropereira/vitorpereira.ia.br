@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render } from "@testing-library/react";
-import { CountUp } from "./CountUp.tsx";
+import { CountUp } from "./CountUp";
 import { mockIntersectionObserver, mockMatchMedia } from "./testUtils";
 
 describe("CountUp", () => {
