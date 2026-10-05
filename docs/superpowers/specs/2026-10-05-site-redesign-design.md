@@ -21,7 +21,7 @@ Deixar o site moderno, bonito e **didático**: quem chega entende o que está ve
 ### Diagnóstico do estado atual (produção, 2026-10-05)
 
 - Nenhuma animação (entrada, hover, scroll).
-- Nenhuma imagem na home. **0 de 19 posts têm capa.** **0 de 15 projetos têm `cover`.**
+- Nenhuma imagem na home. **2 de 17 posts públicos têm capa** (`chatbot-nao-e-agente`, `arquitetura-mental-do-agente`; os outros 2 dos 19 são rascunho). **0 de 15 projetos têm `cover`.**
 - Hero só com texto; não mostra o que é um agente operacional.
 - Copy da home usa jargão sem explicar (RLS, guardrails, in-product, event-driven).
 - 7 seções da home com o mesmo tratamento visual (borda + texto), sem ritmo.
@@ -37,7 +37,7 @@ A infraestrutura de imagem já existe e está vazia: `ProjectCard` renderiza `co
 | Técnica do motion | **CSS-first + um componente `<Reveal>`** (IntersectionObserver). Zero dependência nova. Seções continuam Server Components |
 | Didática da home | Diagrama "como funciona" animado + antes/depois **qualitativo** + FAQ |
 | Hero | Log de agente animado, **3 cenários fictícios e neutros alternando** |
-| Estilo das imagens geradas | **Abstrato técnico na paleta** (blueprint, linhas/nós em `#24C8FF` sobre quase-preto) |
+| Estilo das imagens geradas | **Seguir o 3D render premium das 2 capas existentes** (blocos foscos, gradiente grafite→cinza claro, fios azuis `#24C8FF`). Decisão revista ao descobrir as capas existentes; substitui a escolha inicial "abstrato técnico" |
 | Projetos | **Print real dos sites**, não ilustração |
 
 ### Restrições de conteúdo
@@ -168,15 +168,16 @@ Gera JSON-LD `FAQPage`. O mesmo componente é reutilizado na página do serviço
 - `ProjectCard` ganha moldura de janela de navegador (3 bolinhas + domínio) e zoom leve no hover.
 - **Portão:** os prints passam pelo Vitor antes do commit (um site pode estar com banner, erro ou conteúdo que ele não quer exibir).
 
-### 6.2 Capas dos 19 posts
+### 6.2 Capas dos 15 posts públicos sem capa
 
-- Arquivo `content/cover-style.txt` com o **preâmbulo de estilo**: fundo quase-preto `#070B12`, linhas, nós e fluxos em azul elétrico `#24C8FF` com acentos `#3B82F6`, estética de blueprint/diagrama técnico, composição limpa com espaço negativo, sem texto, sem letras, sem logos, sem rostos, 16:9.
+- Arquivo `content/cover-style.txt` com o **preâmbulo de estilo**, extraído do `cover.prompt.txt` de `arquitetura-mental-do-agente`: render 3D premium 16:9, iluminação de estúdio suave, blocos 3D arredondados e foscos sobre gradiente de grafite quase-preto (esquerda) a cinza claro (direita), fios finos em azul elétrico `#24C8FF` com nós de luz, poucos pontos âmbar; proibido texto, letras, números, robôs, rostos, cérebros azuis, matrix, clichê de placa de circuito; referência Vercel / Linear / Raycast.
 - Cada post ganha `cover.prompt.txt` = preâmbulo + uma metáfora visual do tema (escrita por Claude a partir do post).
-- Geração: `pnpm gen:cover --post <dir> --attach-frontmatter`. A primeira capa aprovada vira `--ref` das demais, pra coesão.
+- Geração: `pnpm gen:cover --post <dir> --attach-frontmatter --ref <as 2 capas existentes>`. As 2 capas existentes não são regeradas.
 - `gen:cover` passa a concatenar `content/cover-style.txt` automaticamente; `pnpm new:post` passa a criar o `cover.prompt.txt` por padrão.
 - PT e EN compartilham a mesma capa (o `--attach-frontmatter` já escreve nos dois).
 - A capa alimenta: card do blog, card de caso, topo do post e imagem OG.
-- **Portão:** folha de contato com as 19 capas pro Vitor vetar; só as vetadas são regeradas.
+- Rascunhos (`hello-world`, `only-pt-draft`) ficam sem capa.
+- **Portão:** folha de contato com as 15 capas novas (mais as 2 existentes, pra comparar) pro Vitor vetar; só as vetadas são regeradas.
 - Custo estimado: menos de US$ 2 no total (modelo Flash).
 
 ## 7. PR ④ — Páginas internas + header/footer
