@@ -34,7 +34,7 @@ export const projects: Project[] = [
         "White-label policyholder portal + book-of-business dashboard",
       ],
     },
-    cover: null,
+    cover: "clearseg.webp",
   },
   {
     id: "sarcorps",
@@ -66,7 +66,7 @@ export const projects: Project[] = [
         "pt/en/es i18n with custom tooling + accessibility (WCAG)",
       ],
     },
-    cover: null,
+    cover: "sarcorps.webp",
   },
   {
     id: "pixel-ai-hub",
@@ -140,7 +140,7 @@ export const projects: Project[] = [
         "100+ automation workflows and 90+ PostgreSQL tables (pgvector)",
       ],
     },
-    cover: null,
+    cover: "mygroupmetrics.webp",
   },
   {
     id: "dataclarityia",
@@ -204,7 +204,7 @@ export const projects: Project[] = [
         "24/7 support and sales",
       ],
     },
-    cover: null,
+    cover: "chatmatrix.webp",
   },
   {
     id: "auralooks",
@@ -236,7 +236,7 @@ export const projects: Project[] = [
         "Mobile-first experience",
       ],
     },
-    cover: null,
+    cover: "auralooks.webp",
   },
   {
     id: "calvino",
@@ -268,7 +268,7 @@ export const projects: Project[] = [
         "Personalized AI assistants for pastors",
       ],
     },
-    cover: null,
+    cover: "calvino.webp",
   },
   {
     id: "insightvideoia",
@@ -300,7 +300,7 @@ export const projects: Project[] = [
         "Multilingual support",
       ],
     },
-    cover: null,
+    cover: "insightvideoia.webp",
   },
   {
     id: "microsaas-brasil",
@@ -332,7 +332,7 @@ export const projects: Project[] = [
         "Operation and distribution automation",
       ],
     },
-    cover: null,
+    cover: "microsaas-brasil.webp",
   },
   {
     id: "4trip",
@@ -399,7 +399,7 @@ export const projects: Project[] = [
         "85,000+ engaged users",
       ],
     },
-    cover: null,
+    cover: "ajudaja.webp",
   },
   {
     id: "sgcm",
