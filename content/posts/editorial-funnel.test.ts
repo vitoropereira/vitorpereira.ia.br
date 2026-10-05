@@ -93,6 +93,22 @@ describe("trilha editorial de agentes", () => {
     );
   });
 
+  it("publica read-only como contrato, não como promessa de segurança", () => {
+    const article = postBody("10/05", "read-only-nao-e-politica-de-seguranca");
+
+    expect(article).toContain("date: 2026-10-05T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain("](/2026/07/25/ferramentas-como-contrato)");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
+    );
+    expect(article).toContain(
+      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts",
+    );
+  });
+
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {
     expect(
       postBody("07/18", "arquitetura-mental-do-agente", "index.en.mdx"),
