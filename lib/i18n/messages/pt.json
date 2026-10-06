@@ -4,7 +4,10 @@
     "posts": "Blog",
     "portfolio": "Portfólio",
     "about": "Sobre",
-    "contact": "Contato"
+    "contact": "Contato",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "menu": "Menu"
   },
   "blog": {
     "readingTime": "{minutes} min de leitura",
