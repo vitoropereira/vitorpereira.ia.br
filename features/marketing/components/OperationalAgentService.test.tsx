@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { OperationalAgentService } from "./OperationalAgentService";
 import { bookingRoutes } from "@/features/booking/routes";
 
@@ -20,9 +20,12 @@ describe("OperationalAgentService", () => {
         name: /piloto de um workflow operacional/i,
       }),
     ).toBeInTheDocument();
+    const investment = within(
+      screen.getByRole("region", { name: /piloto de um workflow/i }),
+    );
     expect(
-      screen.getAllByText(/a partir de r\$ 20\.000/i).length,
-    ).toBeGreaterThan(0);
+      investment.getByText(/a partir de r\$ 20\.000/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/sistema ampliado.*r\$ 40\.000/i),
     ).toBeInTheDocument();
@@ -53,7 +56,12 @@ describe("OperationalAgentService", () => {
         name: /pilot for one operational workflow/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/from r\$ 20,000/i).length).toBeGreaterThan(0);
+    const investment = within(
+      screen.getByRole("region", {
+        name: /pilot for one operational workflow/i,
+      }),
+    );
+    expect(investment.getByText(/from r\$ 20,000/i)).toBeInTheDocument();
     expect(
       screen.getByText(/expanded system.*r\$ 40,000/i),
     ).toBeInTheDocument();
@@ -83,10 +91,9 @@ describe("OperationalAgentService", () => {
         screen.getByRole("heading", { name: step, level: 3 }),
       ).toBeInTheDocument();
     expect(container.querySelectorAll("details")).toHaveLength(5);
-    // HowItWorks (5 passos) + MethodTimeline (4) = 2 listas ordenadas.
-    const lists = container.querySelectorAll("ol");
-    expect(lists).toHaveLength(2);
-    expect(lists[0].querySelectorAll(":scope > li")).toHaveLength(5);
+    const timeline = container.querySelector("ol[data-method-timeline]");
+    expect(timeline?.querySelectorAll(":scope > li")).toHaveLength(4);
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(
       container.querySelector('script[type="application/ld+json"]'),
     ).toBeNull();

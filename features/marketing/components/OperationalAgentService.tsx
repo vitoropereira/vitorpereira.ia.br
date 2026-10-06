@@ -136,9 +136,9 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
 
       <section className="border-y">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <p className="text-muted-foreground font-mono text-xs tracking-widest uppercase">
+          <h2 className="text-muted-foreground font-mono text-xs font-normal tracking-widest uppercase">
             {text.methodLabel}
-          </p>
+          </h2>
           <p className="text-muted-foreground mt-3 max-w-3xl">
             {text.methodText}
           </p>
@@ -208,12 +208,15 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
         </div>
       </section>
 
-      <section className="border-y">
+      <section className="border-y" aria-labelledby="investment-title">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-primary font-mono text-sm tracking-widest uppercase">
             {text.investmentLabel}
           </p>
-          <h2 className="font-heading mt-4 text-3xl font-bold">
+          <h2
+            id="investment-title"
+            className="font-heading mt-4 text-3xl font-bold"
+          >
             {text.investmentPilotTitle}
           </h2>
           <p className="text-muted-foreground mt-4 max-w-3xl">

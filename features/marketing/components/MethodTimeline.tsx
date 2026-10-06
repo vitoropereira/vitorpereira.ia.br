@@ -59,7 +59,7 @@ export function MethodTimeline({ locale }: { locale: Locale }) {
           />
         </svg>
       </Reveal>
-      <ol className="grid gap-8 md:grid-cols-4">
+      <ol data-method-timeline className="grid gap-8 md:grid-cols-4">
         {steps.map((step, i) => (
           <Reveal
             as="li"
