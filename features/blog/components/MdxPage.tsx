@@ -9,12 +9,15 @@ export function MdxPage({
   body,
   image,
   justify,
+  variant,
 }: {
   title: string;
   description?: string;
   body: string;
   image?: { src: string; alt: string };
   justify?: boolean;
+  // "about" liga a linha do tempo e os cartões de destaques via CSS.
+  variant?: "about";
 }) {
   return (
     <section className="mx-auto max-w-3xl px-6 py-16">
@@ -25,7 +28,7 @@ export function MdxPage({
           width={512}
           height={435}
           priority
-          className="mx-auto mb-6 h-auto w-44 drop-shadow-lg sm:float-right sm:mb-3 sm:ml-8 sm:w-60 md:w-72"
+          className="ring-border mx-auto mb-6 h-auto w-44 rounded-2xl ring-1 drop-shadow-lg sm:float-right sm:mb-3 sm:ml-8 sm:w-72 md:w-80"
         />
       )}
       <h1 className="mb-2 font-heading text-4xl font-bold tracking-tight">
@@ -35,7 +38,7 @@ export function MdxPage({
         <p className="text-muted-foreground mb-8">{description}</p>
       )}
       <article
-        className={`prose-post${justify ? " hyphens-auto text-justify" : ""}`}
+        className={`prose-post${variant === "about" ? " prose-about" : ""}${justify ? " hyphens-auto text-justify" : ""}`}
       >
         <MDXRemote
           source={body}

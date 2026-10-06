@@ -159,6 +159,31 @@
   .prose-post ul {
     @apply my-4 list-disc pl-6;
   }
+  /* Sobre: linha do tempo e destaques só por CSS sobre o MDX existente.
+     Ids vêm do rehype-slug; text-left porque a página usa text-justify. */
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul,
+  .prose-about :is(h2#destaques, h2#highlights) + ul {
+    @apply pl-0 text-left;
+    list-style: none;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul {
+    @apply border-border ml-2 border-l-2;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul > li {
+    @apply relative my-5 pl-6;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul > li::before {
+    content: "";
+    @apply bg-primary ring-background absolute h-2.5 w-2.5 rounded-full ring-4;
+    left: -6px;
+    top: 0.5em;
+  }
+  .prose-about :is(h2#destaques, h2#highlights) + ul {
+    @apply grid gap-3 md:grid-cols-2;
+  }
+  .prose-about :is(h2#destaques, h2#highlights) + ul > li {
+    @apply my-0 rounded-lg border p-4;
+  }
   .prose-post ol {
     @apply my-4 list-decimal pl-6;
   }
