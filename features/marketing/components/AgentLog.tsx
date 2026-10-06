@@ -27,26 +27,27 @@ const ICON: Record<LogKind, LucideIcon> = {
 const TONE: Record<LogKind, string> = {
   input: "text-muted-foreground",
   read: "text-foreground",
-  alert: "text-amber-500",
+  alert: "text-amber-700 dark:text-amber-400",
   human: "text-primary",
-  done: "text-emerald-500",
+  done: "text-emerald-700 dark:text-emerald-400",
 };
 
 const LABEL = {
   pt: {
-    live: "ao vivo",
+    live: "simulação",
     example: "exemplo de execução",
     aria: "Exemplo de um agente executando um processo",
   },
   en: {
-    live: "live",
+    live: "simulated",
     example: "example run",
     aria: "Example of an agent running a workflow",
   },
 } as const;
 
-// O servidor manda o cenário 1 inteiro (sem JS, leitor de tela e crawler veem
-// o exemplo completo). No cliente, depois de uma pausa, a animação passa ao
+// O servidor manda o cenário 1 inteiro (sem JS e crawler veem o exemplo
+// completo). A lista animada é aria-hidden porque muda sozinha; o leitor de
+// tela lê a lista sr-only estática do cenário 1, que nunca muda. No cliente, depois de uma pausa, a animação passa ao
 // próximo cenário e digita linha a linha. Altura fixa = sem layout shift.
 export function AgentLog({
   locale,
@@ -133,7 +134,7 @@ export function AgentLog({
         <span className="text-muted-foreground ml-3 truncate">
           {scenario.agent}
         </span>
-        <span className="text-primary ml-auto flex items-center gap-1.5 text-xs">
+        <span className="text-foreground/80 ml-auto flex items-center gap-1.5 text-xs">
           <span
             className="bg-primary size-1.5 animate-pulse rounded-full motion-reduce:animate-none"
             aria-hidden
@@ -141,7 +142,14 @@ export function AgentLog({
           {t.live}
         </span>
       </div>
-      <ol className="h-[13.5rem] space-y-2 p-4" aria-live="off">
+      <ol className="sr-only">
+        {scenarios[0]!.lines.map((line, k) => (
+          <li key={k}>
+            {line.time} — {line.text}
+          </li>
+        ))}
+      </ol>
+      <ol className="h-[17rem] space-y-2 p-4 sm:h-[13.5rem]" aria-hidden="true">
         {scenario.lines.slice(0, shown).map((line, k) => {
           const Icon = ICON[line.kind];
           return (
