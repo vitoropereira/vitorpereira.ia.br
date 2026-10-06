@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getPostsByLocale } from "@/features/blog/lib/queries";
 import { Pagination } from "@/features/blog/components/Pagination";
+import {
+  TagChips,
+  shouldFeatureFirst,
+  rankTagsByFrequency,
+} from "@/features/blog/components/TagChips";
 import { PostList } from "@/features/blog/components/PostList";
 import { siteConfig } from "@/lib/siteConfig";
 import { buildMetadata } from "@/components/seo/buildMetadata";
@@ -31,10 +36,15 @@ export default async function PostsPage({
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="mb-8 font-heading text-4xl font-bold tracking-tight">
+      <h1 className="font-heading text-4xl font-bold tracking-tight">
         {t("posts")}
       </h1>
-      <PostList posts={pageItems} />
+      <p className="text-muted-foreground mt-3 mb-8 max-w-2xl text-lg">
+        Agentes, automação e IA em produção — o que funciona, o que quebra e por
+        quê.
+      </p>
+      <TagChips tags={rankTagsByFrequency(posts)} locale="pt" />
+      <PostList posts={pageItems} featuredFirst={shouldFeatureFirst(current)} />
       <Pagination current={current} total={total} basePath="/posts" />
     </section>
   );
