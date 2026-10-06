@@ -70,6 +70,12 @@ const copy = {
 // O passo da aprovação humana é a mensagem central da seção: ganha anel no ícone.
 const APPROVAL_STEP = 3;
 
+// Linha vertical só no mobile (coluna única): sai de baixo do ícone (centro em
+// 20px = left-[19px] + 1px) e vai até o topo do próximo passo (gap-8 = 2rem).
+// Pseudo-elemento absoluto dentro do li: não gera overflow horizontal.
+const STEP_LINE =
+  "before:absolute before:left-[19px] before:top-[68px] before:bottom-[-1.75rem] before:w-px before:bg-primary/40 sm:before:hidden";
+
 export function HowItWorks({ locale }: { locale: Locale }) {
   const t = copy[locale === "en" ? "en" : "pt"];
 
@@ -90,7 +96,7 @@ export function HowItWorks({ locale }: { locale: Locale }) {
         <Reveal variant="fade">
           <svg
             aria-hidden="true"
-            className="pointer-events-none absolute top-[44px] left-[10%] w-[80%] hidden h-px lg:block"
+            className="pointer-events-none absolute top-[44px] left-[10%] hidden h-px w-[80%] lg:block"
             preserveAspectRatio="none"
             viewBox="0 0 100 1"
           >
@@ -116,7 +122,9 @@ export function HowItWorks({ locale }: { locale: Locale }) {
               <Reveal
                 as="li"
                 key={step.title}
-                className="lg:flex lg:flex-col lg:items-center lg:text-center"
+                className={`relative lg:flex lg:flex-col lg:items-center lg:text-center ${
+                  i < t.steps.length - 1 ? STEP_LINE : ""
+                }`}
                 delay={i * 80}
               >
                 <span className="text-primary font-mono text-xs">

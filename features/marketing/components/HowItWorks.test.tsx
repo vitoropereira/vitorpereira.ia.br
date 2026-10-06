@@ -56,4 +56,14 @@ describe("HowItWorks", () => {
     expect(line?.getAttribute("pathLength")).toBe("100");
     expect(line?.getAttribute("stroke-dasharray")).toBe("100");
   });
+
+  it("liga os passos com linha vertical no mobile (menos o último)", () => {
+    render(<HowItWorks locale="pt" />);
+    const items = screen.getAllByRole("listitem");
+    items.slice(0, -1).forEach((li) => {
+      expect(li.className).toContain("before:w-px");
+      expect(li.className).toContain("sm:before:hidden");
+    });
+    expect(items[4]!.className).not.toContain("before:w-px");
+  });
 });

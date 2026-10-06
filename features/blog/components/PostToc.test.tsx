@@ -32,6 +32,24 @@ describe("PostToc", () => {
     );
   });
 
+  it("marca o item da âncora ao abrir direto com hash", async () => {
+    history.replaceState(null, "", "#b");
+    try {
+      await act(async () => {
+        render(<PostToc items={items} locale="pt" />);
+      });
+      expect(screen.getByText("Segundo").closest("a")).toHaveAttribute(
+        "aria-current",
+        "location",
+      );
+      expect(screen.getByText("Primeiro").closest("a")).not.toHaveAttribute(
+        "aria-current",
+      );
+    } finally {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  });
+
   it("não renderiza nada sem itens", () => {
     const { container } = render(<PostToc items={[]} locale="en" />);
     expect(container).toBeEmptyDOMElement();
