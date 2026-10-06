@@ -22,11 +22,14 @@ type ServiceData = {
   url: string;
 };
 
+type FaqPageData = { type: "FAQPage"; items: { q: string; a: string }[] };
+
 export type JsonLdData =
   | BlogPostingData
   | WebSiteData
   | PersonData
-  | ServiceData;
+  | ServiceData
+  | FaqPageData;
 
 export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
   const author = {
@@ -67,6 +70,16 @@ export function JsonLd({ data, id }: { data: JsonLdData; id?: string }) {
       provider: author,
       areaServed: { "@type": "Country", name: "Brazil" },
       inLanguage: data.locale === "pt" ? "pt-BR" : "en",
+    };
+  } else if (data.type === "FAQPage") {
+    json = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: data.items.map((i) => ({
+        "@type": "Question",
+        name: i.q,
+        acceptedAnswer: { "@type": "Answer", text: i.a },
+      })),
     };
   } else {
     json = {
