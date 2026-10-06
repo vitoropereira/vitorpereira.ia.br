@@ -45,3 +45,31 @@ describe("ReadingProgress", () => {
     expect(bar).toHaveAttribute("aria-label", "Reading progress");
   });
 });
+
+describe("ReadingProgress (montagem)", () => {
+  it("reflete scroll já existente sem evento de scroll", () => {
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+      cb(0);
+      return 1;
+    });
+    vi.stubGlobal("cancelAnimationFrame", () => {});
+    Object.defineProperty(document.documentElement, "scrollHeight", {
+      configurable: true,
+      value: 2000,
+    });
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 1000,
+    });
+    Object.defineProperty(window, "scrollY", {
+      configurable: true,
+      value: 1000,
+    });
+    render(<ReadingProgress locale="pt" />);
+    expect(screen.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "100",
+    );
+    vi.unstubAllGlobals();
+  });
+});

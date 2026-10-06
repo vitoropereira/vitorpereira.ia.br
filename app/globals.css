@@ -160,7 +160,8 @@
     @apply my-4 list-disc pl-6;
   }
   /* Sobre: linha do tempo e destaques só por CSS sobre o MDX existente.
-     Ids vêm do rehype-slug; text-left porque a página usa text-justify. */
+     Ids vêm do rehype-slug; text-left porque a página usa text-justify.
+     Guarda: components/layout/prose-about.test.ts (renomear heading quebra o teste). */
   .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul,
   .prose-about :is(h2#destaques, h2#highlights) + ul {
     @apply pl-0 text-left;

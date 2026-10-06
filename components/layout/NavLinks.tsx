@@ -4,7 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export type NavItem = { href: string; label: string };
+export type NavItem = {
+  href: string;
+  label: string;
+  // Rotas que também acendem o item (ex.: posts em /AAAA/MM/DD/slug).
+  matchPrefixes?: string[];
+  matchPatterns?: RegExp[];
+};
 
 type Props = {
   items: NavItem[];
@@ -13,7 +19,15 @@ type Props = {
 };
 
 // Home nunca casa por prefixo: "/" é prefixo de tudo e acenderia sempre.
-function isActive(pathname: string, href: string) {
+function isActive(pathname: string, item: NavItem) {
+  const { href } = item;
+  if (
+    item.matchPrefixes?.some(
+      (p) => pathname === p || pathname.startsWith(p + "/"),
+    )
+  )
+    return true;
+  if (item.matchPatterns?.some((re) => re.test(pathname))) return true;
   if (href === "/" || href === "/en") return pathname === href;
   return pathname === href || pathname.startsWith(href + "/");
 }
@@ -31,7 +45,7 @@ export function NavLinks({ items, orientation = "row", onNavigate }: Props) {
       )}
     >
       {items.map((item) => {
-        const active = isActive(pathname, item.href);
+        const active = isActive(pathname, item);
         return (
           <li key={item.href}>
             <Link
@@ -39,9 +53,11 @@ export function NavLinks({ items, orientation = "row", onNavigate }: Props) {
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "focus-visible:ring-ring relative inline-block rounded-sm py-1 outline-none focus-visible:ring-2",
+                "focus-visible:ring-ring relative inline-block rounded-sm outline-none focus-visible:ring-2",
+                // Coluna (menu mobile): alvo de toque ≥ 44px.
+                orientation === "row" ? "py-1" : "block py-3",
                 active
-                  ? "text-foreground after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:bg-[var(--brand)] after:content-['']"
+                  ? "text-foreground after:bg-primary font-medium after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:content-['']"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >

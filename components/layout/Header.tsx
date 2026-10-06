@@ -16,7 +16,11 @@ export async function Header() {
     institutionalRoutes[key][locale as "pt" | "en"];
 
   const items = [
-    { href: r("postsList"), label: t("posts") },
+    {
+      href: r("postsList"),
+      label: t("posts"),
+      matchPatterns: [/^\/(en\/)?\d{4}\/\d{2}\/\d{2}\//, /^\/(en\/)?tags\//],
+    },
     { href: r("portfolio"), label: t("portfolio") },
     { href: r("about"), label: t("about") },
     { href: r("contact"), label: t("contact") },
@@ -28,7 +32,7 @@ export async function Header() {
         <Link href={r("home")} aria-label={siteConfig.name}>
           <Logo variant="wordmark" />
         </Link>
-        <nav className="hidden md:flex">
+        <nav aria-label={t("mainNav")} className="hidden md:flex">
           <NavLinks items={items} />
         </nav>
         <div className="hidden items-center gap-2 md:flex">

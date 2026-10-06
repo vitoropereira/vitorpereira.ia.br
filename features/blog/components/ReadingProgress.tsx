@@ -22,6 +22,9 @@ export function ReadingProgress({ locale }: { locale: "pt" | "en" }) {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
+    // Âncora (#id) ou scroll restaurado: sem evento de scroll na montagem,
+    // a barra ficaria em 0 até o primeiro movimento.
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {

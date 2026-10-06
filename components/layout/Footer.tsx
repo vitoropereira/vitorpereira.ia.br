@@ -76,7 +76,10 @@ export function Footer() {
               {contactTitle}
             </p>
             <div className="flex flex-col items-start gap-4">
-              <Link href={bookingRoutes.diagnostic(locale)} className={linkClass}>
+              <Link
+                href={bookingRoutes.diagnostic(locale)}
+                className={linkClass}
+              >
                 {pt ? "Agendar diagnóstico" : "Book a diagnostic"}
               </Link>
               <SocialLinks />
@@ -93,7 +96,10 @@ export function Footer() {
             >
               {pt ? "Privacidade" : "Privacy"}
             </Link>
-            <Link href={institutionalRoutes.terms[locale]} className={linkClass}>
+            <Link
+              href={institutionalRoutes.terms[locale]}
+              className={linkClass}
+            >
               {pt ? "Termos" : "Terms"}
             </Link>
             <button

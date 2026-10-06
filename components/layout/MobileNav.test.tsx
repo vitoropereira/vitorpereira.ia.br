@@ -42,7 +42,34 @@ describe("MobileNav", () => {
   it("clicar num link fecha o menu", async () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }));
-    fireEvent.click(await screen.findByText("Sobre"));
+    const link = await screen.findByText("Sobre");
+    // Evita o ruído "Not implemented: navigation" do jsdom.
+    document.addEventListener("click", (e) => e.preventDefault(), {
+      once: true,
+    });
+    fireEvent.click(link);
     await waitFor(() => expect(screen.queryByText("Sobre")).toBeNull());
+  });
+
+  it("trigger alterna aria-expanded", async () => {
+    setup();
+    const trigger = screen.getByRole("button", { name: "Abrir menu" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(trigger);
+    await screen.findByText("Sobre");
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("nav tem rótulo e alvos de toque ≥ 44px", async () => {
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "Abrir menu" }));
+    await screen.findByText("Sobre");
+    expect(
+      screen.getByRole("navigation", { name: "Menu" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Sobre").className).toContain("py-3");
+    expect(
+      screen.getByRole("button", { name: "Fechar menu" }).className,
+    ).toContain("size-11");
   });
 });

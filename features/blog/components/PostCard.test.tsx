@@ -125,3 +125,13 @@ describe("PostList", () => {
     expect(container.querySelectorAll("article.md\\:flex-row")).toHaveLength(0);
   });
 });
+
+describe("PostCard headingAs", () => {
+  it("renderiza h3 quando pedido e h2 por padrão", () => {
+    const { rerender } = render(<PostCard post={base as never} {...common} />);
+    expect(screen.getByRole("heading", { level: 2 })).toBeInTheDocument();
+    rerender(<PostCard post={base as never} {...common} headingAs="h3" />);
+    expect(screen.getByRole("heading", { level: 3 })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  });
+});

@@ -40,6 +40,29 @@ describe("TagChips", () => {
     expect(screen.getAllByRole("link")).toHaveLength(12);
   });
 
+  it("tag ativa fora do top 12 substitui o último chip (mantém 12)", () => {
+    const tags = Array.from({ length: 15 }, (_, i) => `t${i}`);
+    render(<TagChips tags={tags} locale="pt" active="t14" />);
+    expect(screen.getAllByRole("link")).toHaveLength(12);
+    expect(screen.getByRole("link", { name: "#t14" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.queryByRole("link", { name: "#t11" })).toBeNull();
+  });
+
+  it("tag ativa acentuada fora do top 12 aparece (compara decodificada)", () => {
+    const tags = [
+      ...Array.from({ length: 12 }, (_, i) => `t${i}`),
+      "segurança",
+    ];
+    render(<TagChips tags={tags} locale="pt" active="segurança" />);
+    expect(screen.getByRole("link", { name: "#segurança" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
   it("não renderiza nada sem tags", () => {
     const { container } = render(<TagChips tags={[]} locale="pt" />);
     expect(container).toBeEmptyDOMElement();

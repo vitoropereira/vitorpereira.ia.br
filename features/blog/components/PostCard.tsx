@@ -16,6 +16,9 @@ type Props = {
   priority?: boolean;
   // Override quando a grade vive num container mais estreito que a viewport.
   sizes?: string;
+  // Em seções com h2 próprio (ex.: relacionados) o card vira h3 para não
+  // quebrar o outline de títulos.
+  headingAs?: "h2" | "h3";
 };
 
 export function PostCard({
@@ -26,6 +29,7 @@ export function PostCard({
   showTags = true,
   priority = false,
   sizes,
+  headingAs: Heading = "h2",
 }: Props) {
   const featured = variant === "featured";
   const date = new Date(post.date).toLocaleDateString(
@@ -90,7 +94,7 @@ export function PostCard({
             </>
           )}
         </div>
-        <h2
+        <Heading
           className={`font-heading mt-2 leading-tight font-bold ${
             featured ? "text-2xl md:text-4xl" : "text-xl"
           }`}
@@ -101,7 +105,7 @@ export function PostCard({
           >
             {post.title}
           </Link>
-        </h2>
+        </Heading>
         <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
           {post.excerpt}
         </p>

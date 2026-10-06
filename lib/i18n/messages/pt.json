@@ -7,7 +7,8 @@
     "contact": "Contato",
     "openMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
-    "menu": "Menu"
+    "menu": "Menu",
+    "mainNav": "Principal"
   },
   "blog": {
     "readingTime": "{minutes} min de leitura",

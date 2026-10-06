@@ -44,15 +44,15 @@ export function MobileNav({ items, label, closeLabel, title }: Props) {
           render={
             <Button
               variant="ghost"
-              size="icon-sm"
-              className="absolute top-3 right-3"
+              size="icon"
+              className="absolute top-1.5 right-1.5 size-11"
               aria-label={closeLabel}
             />
           }
         >
           <X />
         </SheetClose>
-        <nav className="px-4">
+        <nav aria-label={title} className="px-4">
           <NavLinks
             items={items}
             orientation="column"

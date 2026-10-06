@@ -35,6 +35,12 @@ export function TagChips({
   active?: string;
 }) {
   if (tags.length === 0) return null;
+  // Tag ativa fora do top 12 entra no lugar do último chip: sem isso a página
+  // da tag não mostraria qual filtro está aplicado.
+  const visible = tags.slice(0, MAX_CHIPS);
+  if (active && tags.includes(active) && !visible.includes(active)) {
+    visible[visible.length - 1] = active;
+  }
   const prefix = locale === "en" ? "/en/tags" : "/tags";
   // Com ≤ 12 chips, flex-wrap quebra em linhas e nunca estoura 375px;
   // scroll horizontal esconderia tags sem ninguém perceber. Sem link "todas":
@@ -42,7 +48,7 @@ export function TagChips({
   return (
     <nav aria-label="Tags" className="mb-10">
       <ul className="flex flex-wrap gap-2">
-        {tags.slice(0, MAX_CHIPS).map((tag) => {
+        {visible.map((tag) => {
           const isActive = tag === active;
           return (
             <li key={tag}>
