@@ -132,7 +132,7 @@ export function HowItWorks({ locale }: { locale: Locale }) {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div
-                  className={`bg-accent relative col-start-1 row-span-3 row-start-1 inline-flex size-10 self-start rounded-lg p-2.5 sm:mt-2 sm:size-auto ${
+                  className={`bg-accent relative col-start-1 row-span-3 row-start-1 inline-flex size-10 self-start rounded-lg p-2.5 sm:mt-2 sm:size-auto sm:self-auto ${
                     i === APPROVAL_STEP ? "ring-primary/40 ring-1" : ""
                   }`}
                 >
