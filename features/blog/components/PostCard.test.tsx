@@ -14,6 +14,9 @@ vi.mock("next-intl/server", () => ({
       key === "readingTime" ? `${values?.minutes} min` : key,
 }));
 
+// DraftBadge usa useTranslations (client); sem provider, mockamos.
+vi.mock("next-intl", () => ({ useTranslations: () => () => "DRAFT" }));
+
 const base = {
   title: "Meu post",
   permalink: "/2026/04/21/meu-post",
@@ -40,8 +43,38 @@ describe("PostCard", () => {
 
   it("sem capa renderiza fallback sem img, com a primeira tag", () => {
     const { container } = render(<PostCard post={base as never} {...common} />);
+    const fb = container.querySelector("[data-cover-fallback]");
+    expect(fb).not.toBeNull();
+    expect(fb?.querySelector("img")).toBeNull();
     expect(container.querySelector("img")).toBeNull();
-    expect(screen.getAllByText("ia").length).toBeGreaterThan(0);
+    expect(fb).toHaveTextContent("ia");
+  });
+
+  it("link da capa sai do foco e o card tem um único link focável", () => {
+    const { container } = render(
+      <PostCard post={{ ...base, cover } as never} {...common} />,
+    );
+    const coverLink = container.querySelector("img")!.closest("a")!;
+    expect(coverLink).toHaveAttribute("tabindex", "-1");
+    expect(coverLink).toHaveAttribute("aria-hidden", "true");
+    // aria-hidden tira a capa da árvore de acessibilidade: sobra só o título
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("rascunho mostra o DraftBadge", () => {
+    render(<PostCard post={{ ...base, draft: true } as never} {...common} />);
+    expect(screen.getByText("DRAFT")).toBeInTheDocument();
+  });
+
+  it("locale en formata a data em inglês", () => {
+    render(
+      <PostCard
+        post={{ ...base, date: "2026-10-15T12:00:00Z" } as never}
+        locale="en"
+        readingTimeLabel="4 min read"
+      />,
+    );
+    expect(screen.getByText(/Oct/)).toBeInTheDocument();
   });
 
   it("featured aplica layout horizontal em md+", () => {
@@ -75,6 +108,16 @@ describe("PostList", () => {
     const feat = container.querySelectorAll("article.md\\:flex-row");
     expect(feat).toHaveLength(1);
     expect(container.querySelectorAll("article")[0]).toBe(feat[0]);
+  });
+
+  it("featuredFirst: primeiro card fora do Reveal, os demais dentro", async () => {
+    const { container } = render(
+      await PostList({ posts: posts as never, featuredFirst: true }),
+    );
+    const arts = container.querySelectorAll("article");
+    expect(arts[0].closest("[data-reveal]")).toBeNull();
+    expect(arts[1].closest("[data-reveal]")).not.toBeNull();
+    expect(arts[2].closest("[data-reveal]")).not.toBeNull();
   });
 
   it("sem featuredFirst nenhum é featured", async () => {

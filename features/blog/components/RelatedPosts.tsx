@@ -25,6 +25,7 @@ export async function RelatedPosts({ post }: { post: Post }) {
               locale={locale}
               readingTimeLabel={t("readingTime", { minutes: rp.readingTime })}
               showTags={false}
+              sizes="(min-width: 1024px) 280px, (min-width: 640px) 50vw, 100vw"
             />
           </Reveal>
         ))}

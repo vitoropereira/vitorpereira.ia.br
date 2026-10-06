@@ -12,6 +12,10 @@ type Props = {
   // síncrono evita getTranslations aqui dentro e o deixa testável em jsdom.
   readingTimeLabel: string;
   showTags?: boolean;
+  // Primeiro card da página pode ser o LCP: sem lazy-load.
+  priority?: boolean;
+  // Override quando a grade vive num container mais estreito que a viewport.
+  sizes?: string;
 };
 
 export function PostCard({
@@ -20,6 +24,8 @@ export function PostCard({
   locale,
   readingTimeLabel,
   showTags = true,
+  priority = false,
+  sizes,
 }: Props) {
   const featured = variant === "featured";
   const date = new Date(post.date).toLocaleDateString(
@@ -50,10 +56,12 @@ export function PostCard({
             alt=""
             width={cover.width}
             height={cover.height}
+            priority={priority}
             sizes={
-              featured
+              sizes ??
+              (featured
                 ? "(min-width: 768px) 60vw, 100vw"
-                : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")
             }
             className={`aspect-[16/9] w-full object-cover ${
               featured ? "md:h-full" : ""
@@ -61,6 +69,7 @@ export function PostCard({
           />
         ) : (
           <div
+            data-cover-fallback
             className={`from-primary/15 text-muted-foreground flex aspect-[16/9] w-full items-end bg-gradient-to-br to-transparent p-4 font-mono text-xs ${
               featured ? "md:h-full" : ""
             }`}

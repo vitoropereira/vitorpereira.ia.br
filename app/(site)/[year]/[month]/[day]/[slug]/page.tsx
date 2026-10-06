@@ -128,9 +128,16 @@ export default async function PostPage({
           {/* Coluna de leitura de 70ch: linha mais longa cansa o olho. */}
           <div className="mx-auto max-w-[70ch]">
             <PostBody post={post} />
-            <RelatedPosts post={post} />
-            {post.comments && <GiscusComments />}
           </div>
+          {/* Fora dos 70ch: três cards em ~280px não cabem na coluna de leitura. */}
+          <div className="mx-auto w-full max-w-4xl">
+            <RelatedPosts post={post} />
+          </div>
+          {post.comments && (
+            <div className="mx-auto max-w-[70ch]">
+              <GiscusComments />
+            </div>
+          )}
         </article>
         {toc.length > 0 && (
           <aside className="hidden lg:block">
