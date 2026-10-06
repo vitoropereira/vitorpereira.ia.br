@@ -7,7 +7,7 @@ import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import type { Locale } from "@/lib/i18n/config";
 
 export function LatestPosts({ locale }: { locale: Locale }) {
-  const posts = getPostsByLocale(locale, { limit: 5, preview: false });
+  const posts = getPostsByLocale(locale, { limit: 6, preview: false });
   if (posts.length === 0) return null;
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
@@ -32,10 +32,14 @@ export function LatestPosts({ locale }: { locale: Locale }) {
               as="article"
               delay={i * 80}
               className={`card-interactive group overflow-hidden rounded-lg border ${
-                featured ? "lg:col-span-2 lg:row-span-2" : ""
-              }`}
+                featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""
+              }${i === 5 ? "sm:max-lg:hidden" : ""}`}
             >
-              <Link href={p.permalink} className="block h-full">
+              <Link
+                href={p.permalink}
+                data-featured={featured ? "true" : undefined}
+                className="block h-full"
+              >
                 <div className="relative aspect-[16/9] overflow-hidden">
                   {cover ? (
                     <Image
@@ -55,13 +59,7 @@ export function LatestPosts({ locale }: { locale: Locale }) {
                     <div className="from-primary/15 h-full bg-gradient-to-br to-transparent" />
                   )}
                 </div>
-                <div className="p-4">
-                  <time className="text-muted-foreground font-mono text-xs">
-                    {new Date(p.date).toLocaleDateString(
-                      locale === "pt" ? "pt-BR" : "en-US",
-                      { year: "numeric", month: "short", day: "numeric" },
-                    )}
-                  </time>
+                <div className="flex flex-col p-4">
                   <h3
                     className={`font-heading mt-2 font-semibold ${
                       featured ? "text-xl" : ""
@@ -69,6 +67,12 @@ export function LatestPosts({ locale }: { locale: Locale }) {
                   >
                     {p.title}
                   </h3>
+                  <time className="text-muted-foreground order-first font-mono text-xs">
+                    {new Date(p.date).toLocaleDateString(
+                      locale === "pt" ? "pt-BR" : "en-US",
+                      { year: "numeric", month: "short", day: "numeric" },
+                    )}
+                  </time>
                 </div>
               </Link>
             </Reveal>
