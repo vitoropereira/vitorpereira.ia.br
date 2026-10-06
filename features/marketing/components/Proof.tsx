@@ -1,4 +1,6 @@
 import type { Locale } from "@/lib/i18n/config";
+import { CountUp } from "@/components/motion/CountUp";
+import { Reveal } from "@/components/motion/Reveal";
 
 type Stat = {
   value: string;
@@ -63,13 +65,14 @@ export function Proof({ locale }: { locale: Locale }) {
           {lang === "en" ? "in production" : "em produção"}
         </p>
         <dl className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <div key={stat.value + stat[lang].label}>
+          {stats.map((stat, i) => (
+            <Reveal key={stat.value + stat[lang].label} delay={i * 80}>
               <dt className="sr-only">{stat[lang].label}</dt>
               <dd>
-                <span className="text-primary block font-mono text-4xl font-semibold tracking-tight">
-                  {stat.value}
-                </span>
+                <CountUp
+                  value={stat.value}
+                  className="text-primary block font-mono text-4xl font-semibold tracking-tight tabular-nums"
+                />
                 <span className="mt-2 block font-sans text-sm font-semibold">
                   {stat[lang].label}
                 </span>
@@ -77,7 +80,7 @@ export function Proof({ locale }: { locale: Locale }) {
                   {stat[lang].context}
                 </span>
               </dd>
-            </div>
+            </Reveal>
           ))}
         </dl>
       </div>

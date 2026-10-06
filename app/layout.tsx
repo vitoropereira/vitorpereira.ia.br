@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { MOTION_BOOT_SCRIPT } from "@/components/motion/motionBoot";
 import "./globals.css";
 
 const inter = Inter({
@@ -35,6 +36,9 @@ export default async function RootLayout({
   const htmlLang = locale === "en" ? "en" : "pt-BR";
   return (
     <html lang={htmlLang} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT_SCRIPT }} />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
