@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { mockIntersectionObserver, mockMatchMedia } from "@/components/motion/testUtils";
+import {
+  mockIntersectionObserver,
+  mockMatchMedia,
+} from "@/components/motion/testUtils";
 import { Hero } from "./Hero";
 
 describe("Hero — oferta operacional", () => {
@@ -46,7 +49,9 @@ describe("Hero — oferta operacional", () => {
 
   it("mostra o log de exemplo ao lado do texto", () => {
     render(<Hero locale="pt" />);
-    expect(screen.getByRole("figure", { name: /exemplo de um agente/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("figure", { name: /exemplo de um agente/i }),
+    ).toBeInTheDocument();
   });
 
   it("o hero não é envolvido por Reveal (é o LCP)", () => {

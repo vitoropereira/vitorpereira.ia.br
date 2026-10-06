@@ -13,44 +13,44 @@ const stats: Stat[] = [
     value: "70+",
     pt: {
       label: "founders simultâneos",
-      context: "num agente conversacional ao vivo, com guardrails próprios",
+      context: "num agente de conversa ao vivo, com regras de proteção próprias",
     },
     en: {
       label: "simultaneous founders",
-      context: "on a live conversational agent, with custom guardrails",
+      context: "on a live conversational agent, with its own safety rules",
     },
   },
   {
     value: "~700",
     pt: {
       label: "análises por IA / dia",
-      context: "pipeline de sumarização rodando a cada 3 minutos",
+      context: "resumos automáticos gerados a cada 3 minutos",
     },
     en: {
       label: "AI analyses / day",
-      context: "summarization pipeline running every 3 minutes",
+      context: "automatic summaries generated every 3 minutes",
     },
   },
   {
     value: { pt: "3,6M+", en: "3.6M+" },
     pt: {
       label: "interações processadas",
-      context: "em ~2.900 grupos de WhatsApp, com IA in-product",
+      context: "em ~2.900 grupos de WhatsApp, com IA dentro do produto",
     },
     en: {
       label: "interactions processed",
-      context: "across ~2,900 WhatsApp groups, with in-product AI",
+      context: "across ~2,900 WhatsApp groups, with AI built into the product",
     },
   },
   {
     value: "~400",
     pt: {
-      label: "deploys em produção",
-      context: "numa plataforma event-driven com 165 testes verdes",
+      label: "atualizações em produção",
+      context: "numa plataforma com 165 testes automatizados passando",
     },
     en: {
-      label: "production deploys",
-      context: "on an event-driven platform with 165 green tests",
+      label: "production releases",
+      context: "on a platform with 165 passing automated tests",
     },
   },
 ];

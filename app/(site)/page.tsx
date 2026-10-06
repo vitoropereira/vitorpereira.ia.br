@@ -32,7 +32,7 @@ export default function HomePage() {
       <FeaturedProjects locale="pt" />
       <CaseStudies locale="pt" />
       <LatestPosts locale="pt" />
-      <Faq locale="pt" />
+      <Faq locale="pt" withJsonLd />
       <ContactCTA locale="pt" />
     </>
   );

@@ -28,6 +28,16 @@ describe("Proof", () => {
     ).toBeInTheDocument();
   });
 
+  it("usa contexto em linguagem simples, sem jargão", () => {
+    render(<Proof locale="pt" />);
+    expect(
+      screen.getByText("atualizações em produção", { selector: "span" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("numa plataforma com 165 testes automatizados passando"),
+    ).toBeInTheDocument();
+  });
+
   it("cada stat entra com Reveal escalonado", () => {
     const { container } = render(<Proof locale="en" />);
     const revealed = container.querySelectorAll("[data-reveal]");

@@ -60,7 +60,7 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
         {
           time: "14:30:05",
           kind: "human",
-          text: "responsável avisado → Bruno (operações)",
+          text: "3 linhas aguardam decisão → Bruno (operações)",
         },
         { time: "14:30:05", kind: "done", text: "211 linhas importadas" },
       ],
@@ -119,7 +119,7 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
         {
           time: "14:30:05",
           kind: "human",
-          text: "owner notified → Bruno (operations)",
+          text: "3 rows waiting for a decision → Bruno (operations)",
         },
         { time: "14:30:05", kind: "done", text: "211 rows imported" },
       ],

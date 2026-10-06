@@ -7,11 +7,11 @@ const items = [
     icon: Bot,
     pt: {
       title: "Agentes que executam",
-      desc: "Um agente que faz o trabalho de ponta a ponta — não só responde perguntas.",
+      desc: "Um agente que executa o trabalho — não só responde perguntas.",
     },
     en: {
       title: "Agents that execute",
-      desc: "An agent that gets the job done end to end — not one that only answers questions.",
+      desc: "An agent that does the work — not one that only answers questions.",
     },
   },
   {

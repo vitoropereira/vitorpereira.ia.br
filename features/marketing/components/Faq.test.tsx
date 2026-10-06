@@ -11,7 +11,7 @@ describe("Faq", () => {
   it.each(["pt", "en"] as const)(
     "5 perguntas como <details> (%s)",
     (locale) => {
-      const { container } = render(<Faq locale={locale} />);
+      const { container } = render(<Faq locale={locale} withJsonLd />);
       expect(container.querySelectorAll("details")).toHaveLength(5);
     },
   );
@@ -31,7 +31,7 @@ describe("Faq", () => {
   });
 
   it("emite JSON-LD FAQPage com as mesmas perguntas", () => {
-    const { container } = render(<Faq locale="pt" />);
+    const { container } = render(<Faq locale="pt" withJsonLd />);
     const ld = JSON.parse(
       container.querySelector('script[type="application/ld+json"]')!
         .textContent!,
@@ -57,8 +57,13 @@ describe("Faq", () => {
       expect(a.toLowerCase()).toContain(
         formatPrice(pilot, locale).toLowerCase(),
       );
-      expect(a).toContain(diag[locale].name);
-      expect(a).toContain(`(${formatDuration(diag, locale)})`);
+      const name = diag[locale].name;
+      const dur = formatDuration(diag, locale);
+      expect(a).toContain(
+        locale === "pt"
+          ? `A primeira conversa, o ${name} (${dur}), é`
+          : `The first conversation, the ${name} (${dur}), is`,
+      );
       expect(a.toLowerCase()).toContain(
         formatPrice(diag, locale).toLowerCase(),
       );

@@ -123,7 +123,10 @@ describe("AgentLog", () => {
   it("volta ao cenário 1 depois do último", () => {
     const { container } = render(<AgentLog locale="pt" />);
     act(() => io.trigger(true));
-    // 2500 hold + 600 + 3*600 (cen. 2) + 2500 + 600 + 4*600 (cen. 3) + 2500 + 600 + 600
+    // Cada troca: 2500 de hold + 600 até a 1ª linha + 600 por linha do cenário
+    // novo (o último passo de 600 é o que percebe "acabou" e inicia o próximo hold).
+    // Cen. 2 (4 linhas): 2500 + 600 + 4*600. Cen. 3 (5 linhas): 2500 + 600 + 5*600.
+    // Volta ao cen. 1: 2500 + 600 (troca) + 600 (1ª linha).
     act(() =>
       vi.advanceTimersByTime(
         2500 + 600 + 4 * 600 + 2500 + 600 + 5 * 600 + 2500 + 600 + 600,

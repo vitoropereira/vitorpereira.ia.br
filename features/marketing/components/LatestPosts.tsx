@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/motion/Reveal";
 import { coverOf } from "@/features/blog/lib/cover";
 import { getPostsByLocale } from "@/features/blog/lib/queries";
+import { cn } from "@/lib/utils";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -31,9 +32,11 @@ export function LatestPosts({ locale }: { locale: Locale }) {
               key={p.permalink}
               as="article"
               delay={i * 80}
-              className={`card-interactive group overflow-hidden rounded-lg border ${
-                featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2" : ""
-              }${i === 5 ? "sm:max-lg:hidden" : ""}`}
+              className={cn(
+                "card-interactive group overflow-hidden rounded-lg border",
+                featured && "sm:col-span-2 lg:col-span-2 lg:row-span-2",
+                i === 5 && "sm:max-lg:hidden",
+              )}
             >
               <Link
                 href={p.permalink}

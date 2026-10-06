@@ -34,7 +34,9 @@ describe("JsonLd — Service", () => {
 describe("JsonLd — FAQPage", () => {
   it("emite mainEntity com pergunta e resposta aceita", () => {
     const { container } = render(
-      <JsonLd data={{ type: "FAQPage", items: [{ q: "Pergunta?", a: "Resposta." }] }} />,
+      <JsonLd
+        data={{ type: "FAQPage", items: [{ q: "Pergunta?", a: "Resposta." }] }}
+      />,
     );
     const json = JSON.parse(
       container.querySelector('script[type="application/ld+json"]')

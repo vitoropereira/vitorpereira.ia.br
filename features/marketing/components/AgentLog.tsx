@@ -149,7 +149,7 @@ export function AgentLog({
           </li>
         ))}
       </ol>
-      <ol className="h-[17rem] space-y-2 p-4 sm:h-[13.5rem]" aria-hidden="true">
+      <ol className="h-[20rem] min-[360px]:h-[17rem] space-y-2 p-4 sm:h-[13.5rem]" aria-hidden="true">
         {scenario.lines.slice(0, shown).map((line, k) => {
           const Icon = ICON[line.kind];
           return (

@@ -35,9 +35,9 @@ export function buildCostAnswer(
   const free = formatPrice(diag, locale).toLowerCase();
   const dur = formatDuration(diag, locale);
   if (locale === "en") {
-    return `A pilot for one workflow takes 21 to 30 days, ${price}. The exact number comes out of the scoping session, which is included. The ${diag.en.name} (${dur}) is ${free}.`;
+    return `A pilot for one workflow takes 21 to 30 days, ${price}. The exact number comes out of the scoping session, which is included. The first conversation, the ${diag.en.name} (${dur}), is ${free}.`;
   }
-  return `O piloto de um processo leva de 21 a 30 dias, ${price}. O número exato sai do diagnóstico de escopo, que já está incluído. O ${diag.pt.name} (${dur}) é ${free}.`;
+  return `O piloto de um processo leva de 21 a 30 dias, ${price}. O número exato sai do diagnóstico de escopo, que já está incluído. A primeira conversa, o ${diag.pt.name} (${dur}), é ${free}.`;
 }
 
 export function getFaq(locale: Locale): FaqItem[] {
@@ -96,10 +96,10 @@ export function getFaq(locale: Locale): FaqItem[] {
 
 export function Faq({
   locale,
-  withJsonLd = true,
+  withJsonLd,
 }: {
   locale: Locale;
-  withJsonLd?: boolean;
+  withJsonLd: boolean;
 }) {
   const items = getFaq(locale);
   const title =
@@ -107,7 +107,7 @@ export function Faq({
 
   return (
     <section className="mx-auto max-w-3xl px-6 py-20">
-      <h2 className="mb-8 text-2xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="font-heading mb-8 text-3xl font-bold tracking-tight">{title}</h2>
       <div>
         {items.map((item, i) => (
           <Reveal key={item.q} delay={i * 80}>

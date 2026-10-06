@@ -90,7 +90,7 @@ export function HowItWorks({ locale }: { locale: Locale }) {
         <Reveal variant="fade">
           <svg
             aria-hidden="true"
-            className="pointer-events-none absolute top-[44px] right-[10%] left-[10%] hidden h-px lg:block"
+            className="pointer-events-none absolute top-[44px] left-[10%] w-[80%] hidden h-px lg:block"
             preserveAspectRatio="none"
             viewBox="0 0 100 1"
           >

@@ -32,7 +32,7 @@ export default function HomePageEn() {
       <FeaturedProjects locale="en" />
       <CaseStudies locale="en" />
       <LatestPosts locale="en" />
-      <Faq locale="en" />
+      <Faq locale="en" withJsonLd />
       <ContactCTA locale="en" />
     </>
   );
