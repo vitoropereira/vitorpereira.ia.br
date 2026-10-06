@@ -9,7 +9,8 @@ export type NavItem = {
   label: string;
   // Rotas que também acendem o item (ex.: posts em /AAAA/MM/DD/slug).
   matchPrefixes?: string[];
-  matchPatterns?: RegExp[];
+  // Fonte de RegExp em string: RegExp não cruza a fronteira server→client.
+  matchPatterns?: string[];
 };
 
 type Props = {
@@ -27,7 +28,8 @@ function isActive(pathname: string, item: NavItem) {
     )
   )
     return true;
-  if (item.matchPatterns?.some((re) => re.test(pathname))) return true;
+  if (item.matchPatterns?.some((src) => new RegExp(src).test(pathname)))
+    return true;
   if (href === "/" || href === "/en") return pathname === href;
   return pathname === href || pathname.startsWith(href + "/");
 }

@@ -51,7 +51,7 @@ describe("NavLinks", () => {
       {
         href: "/posts",
         label: "Blog",
-        matchPatterns: [/^\/(en\/)?\d{4}\/\d{2}\/\d{2}\//, /^\/(en\/)?tags\//],
+        matchPatterns: ["^/(en/)?\\d{4}/\\d{2}/\\d{2}/", "^/(en/)?tags/"],
       },
     ];
     for (const p of [

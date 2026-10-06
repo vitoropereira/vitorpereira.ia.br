@@ -6,6 +6,7 @@ import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
 import { ScrollAwareHeader } from "./ScrollAwareHeader";
 import { Logo } from "@/components/brand/Logo";
+import { buildNavItems } from "./navItems";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -15,16 +16,7 @@ export async function Header() {
   const r = (key: keyof typeof institutionalRoutes) =>
     institutionalRoutes[key][locale as "pt" | "en"];
 
-  const items = [
-    {
-      href: r("postsList"),
-      label: t("posts"),
-      matchPatterns: [/^\/(en\/)?\d{4}\/\d{2}\/\d{2}\//, /^\/(en\/)?tags\//],
-    },
-    { href: r("portfolio"), label: t("portfolio") },
-    { href: r("about"), label: t("about") },
-    { href: r("contact"), label: t("contact") },
-  ];
+  const items = buildNavItems(locale as "pt" | "en", t);
 
   return (
     <ScrollAwareHeader>
