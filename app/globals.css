@@ -287,6 +287,14 @@
   [data-reveal].card-interactive:has(:focus-visible) {
     transition-delay: 0ms;
   }
+  /* A linha do "Como funciona" se desenha quando a seção é revelada. */
+  [data-revealed] .how-line {
+    animation: draw 1.2s var(--ease-out) forwards;
+  }
+  /* Sem JS nada dispara o reveal: a linha já nasce desenhada. */
+  html:not(.js) .how-line {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes draw {
@@ -308,5 +316,9 @@
   .card-interactive:has(:focus-visible) {
     transform: none;
     transition: none;
+  }
+  .how-line {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
   }
 }
