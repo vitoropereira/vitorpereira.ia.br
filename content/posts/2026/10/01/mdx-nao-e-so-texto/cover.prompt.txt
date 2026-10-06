@@ -1,0 +1,1 @@
+A matte document tile on the left with simple lines; from it, blue wires lead to a row of tiles representing a route path glyph, a sitemap tree glyph, a globe glyph and a checklist glyph, with a small gate tile with a check mark in the middle of the wires.

@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { planCoverFrontmatter, resolveApiKey, validateModeCompatibility, type Options } from "./gen-cover.ts";
+import { composeCoverPrompt, planCoverFrontmatter, resolveApiKey, validateModeCompatibility, type Options } from "./gen-cover.ts";
 
 const keyNames = ["GOOGLE_API_KEY", "GEMINI_API_KEY", "GOOGLE_GEMINI_API_KEY"] as const;
 const tempDirs: string[] = [];
@@ -112,5 +112,21 @@ describe("planCoverFrontmatter", () => {
     );
     await expect(readFile(path.join(post, "index.mdx"), "utf8")).resolves.toBe(pt);
     await expect(readFile(path.join(post, "index.en.mdx"), "utf8")).resolves.toBe(en);
+  });
+});
+
+describe("composeCoverPrompt", () => {
+  it("põe o preâmbulo de estilo antes do assunto do post", () => {
+    const out = composeCoverPrompt("STYLE", "two arrows into one stamp");
+    expect(out.indexOf("STYLE")).toBeLessThan(out.indexOf("two arrows"));
+    expect(out).toContain("Composition for this post:");
+  });
+
+  it("recusa o placeholder TODO antes de gastar chamada de API", () => {
+    expect(() => composeCoverPrompt("STYLE", "TODO: prompt da capa.")).toThrow(/TODO/);
+  });
+
+  it("recusa assunto vazio", () => {
+    expect(() => composeCoverPrompt("STYLE", "   ")).toThrow();
   });
 });

@@ -1,0 +1,1 @@
+A small matte stage platform with a screen tile showing a frozen loading ring glyph; three tiny abstract audience pucks in front; a single simple lever tile at the side glowing blue, the one thing that works.

@@ -12,7 +12,8 @@
  *   --tags <a,b,c>       tags do frontmatter (default: vazio)
  *   --description <str>  description do frontmatter (default: placeholder)
  *   --publish            cria com draft:false (default: draft:true)
- *   --cover-prompt       cria também um cover.prompt.txt vazio pro gen:cover
+ *   --cover-prompt       (padrão) cria também um cover.prompt.txt pro gen:cover
+ *   --no-cover-prompt    não cria o cover.prompt.txt
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -80,7 +81,7 @@ function main(): void {
   let description = "TODO: escreva a description (vai pro card, pro OG e pro Google).";
   let tags: string[] = [];
   let draft = true;
-  let coverPrompt = false;
+  let coverPrompt = true;
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -90,6 +91,7 @@ function main(): void {
     else if (a === "--tags") tags = (argv[++i] ?? "").split(",").map((t) => t.trim()).filter(Boolean);
     else if (a === "--publish") draft = false;
     else if (a === "--cover-prompt") coverPrompt = true;
+    else if (a === "--no-cover-prompt") coverPrompt = false;
     else if (a.startsWith("--")) fail(`Flag desconhecida: ${a}`);
     else if (title === undefined) title = a;
     else fail(`Argumento inesperado: ${a}`);
@@ -127,7 +129,12 @@ function main(): void {
   if (coverPrompt) {
     const promptPath = path.join(dir, "cover.prompt.txt");
     if (!existsSync(promptPath)) {
-      writeFileSync(promptPath, "TODO: prompt da capa. Rode `pnpm gen:cover --post " + dir + "`.\n");
+      writeFileSync(
+        promptPath,
+        "TODO: descreva só a composição da capa (o estilo vem de content/cover-style.txt). Rode `pnpm gen:cover --post " +
+          dir +
+          " --attach-frontmatter`.\n",
+      );
     }
   }
 
