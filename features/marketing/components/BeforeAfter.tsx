@@ -79,7 +79,7 @@ export function BeforeAfter({ locale }: { locale: Locale }) {
           </ul>
         </Reveal>
         <Reveal
-          delay={120}
+          delay={80}
           className="border-primary/40 bg-card rounded-xl border p-6"
         >
           <h3 className="text-primary font-mono text-sm tracking-wider uppercase">

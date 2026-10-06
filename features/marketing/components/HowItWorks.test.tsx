@@ -21,9 +21,15 @@ afterEach(() => {
 });
 
 describe("HowItWorks", () => {
-  it.each(["pt", "en"] as const)("tem 5 passos em ordem (%s)", (locale) => {
+  it.each([
+    ["pt", "Algo chega", "Tudo fica registrado"],
+    ["en", "Something arrives", "Everything is recorded"],
+  ] as const)("tem 5 passos em ordem (%s)", (locale, first, last) => {
     render(<HowItWorks locale={locale} />);
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(5);
+    expect(items[0]).toHaveTextContent(first);
+    expect(items[4]).toHaveTextContent(last);
   });
 
   it.each(["pt", "en"] as const)("não usa jargão (%s)", (locale) => {
@@ -43,6 +49,11 @@ describe("HowItWorks", () => {
     expect(container.querySelector("svg")?.getAttribute("aria-hidden")).toBe(
       "true",
     );
-    expect(container.querySelector("line.how-line")).not.toBeNull();
+    const line = container.querySelector("line.how-line");
+    expect(line).not.toBeNull();
+    // vector-effect faz o Chrome ignorar pathLength e a linha vira tracejada.
+    expect(line?.hasAttribute("vector-effect")).toBe(false);
+    expect(line?.getAttribute("pathLength")).toBe("100");
+    expect(line?.getAttribute("stroke-dasharray")).toBe("100");
   });
 });

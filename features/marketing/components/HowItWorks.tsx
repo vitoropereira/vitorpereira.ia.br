@@ -82,12 +82,15 @@ export function HowItWorks({ locale }: { locale: Locale }) {
         {t.title}
       </h2>
 
+      {/* top-[44px] = centro do ícone: linha do número (text-xs, 16px) + mt-2 (8px)
+          + metade do ícone (p-2.5 + size-5 = 40px, metade 20px). Se mudar o markup
+          do passo, recalcule. Sem vectorEffect: ele faz o Chrome ignorar pathLength. */}
       {/* Wrapper relativo: a linha fica fora do <ol> pra não pôr um <div> dentro da lista. */}
       <div className="relative mt-12">
         <Reveal variant="fade">
           <svg
             aria-hidden="true"
-            className="pointer-events-none absolute top-6 right-[10%] left-[10%] hidden h-px md:block"
+            className="pointer-events-none absolute top-[44px] right-[10%] left-[10%] hidden h-px lg:block"
             preserveAspectRatio="none"
             viewBox="0 0 100 1"
           >
@@ -98,19 +101,24 @@ export function HowItWorks({ locale }: { locale: Locale }) {
               y2="0.5"
               stroke="var(--brand)"
               strokeOpacity="0.5"
-              vectorEffect="non-scaling-stroke"
-              strokeDasharray="100"
-              strokeDashoffset="100"
+              strokeWidth={1}
+              strokeDasharray={100}
+              strokeDashoffset={100}
               pathLength={100}
               className="how-line"
             />
           </svg>
         </Reveal>
-        <ol className="grid gap-8 md:grid-cols-5">
+        <ol className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {t.steps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <Reveal as="li" key={step.title} delay={i * 120}>
+              <Reveal
+                as="li"
+                key={step.title}
+                className="lg:flex lg:flex-col lg:items-center lg:text-center"
+                delay={i * 80}
+              >
                 <span className="text-primary font-mono text-xs">
                   {String(i + 1).padStart(2, "0")}
                 </span>
