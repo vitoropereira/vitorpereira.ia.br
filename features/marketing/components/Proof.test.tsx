@@ -28,6 +28,16 @@ describe("Proof", () => {
     ).toBeInTheDocument();
   });
 
+  it("usa contexto em linguagem simples, sem jargão", () => {
+    render(<Proof locale="pt" />);
+    expect(
+      screen.getByText("atualizações em produção", { selector: "span" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("numa plataforma com 165 testes automatizados passando"),
+    ).toBeInTheDocument();
+  });
+
   it("cada stat entra com Reveal escalonado", () => {
     const { container } = render(<Proof locale="en" />);
     const revealed = container.querySelectorAll("[data-reveal]");
@@ -35,5 +45,14 @@ describe("Proof", () => {
     expect(
       (revealed[3] as HTMLElement).style.getPropertyValue("--reveal-delay"),
     ).toBe("240ms");
+  });
+
+  it("usa o separador decimal de cada idioma", () => {
+    const { unmount } = render(<Proof locale="en" />);
+    expect(screen.getAllByText("3.6M+").length).toBeGreaterThan(0);
+    expect(screen.queryByText("3,6M+")).toBeNull();
+    unmount();
+    render(<Proof locale="pt" />);
+    expect(screen.getAllByText("3,6M+").length).toBeGreaterThan(0);
   });
 });

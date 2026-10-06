@@ -59,7 +59,8 @@
   --card-foreground: #0B1220;
   --popover: #FFFFFF;
   --popover-foreground: #0B1220;
-  --primary: #0C88C7;
+  /* escurecido para passar WCAG AA em texto pequeno (4.99:1 sobre branco) */
+  --primary: #0A76AD;
   --primary-foreground: #FFFFFF;
   --secondary: #F1F5FA;
   --secondary-foreground: #0B1220;
@@ -70,11 +71,11 @@
   --destructive: #DC2626;
   --border: #E2E8F1;
   --input: #E2E8F1;
-  --ring: #0C88C7;
+  --ring: #0A76AD;
   --brand: #24C8FF;
   --brand-2: #3B82F6;
   --brand-foreground: #04121B;
-  --chart-1: #0C88C7;
+  --chart-1: #0A76AD;
   --chart-2: #3B82F6;
   --chart-3: #38BDF8;
   --chart-4: #60A5FA;
@@ -82,12 +83,12 @@
   --radius: 0.625rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #0B1220;
-  --sidebar-primary: #0C88C7;
+  --sidebar-primary: #0A76AD;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #EAF1F8;
   --sidebar-accent-foreground: #0B1220;
   --sidebar-border: #E2E8F1;
-  --sidebar-ring: #0C88C7;
+  --sidebar-ring: #0A76AD;
 }
 
 .dark {
@@ -287,6 +288,14 @@
   [data-reveal].card-interactive:has(:focus-visible) {
     transition-delay: 0ms;
   }
+  /* A linha do "Como funciona" se desenha quando a seção é revelada. */
+  [data-revealed] .how-line {
+    animation: draw 1.2s var(--ease-out) forwards;
+  }
+  /* Sem JS nada dispara o reveal: a linha já nasce desenhada. */
+  html:not(.js) .how-line {
+    stroke-dashoffset: 0;
+  }
 }
 
 @keyframes draw {
@@ -308,5 +317,9 @@
   .card-interactive:has(:focus-visible) {
     transform: none;
     transition: none;
+  }
+  .how-line {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
   }
 }

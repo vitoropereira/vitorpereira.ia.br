@@ -3,6 +3,7 @@ import { institutionalRoutes } from "@/lib/i18n/routeMap";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n/config";
+import { AgentLog } from "./AgentLog";
 
 export function Hero({ locale }: { locale: Locale }) {
   const r = (key: keyof typeof institutionalRoutes) =>
@@ -17,33 +18,36 @@ export function Hero({ locale }: { locale: Locale }) {
       : { lead: "IA aplicada em ", accent: "sistemas reais" };
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
-      <p className="text-muted-foreground font-mono text-sm tracking-widest uppercase">
-        vitor pereira
-      </p>
-      <h1 className="mt-6 font-mono text-4xl leading-tight font-semibold tracking-tight md:text-6xl">
-        {headline.lead}
-        <span className="text-primary">{headline.accent}</span>.
-      </h1>
-      <p className="text-muted-foreground mt-6 max-w-2xl text-lg md:text-xl">
-        {pitch}
-      </p>
-      <div className="mt-10 flex flex-wrap gap-3">
-        <Link
-          href={r("operationalAgent")}
-          className={cn(buttonVariants({ size: "lg" }))}
-        >
-          {locale === "en"
-            ? "Explore the Operational AI Agent"
-            : "Conhecer o Agente Operacional"}
-        </Link>
-        <Link
-          href="#casos"
-          className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
-        >
-          {locale === "en" ? "See real cases" : "Ver casos reais"}
-        </Link>
+    <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:py-28 lg:grid-cols-[1.1fr_0.9fr]">
+      <div>
+        <p className="text-muted-foreground font-mono text-sm tracking-widest uppercase">
+          vitor pereira
+        </p>
+        <h1 className="mt-6 font-mono text-4xl leading-tight font-semibold tracking-tight md:text-5xl lg:text-6xl">
+          {headline.lead}
+          <span className="text-primary">{headline.accent}</span>.
+        </h1>
+        <p className="text-muted-foreground mt-6 max-w-2xl text-lg md:text-xl">
+          {pitch}
+        </p>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link
+            href={r("operationalAgent")}
+            className={cn(buttonVariants({ size: "lg" }))}
+          >
+            {locale === "en"
+              ? "Explore the Operational AI Agent"
+              : "Conhecer o Agente Operacional"}
+          </Link>
+          <Link
+            href="#casos"
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+          >
+            {locale === "en" ? "See real cases" : "Ver casos reais"}
+          </Link>
+        </div>
       </div>
+      <AgentLog locale={locale} />
     </section>
   );
 }

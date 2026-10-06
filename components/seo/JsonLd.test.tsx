@@ -30,3 +30,20 @@ describe("JsonLd — Service", () => {
     expect(json.inLanguage).toBe("pt-BR");
   });
 });
+
+describe("JsonLd — FAQPage", () => {
+  it("emite mainEntity com pergunta e resposta aceita", () => {
+    const { container } = render(
+      <JsonLd
+        data={{ type: "FAQPage", items: [{ q: "Pergunta?", a: "Resposta." }] }}
+      />,
+    );
+    const json = JSON.parse(
+      container.querySelector('script[type="application/ld+json"]')
+        ?.textContent ?? "{}",
+    );
+    expect(json["@type"]).toBe("FAQPage");
+    expect(json.mainEntity[0].name).toBe("Pergunta?");
+    expect(json.mainEntity[0].acceptedAnswer.text).toBe("Resposta.");
+  });
+});

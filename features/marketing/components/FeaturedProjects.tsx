@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Reveal } from "@/components/motion/Reveal";
 import { getFeaturedProjects } from "@/features/portfolio/data/projects";
 import { ProjectCard } from "@/features/portfolio/components/ProjectCard";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
@@ -20,8 +21,10 @@ export function FeaturedProjects({ locale }: { locale: Locale }) {
         </Link>
       </div>
       <div className="grid gap-6 md:grid-cols-2">
-        {projects.map((p) => (
-          <ProjectCard key={p.id} project={p} locale={locale} />
+        {projects.map((p, i) => (
+          <Reveal key={p.id} delay={i * 80}>
+            <ProjectCard project={p} locale={locale} />
+          </Reveal>
         ))}
       </div>
     </section>
