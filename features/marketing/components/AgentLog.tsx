@@ -117,6 +117,15 @@ export function AgentLog({
 
   const scenario = scenarios[index]!;
   const t = LABEL[locale];
+  // Cursor inline na última linha (ou numa linha vazia no início): não adiciona
+  // linha nova, então a altura fixa da lista não muda. aria-hidden por ser enfeite.
+  const cursor = (
+    <span
+      className="brand-cursor"
+      data-testid="agent-cursor"
+      aria-hidden="true"
+    />
+  );
 
   return (
     <figure
@@ -149,7 +158,10 @@ export function AgentLog({
           </li>
         ))}
       </ol>
-      <ol className="h-[20rem] min-[360px]:h-[17rem] space-y-2 p-4 sm:h-[13.5rem]" aria-hidden="true">
+      <ol
+        className="h-[20rem] space-y-2 p-4 min-[360px]:h-[17rem] sm:h-[13.5rem]"
+        aria-hidden="true"
+      >
         {scenario.lines.slice(0, shown).map((line, k) => {
           const Icon = ICON[line.kind];
           return (
@@ -164,10 +176,14 @@ export function AgentLog({
                 className={cn("mt-0.5 size-3.5 shrink-0", TONE[line.kind])}
                 aria-hidden
               />
-              <span className={TONE[line.kind]}>{line.text}</span>
+              <span className={TONE[line.kind]}>
+                {line.text}
+                {k === shown - 1 && cursor}
+              </span>
             </li>
           );
         })}
+        {shown === 0 && <li className="h-5">{cursor}</li>}
       </ol>
       <figcaption className="text-muted-foreground border-t px-4 py-2 text-[11px] tracking-wider uppercase">
         {t.example}

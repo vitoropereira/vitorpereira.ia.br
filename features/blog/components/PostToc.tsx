@@ -15,6 +15,21 @@ export function PostToc({
 }) {
   const [active, setActive] = useState<string>("");
 
+  // Abertura direta por âncora (/post#secao): o observer só dispara ao rolar,
+  // então sem isto o índice ficaria sem item ativo até o primeiro scroll.
+  useEffect(() => {
+    let slug = "";
+    try {
+      slug = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+    } catch {
+      return; // hash malformado: ignora
+    }
+    // microtask: ler o hash é sincronizar com sistema externo (location), mas o
+    // setState direto no corpo do effect dispara render em cascata.
+    if (slug && items.some((it) => it.slug === slug))
+      queueMicrotask(() => setActive(slug));
+  }, [items]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {

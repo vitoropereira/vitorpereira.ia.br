@@ -70,6 +70,13 @@ const copy = {
 // O passo da aprovação humana é a mensagem central da seção: ganha anel no ícone.
 const APPROVAL_STEP = 3;
 
+// Linha vertical só no mobile (coluna única): no mobile o li é grid de 2 colunas
+// (ícone de 2.5rem | texto), então a linha fica na coluna do ícone (left-5 = centro
+// de 40px), sai de baixo dele (top-11) e cruza o gap-8 até o próximo passo.
+// Pseudo-elemento absoluto dentro do li: não gera overflow horizontal.
+const STEP_LINE =
+  "before:absolute before:top-11 before:-bottom-8 before:left-5 before:w-px before:bg-primary/40 sm:before:hidden";
+
 export function HowItWorks({ locale }: { locale: Locale }) {
   const t = copy[locale === "en" ? "en" : "pt"];
 
@@ -90,7 +97,7 @@ export function HowItWorks({ locale }: { locale: Locale }) {
         <Reveal variant="fade">
           <svg
             aria-hidden="true"
-            className="pointer-events-none absolute top-[44px] left-[10%] w-[80%] hidden h-px lg:block"
+            className="pointer-events-none absolute top-[44px] left-[10%] hidden h-px w-[80%] lg:block"
             preserveAspectRatio="none"
             viewBox="0 0 100 1"
           >
@@ -116,21 +123,25 @@ export function HowItWorks({ locale }: { locale: Locale }) {
               <Reveal
                 as="li"
                 key={step.title}
-                className="lg:flex lg:flex-col lg:items-center lg:text-center"
+                className={`relative grid grid-cols-[2.5rem_1fr] gap-x-4 sm:block lg:flex lg:flex-col lg:items-center lg:text-center ${
+                  i < t.steps.length - 1 ? STEP_LINE : ""
+                }`}
                 delay={i * 80}
               >
-                <span className="text-primary font-mono text-xs">
+                <span className="text-primary col-start-2 row-start-1 font-mono text-xs">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div
-                  className={`bg-accent relative mt-2 inline-flex rounded-lg p-2.5 ${
+                  className={`bg-accent relative col-start-1 row-span-3 row-start-1 inline-flex size-10 self-start rounded-lg p-2.5 sm:mt-2 sm:size-auto sm:self-auto ${
                     i === APPROVAL_STEP ? "ring-primary/40 ring-1" : ""
                   }`}
                 >
                   <Icon aria-hidden="true" className="size-5" />
                 </div>
-                <h3 className="mt-4 font-semibold">{step.title}</h3>
-                <p className="text-muted-foreground mt-1 text-sm">
+                <h3 className="col-start-2 mt-1 font-semibold sm:mt-4">
+                  {step.title}
+                </h3>
+                <p className="text-muted-foreground col-start-2 mt-1 text-sm">
                   {step.text}
                 </p>
               </Reveal>

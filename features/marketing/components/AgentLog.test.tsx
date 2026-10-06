@@ -166,4 +166,12 @@ describe("AgentLog", () => {
       screen.getAllByText(agentLogScenarios.en[0]!.lines[0]!.text).length,
     ).toBeGreaterThan(0);
   });
+
+  it("mostra o cursor só na lista animada, não na sr-only", () => {
+    const { container } = render(<AgentLog locale="pt" />);
+    const animatedOl = container.querySelector('ol[aria-hidden="true"]')!;
+    const srOl = container.querySelector("ol.sr-only")!;
+    expect(animatedOl.querySelector(".brand-cursor")).not.toBeNull();
+    expect(srOl.querySelector(".brand-cursor")).toBeNull();
+  });
 });
