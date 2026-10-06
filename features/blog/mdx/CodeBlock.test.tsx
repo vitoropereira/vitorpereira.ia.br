@@ -9,14 +9,6 @@ function setClipboard(value: unknown) {
   });
 }
 
-// jsdom não implementa innerText; o componente lê esse campo do <pre>.
-Object.defineProperty(HTMLElement.prototype, "innerText", {
-  get() {
-    return this.textContent;
-  },
-  configurable: true,
-});
-
 beforeEach(() => {
   document.documentElement.lang = "pt-BR";
 });
@@ -86,5 +78,34 @@ describe("CodeBlock", () => {
       vi.advanceTimersByTime(2000);
     });
     expect(screen.getByRole("button", { name: "Copiar código" })).toBeTruthy();
+  });
+
+  it("preserva linhas em branco ao copiar", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    render(
+      <CodeBlock>
+        <code>
+          <span data-line="">a</span>
+          {"\n"}
+          <span data-line=""></span>
+          {"\n"}
+          <span data-line="">b</span>
+        </code>
+      </CodeBlock>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Copiar código" }));
+    await act(async () => {});
+    expect(writeText).toHaveBeenCalledWith("a\n\nb");
+  });
+
+  it("desmontar após o clique limpa o timer pendente", async () => {
+    vi.useFakeTimers();
+    setClipboard({ writeText: vi.fn().mockResolvedValue(undefined) });
+    const { unmount } = renderBlock();
+    fireEvent.click(screen.getByRole("button", { name: "Copiar código" }));
+    await act(async () => {});
+    unmount();
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

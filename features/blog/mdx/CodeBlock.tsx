@@ -39,7 +39,9 @@ export function CodeBlock({ children, ...props }: React.ComponentProps<"pre">) {
   async function copiar() {
     let resultado: Estado = "erro";
     try {
-      await navigator.clipboard.writeText(preRef.current?.innerText ?? "");
+      await navigator.clipboard.writeText(
+        (preRef.current?.textContent ?? "").replace(/\n$/, ""),
+      );
       resultado = "ok";
     } catch {
       // Sem clipboard (http, permissão negada): só sinaliza a falha.
@@ -62,13 +64,13 @@ export function CodeBlock({ children, ...props }: React.ComponentProps<"pre">) {
         onClick={copiar}
         aria-label={rotulo}
         title={rotulo}
-        className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute top-2 right-2 flex size-8 items-center justify-center rounded-md border border-white/10 bg-[#0d1117] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none motion-reduce:transition-none [@media(hover:none)]:opacity-100"
+        className="focus-visible:ring-ring absolute top-2 right-2 flex size-8 items-center justify-center rounded-md border border-white/10 bg-[#0d1117] text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 hover:text-white focus-visible:opacity-100 focus-visible:ring-2 focus-visible:outline-none motion-reduce:transition-none [@media(hover:none)]:opacity-100"
       >
         <Icone className="size-4" aria-hidden="true" />
-        <span role="status" className="sr-only">
-          {estado === "idle" ? "" : rotulo}
-        </span>
       </button>
+      <span role="status" className="sr-only">
+        {estado === "idle" ? "" : rotulo}
+      </span>
     </div>
   );
 }

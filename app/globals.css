@@ -206,9 +206,6 @@
   .prose-post [data-rehype-pretty-code-title] {
     @apply text-muted-foreground mb-0 rounded-t-lg bg-[#0d1117] px-4 py-2 text-xs;
   }
-  .prose-post [data-rehype-pretty-code-title] + pre {
-    @apply mt-0 rounded-t-none;
-  }
   .prose-post .heading-anchor {
     @apply text-muted-foreground ml-2 opacity-0 transition-opacity;
   }
