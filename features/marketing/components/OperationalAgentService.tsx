@@ -6,6 +6,10 @@ import { bookingRoutes } from "@/features/booking/routes";
 import { formatPrice, getBookingService } from "@/features/booking/services";
 import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/motion/Reveal";
+import { HowItWorks } from "./HowItWorks";
+import { Faq } from "./Faq";
+import { MethodTimeline } from "./MethodTimeline";
 
 const copy = {
   pt: {
@@ -14,7 +18,6 @@ const copy = {
     intro:
       "Eu desenho e implanto um agente dentro das ferramentas que sua empresa já usa. Ele recebe uma tarefa clara, consulta os dados permitidos, executa o fluxo e deixa rastro do que fez.",
     methodLabel: "método de implantação",
-    method: "Map → Evaluate → Deploy → Operate",
     methodText:
       "Primeiro mapeamos o processo e os limites. Depois construímos avaliações, colocamos uma fatia em produção e operamos com dados reais antes de ampliar a autonomia.",
     deliverableTitle: "O que entra",
@@ -60,7 +63,6 @@ const copy = {
     intro:
       "I design and deploy an agent inside the tools your company already uses. It receives a clear task, accesses only the allowed data, executes the workflow, and leaves an audit trail.",
     methodLabel: "deployment method",
-    method: "Map → Evaluate → Deploy → Operate",
     methodText:
       "We map the workflow and its boundaries first. Then we build evaluations, put one thin slice in production, and operate with real data before expanding autonomy.",
     deliverableTitle: "What is included",
@@ -130,33 +132,36 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
         </Link>
       </section>
 
+      <HowItWorks locale={locale} />
+
       <section className="border-y">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <p className="text-muted-foreground font-mono text-xs tracking-widest uppercase">
-              {text.methodLabel}
-            </p>
-            <p className="text-primary mt-3 font-mono text-xl font-semibold">
-              {text.method}
-            </p>
-            <p className="text-muted-foreground mt-4">{text.methodText}</p>
+        <div className="mx-auto max-w-6xl px-6 py-16">
+          <p className="text-muted-foreground font-mono text-xs tracking-widest uppercase">
+            {text.methodLabel}
+          </p>
+          <p className="text-muted-foreground mt-3 max-w-3xl">
+            {text.methodText}
+          </p>
+          <div className="mt-10">
+            <MethodTimeline locale={locale} />
           </div>
-          <div>
-            <h2 className="font-heading text-3xl font-bold">
-              {text.deliverableTitle}
-            </h2>
-            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-              {text.deliverables.map((item) => (
-                <li
-                  key={item}
-                  className="flex gap-3 rounded-lg border p-4 text-sm"
-                >
-                  <CheckCircle2 className="text-primary mt-0.5 size-4 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+
+          <h2 className="font-heading mt-16 text-3xl font-bold">
+            {text.deliverableTitle}
+          </h2>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {text.deliverables.map((item, i) => (
+              <Reveal
+                as="li"
+                key={item}
+                delay={(i % 3) * 80}
+                className="card-interactive flex gap-3 rounded-lg border p-4 text-sm"
+              >
+                <CheckCircle2 className="text-primary mt-0.5 size-4 shrink-0" />
+                <span>{item}</span>
+              </Reveal>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -171,8 +176,8 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2">
-          <div>
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          <div className="border-primary/40 rounded-xl border p-6">
             <Workflow className="text-primary size-5" />
             <h2 className="font-heading mt-3 text-2xl font-bold">
               {text.fitTitle}
@@ -186,7 +191,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
               ))}
             </ul>
           </div>
-          <div>
+          <div className="bg-muted/40 rounded-xl border p-6">
             <XCircle className="text-muted-foreground size-5" />
             <h2 className="font-heading mt-3 text-2xl font-bold">
               {text.noFitTitle}
@@ -194,7 +199,7 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
             <ul className="text-muted-foreground mt-4 space-y-3">
               {text.noFit.map((item) => (
                 <li key={item} className="flex gap-3">
-                  <XCircle className="mt-1 size-4 shrink-0" />
+                  <XCircle className="text-muted-foreground mt-1 size-4 shrink-0" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -219,6 +224,9 @@ export function OperationalAgentService({ locale }: { locale: Locale }) {
           </p>
         </div>
       </section>
+
+      {/* A home já emite o FAQPage: aqui só o conteúdo, sem JSON-LD duplicado. */}
+      <Faq locale={locale} withJsonLd={false} />
 
       <section className="mx-auto max-w-4xl px-6 py-16 text-center">
         <h2 className="font-heading text-3xl font-bold">{text.ctaTitle}</h2>

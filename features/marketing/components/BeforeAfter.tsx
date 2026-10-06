@@ -57,7 +57,7 @@ export function BeforeAfter({ locale }: { locale: Locale }) {
       <p className="text-primary font-mono text-sm tracking-wider uppercase">
         {t.eyebrow}
       </p>
-      <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight md:text-4xl">
+      <h2 className="font-heading mt-3 max-w-3xl text-3xl font-bold tracking-tight">
         {t.title}
       </h2>
 
