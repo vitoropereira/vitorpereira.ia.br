@@ -36,4 +36,13 @@ describe("Proof", () => {
       (revealed[3] as HTMLElement).style.getPropertyValue("--reveal-delay"),
     ).toBe("240ms");
   });
+
+  it("usa o separador decimal de cada idioma", () => {
+    const { unmount } = render(<Proof locale="en" />);
+    expect(screen.getAllByText("3.6M+").length).toBeGreaterThan(0);
+    expect(screen.queryByText("3,6M+")).toBeNull();
+    unmount();
+    render(<Proof locale="pt" />);
+    expect(screen.getAllByText("3,6M+").length).toBeGreaterThan(0);
+  });
 });

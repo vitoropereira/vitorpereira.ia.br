@@ -3,7 +3,7 @@ import { CountUp } from "@/components/motion/CountUp";
 import { Reveal } from "@/components/motion/Reveal";
 
 type Stat = {
-  value: string;
+  value: string | { pt: string; en: string };
   pt: { label: string; context: string };
   en: { label: string; context: string };
 };
@@ -32,7 +32,7 @@ const stats: Stat[] = [
     },
   },
   {
-    value: "3,6M+",
+    value: { pt: "3,6M+", en: "3.6M+" },
     pt: {
       label: "interações processadas",
       context: "em ~2.900 grupos de WhatsApp, com IA in-product",
@@ -65,23 +65,28 @@ export function Proof({ locale }: { locale: Locale }) {
           {lang === "en" ? "in production" : "em produção"}
         </p>
         <dl className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, i) => (
-            <Reveal key={stat.value + stat[lang].label} delay={i * 80}>
-              <dt className="sr-only">{stat[lang].label}</dt>
-              <dd>
-                <CountUp
-                  value={stat.value}
-                  className="text-primary block font-mono text-4xl font-semibold tracking-tight tabular-nums"
-                />
-                <span className="mt-2 block font-sans text-sm font-semibold">
-                  {stat[lang].label}
-                </span>
-                <span className="text-muted-foreground mt-1 block text-sm">
-                  {stat[lang].context}
-                </span>
-              </dd>
-            </Reveal>
-          ))}
+          {stats.map((stat, i) => {
+            // O leitor de EN leria "3,6" como três mil e seiscentos
+            const v =
+              typeof stat.value === "string" ? stat.value : stat.value[lang];
+            return (
+              <Reveal key={v + stat[lang].label} delay={i * 80}>
+                <dt className="sr-only">{stat[lang].label}</dt>
+                <dd>
+                  <CountUp
+                    value={v}
+                    className="text-primary block font-mono text-4xl font-semibold tracking-tight tabular-nums"
+                  />
+                  <span className="mt-2 block font-sans text-sm font-semibold">
+                    {stat[lang].label}
+                  </span>
+                  <span className="text-muted-foreground mt-1 block text-sm">
+                    {stat[lang].context}
+                  </span>
+                </dd>
+              </Reveal>
+            );
+          })}
         </dl>
       </div>
     </section>
