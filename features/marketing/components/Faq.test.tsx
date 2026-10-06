@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import { Faq, getFaq } from "./Faq";
-import { formatPrice, getBookingService } from "@/features/booking/services";
+import { Faq, buildCostAnswer, getFaq } from "./Faq";
+import {
+  formatDuration,
+  formatPrice,
+  getBookingService,
+} from "@/features/booking/services";
 
 describe("Faq", () => {
   it.each(["pt", "en"] as const)(
@@ -34,10 +38,36 @@ describe("Faq", () => {
     );
     expect(ld["@type"]).toBe("FAQPage");
     expect(ld.mainEntity).toHaveLength(5);
+    getFaq("pt").forEach((item, i) =>
+      expect(ld.mainEntity[i].name).toBe(item.q),
+    );
   });
 
   it("withJsonLd=false não emite script", () => {
     const { container } = render(<Faq locale="pt" withJsonLd={false} />);
     expect(container.querySelector("script")).toBeNull();
+  });
+
+  it.each(["pt", "en"] as const)(
+    "4ª resposta traz o preço do piloto e a conversa grátis do catálogo (%s)",
+    (locale) => {
+      const pilot = getBookingService("escopo-software-30-dias")!;
+      const diag = getBookingService("diagnostico-30min")!;
+      const a = getFaq(locale)[3].a;
+      expect(a.toLowerCase()).toContain(
+        formatPrice(pilot, locale).toLowerCase(),
+      );
+      expect(a).toContain(diag[locale].name);
+      expect(a).toContain(`(${formatDuration(diag, locale)})`);
+      expect(a.toLowerCase()).toContain(
+        formatPrice(diag, locale).toLowerCase(),
+      );
+    },
+  );
+
+  it("falha alto quando falta entrada no catálogo", () => {
+    const diag = getBookingService("diagnostico-30min")!;
+    expect(() => buildCostAnswer(undefined, diag, "pt")).toThrow(/catálogo/);
+    expect(() => buildCostAnswer(diag, undefined, "en")).toThrow(/catálogo/);
   });
 });
