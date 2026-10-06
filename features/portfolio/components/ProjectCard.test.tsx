@@ -37,10 +37,21 @@ describe("ProjectCard", () => {
     expect(screen.queryByText("clearseg.com.br")).toBeNull();
   });
 
-  it("sem cover não renderiza moldura", () => {
+  it("sem cover renderiza placeholder na mesma moldura, sem img", () => {
     const { container } = render(
-      <ProjectCard project={{ ...base, cover: null }} locale="pt" />
+      <ProjectCard
+        project={{ ...base, cover: null, url: "https://clearseg.com.br" }}
+        locale="pt"
+      />
     );
-    expect(container.querySelector("[data-browser-frame]")).toBeNull();
+    expect(container.querySelector("[data-browser-frame]")).not.toBeNull();
+    expect(container.querySelector("img")).toBeNull();
+    expect(screen.getByText("clearseg.com.br")).toBeInTheDocument();
+    // título: heading + decorativo aria-hidden
+    expect(screen.getAllByText(base.title)).toHaveLength(2);
+    expect(
+      container.querySelector("[data-browser-frame] [aria-hidden='true']")
+    ).not.toBeNull();
+    expect(screen.getByRole("heading")).toHaveTextContent(base.title);
   });
 });
