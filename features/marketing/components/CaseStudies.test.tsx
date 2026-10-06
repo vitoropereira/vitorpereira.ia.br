@@ -32,3 +32,10 @@ describe("CaseStudies", () => {
     expect(screen.queryByText(/four axes/i)).not.toBeInTheDocument();
   });
 });
+
+describe("CaseStudies capas", () => {
+  it("cada caso com capa renderiza imagem", () => {
+    const { container } = render(<CaseStudies locale="pt" />);
+    expect(container.querySelectorAll("img").length).toBeGreaterThanOrEqual(3);
+  });
+});

@@ -1,5 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { Reveal } from "@/components/motion/Reveal";
+import { coverOf } from "@/features/blog/lib/cover";
+import { getPostBySlug } from "@/features/blog/lib/queries";
 import type { Locale } from "@/lib/i18n/config";
 
 const cases = {
@@ -88,25 +92,68 @@ export function CaseStudies({ locale }: { locale: Locale }) {
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {cases[locale].map((item) => (
-            <article key={item.href} className="rounded-lg border p-5">
-              <p className="text-primary font-mono text-xs uppercase">
-                {item.tag}
-              </p>
-              <h3 className="mt-3 font-sans text-lg font-semibold">
-                <Link
-                  href={item.href}
-                  className="hover:text-primary group inline-flex gap-2"
-                >
-                  {item.title}
-                  <ArrowUpRight className="mt-1 size-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </Link>
-              </h3>
-              <p className="text-muted-foreground mt-2 text-sm">
-                {item.description}
-              </p>
-            </article>
-          ))}
+          {cases[locale].map((item, i) => {
+            // O slug é o último segmento do href; a capa vem do próprio post.
+            const slug = item.href.split("/").pop() ?? "";
+            const cover = coverOf(
+              getPostBySlug(locale, slug, { preview: false }),
+            );
+            const featured = i === 0;
+            return (
+              <Reveal
+                key={item.href}
+                as="article"
+                delay={i * 80}
+                className={`card-interactive group overflow-hidden rounded-lg border ${
+                  featured
+                    ? "md:col-span-2 md:grid md:grid-cols-[1.2fr_1fr]"
+                    : ""
+                }`}
+              >
+                <div className="relative aspect-video overflow-hidden">
+                  {cover ? (
+                    <Image
+                      src={cover.src}
+                      alt=""
+                      fill
+                      sizes={
+                        featured
+                          ? "(min-width: 768px) 60vw, 100vw"
+                          : "(min-width: 768px) 50vw, 100vw"
+                      }
+                      placeholder={cover.blurDataURL ? "blur" : "empty"}
+                      blurDataURL={cover.blurDataURL}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="from-primary/15 text-primary flex h-full items-center justify-center bg-gradient-to-br to-transparent font-mono text-xs uppercase">
+                      {item.tag}
+                    </div>
+                  )}
+                </div>
+                <div className="p-5">
+                  <p className="text-primary font-mono text-xs uppercase">
+                    {item.tag}
+                  </p>
+                  <h3 className="mt-3 font-sans text-lg font-semibold">
+                    <Link
+                      href={item.href}
+                      className="hover:text-primary group inline-flex gap-2"
+                    >
+                      {item.title}
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        className="mt-1 size-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      />
+                    </Link>
+                  </h3>
+                  <p className="text-muted-foreground mt-2 text-sm">
+                    {item.description}
+                  </p>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>

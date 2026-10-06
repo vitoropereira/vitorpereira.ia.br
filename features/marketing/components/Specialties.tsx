@@ -1,3 +1,4 @@
+import { Reveal } from "@/components/motion/Reveal";
 import { Bot, MessageSquareText, ShieldCheck, Workflow } from "lucide-react";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -5,45 +6,45 @@ const items = [
   {
     icon: Bot,
     pt: {
-      title: "Agentes de IA autônomos",
-      desc: "Agentes que executam trabalho em produção — não só respondem.",
+      title: "Agentes que executam",
+      desc: "Um agente que faz o trabalho de ponta a ponta — não só responde perguntas.",
     },
     en: {
-      title: "Autonomous AI agents",
-      desc: "Agents that get work done in production — not just answer.",
+      title: "Agents that execute",
+      desc: "An agent that gets the job done end to end — not one that only answers questions.",
     },
   },
   {
     icon: Workflow,
     pt: {
-      title: "Automação & orquestração",
-      desc: "n8n, webhooks, filas e integrações que rodam sozinhas.",
+      title: "Automação de processos",
+      desc: "Integrações e rotinas que rodam sozinhas entre as ferramentas da empresa.",
     },
     en: {
-      title: "Automation & orchestration",
-      desc: "n8n, webhooks, queues, and integrations that run on their own.",
+      title: "Process automation",
+      desc: "Integrations and routines that run on their own across your company's tools.",
     },
   },
   {
     icon: MessageSquareText,
     pt: {
-      title: "Copilotos / IA in-product",
-      desc: "IA dentro do produto, respondendo sobre os dados de cada cliente.",
+      title: "IA dentro do seu produto",
+      desc: "Um assistente que responde sobre os dados de cada cliente, dentro do sistema.",
     },
     en: {
-      title: "Copilots / in-product AI",
-      desc: "AI inside the product, answering over each client's data.",
+      title: "AI inside your product",
+      desc: "An assistant that answers about each customer's data, inside the system.",
     },
   },
   {
     icon: ShieldCheck,
     pt: {
-      title: "Segurança de agentes & dados",
-      desc: "Guardrails, RLS e permissões — a fronteira fica no servidor.",
+      title: "Segurança e controle",
+      desc: "Cada agente só acessa o que precisa, e a regra fica no servidor (não no texto do prompt).",
     },
     en: {
-      title: "Agent & data security",
-      desc: "Guardrails, RLS, and permissions — the boundary lives on the server.",
+      title: "Security and control",
+      desc: "Each agent only reaches what it needs, and the rule lives on the server (not in the prompt text).",
     },
   },
 ];
@@ -51,18 +52,22 @@ const items = [
 export function Specialties({ locale }: { locale: Locale }) {
   return (
     <section className="mx-auto max-w-6xl px-6 py-12">
-      <h2 className="mb-8 text-center font-heading text-3xl font-bold tracking-tight">
+      <h2 className="font-heading mb-8 text-center text-3xl font-bold tracking-tight">
         {locale === "pt" ? "O que eu faço" : "What I do"}
       </h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {items.map(({ icon: Icon, ...it }) => (
-          <div key={it[locale].title} className="rounded-lg border p-5">
+        {items.map(({ icon: Icon, ...it }, i) => (
+          <Reveal
+            key={it[locale].title}
+            delay={i * 80}
+            className="card-interactive rounded-lg border p-5"
+          >
             <Icon className="text-primary h-5 w-5" />
             <h3 className="mt-3 font-sans font-semibold">{it[locale].title}</h3>
             <p className="text-muted-foreground mt-2 text-sm">
               {it[locale].desc}
             </p>
-          </div>
+          </Reveal>
         ))}
       </div>
     </section>
