@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Reveal } from "@/components/motion/Reveal";
 import { ProjectCard } from "./ProjectCard";
 import type { Project, ProjectCategory } from "../types";
 import type { Locale } from "@/lib/i18n/config";
@@ -77,8 +78,11 @@ export function ProjectGrid({
         </p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => (
-            <ProjectCard key={p.id} project={p} locale={locale} />
+          {filtered.map((p, i) => (
+            // key por id (não por filtro): reanimar a cada clique cansa.
+            <Reveal key={p.id} delay={(i % 3) * 80} className="h-full">
+              <ProjectCard project={p} locale={locale} />
+            </Reveal>
           ))}
         </div>
       )}

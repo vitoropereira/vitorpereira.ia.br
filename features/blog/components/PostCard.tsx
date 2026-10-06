@@ -1,67 +1,121 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getLocale, getTranslations } from "next-intl/server";
 import type { Post } from "../types";
+import { coverOf } from "../lib/cover";
 import { DraftBadge } from "./DraftBadge";
 
-export async function PostCard({ post }: { post: Post }) {
-  const locale = await getLocale();
-  const t = await getTranslations("blog");
+type Props = {
+  post: Post;
+  variant?: "default" | "featured";
+  locale: "pt" | "en";
+  // Já resolvido pelo caller server (PostList/RelatedPosts). Manter o card
+  // síncrono evita getTranslations aqui dentro e o deixa testável em jsdom.
+  readingTimeLabel: string;
+  showTags?: boolean;
+  // Primeiro card da página pode ser o LCP: sem lazy-load.
+  priority?: boolean;
+  // Override quando a grade vive num container mais estreito que a viewport.
+  sizes?: string;
+  // Em seções com h2 próprio (ex.: relacionados) o card vira h3 para não
+  // quebrar o outline de títulos.
+  headingAs?: "h2" | "h3";
+};
+
+export function PostCard({
+  post,
+  variant = "default",
+  locale,
+  readingTimeLabel,
+  showTags = true,
+  priority = false,
+  sizes,
+  headingAs: Heading = "h2",
+}: Props) {
+  const featured = variant === "featured";
   const date = new Date(post.date).toLocaleDateString(
     locale === "pt" ? "pt-BR" : "en-US",
     { year: "numeric", month: "short", day: "numeric" },
   );
+  const cover = coverOf(post);
+  const tags = post.tags ?? [];
 
-  const cover =
-    post.cover && typeof post.cover === "object" && "src" in post.cover
-      ? (post.cover as { src: string; width: number; height: number })
-      : null;
+  const coverClass = featured ? "md:w-3/5 md:shrink-0" : "";
 
   return (
-    <article className="group grid gap-4 border-b py-6 md:grid-cols-[180px_1fr]">
-      {cover ? (
-        <Link href={post.permalink}>
+    <article
+      className={`card-interactive group flex h-full flex-col overflow-hidden rounded-lg border ${
+        featured ? "md:flex-row" : ""
+      }`}
+    >
+      {/* Capa é link só para o mouse/toque; o foco de teclado fica no título. */}
+      <Link
+        href={post.permalink}
+        tabIndex={-1}
+        aria-hidden="true"
+        className={`block ${coverClass}`}
+      >
+        {cover ? (
           <Image
             src={cover.src}
             alt=""
             width={cover.width}
             height={cover.height}
-            className="aspect-[3/2] rounded object-cover"
+            priority={priority}
+            sizes={
+              sizes ??
+              (featured
+                ? "(min-width: 768px) 60vw, 100vw"
+                : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw")
+            }
+            className={`aspect-[16/9] w-full object-cover ${
+              featured ? "md:h-full" : ""
+            }`}
           />
-        </Link>
-      ) : (
-        <div className="hidden md:block" />
-      )}
-      <div className="flex flex-col">
+        ) : (
+          <div
+            data-cover-fallback
+            className={`from-primary/15 text-muted-foreground flex aspect-[16/9] w-full items-end bg-gradient-to-br to-transparent p-4 font-mono text-xs ${
+              featured ? "md:h-full" : ""
+            }`}
+          >
+            {tags[0]}
+          </div>
+        )}
+      </Link>
+      <div className={`flex flex-1 flex-col p-5 ${featured ? "md:p-8" : ""}`}>
         <div className="text-muted-foreground flex items-center gap-2 text-xs">
-          <time>{date}</time>
-          <span>·</span>
-          <span>{t("readingTime", { minutes: post.readingTime })}</span>
+          <time dateTime={post.date}>{date}</time>
+          <span aria-hidden="true">·</span>
+          <span>{readingTimeLabel}</span>
           {post.draft && (
             <>
-              <span>·</span>
+              <span aria-hidden="true">·</span>
               <DraftBadge />
             </>
           )}
         </div>
-        <h2 className="mt-2 font-heading text-2xl leading-tight font-bold">
-          <Link href={post.permalink} className="hover:text-primary">
+        <Heading
+          className={`font-heading mt-2 leading-tight font-bold ${
+            featured ? "text-2xl md:text-4xl" : "text-xl"
+          }`}
+        >
+          <Link
+            href={post.permalink}
+            className="hover:text-primary focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+          >
             {post.title}
           </Link>
-        </h2>
-        <p className="text-muted-foreground mt-2 text-sm">{post.excerpt}</p>
-        {post.tags && post.tags.length > 0 && (
-          <ul className="text-muted-foreground mt-3 flex flex-wrap gap-2 text-xs">
-            {post.tags.slice(0, 3).map((tag) => (
+        </Heading>
+        <p className="text-muted-foreground mt-2 line-clamp-2 text-sm">
+          {post.excerpt}
+        </p>
+        {showTags && tags.length > 0 && (
+          <ul className="text-muted-foreground mt-auto flex flex-wrap gap-2 pt-4 text-xs">
+            {tags.slice(0, 3).map((tag) => (
               <li key={tag} className="bg-muted rounded px-2 py-0.5">
                 #{tag}
               </li>
             ))}
-            {post.tags.length > 3 && (
-              <li className="bg-muted rounded px-2 py-0.5">
-                +{post.tags.length - 3}
-              </li>
-            )}
           </ul>
         )}
       </div>

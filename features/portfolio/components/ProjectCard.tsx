@@ -28,8 +28,8 @@ export function ProjectCard({
   locale: Locale;
 }) {
   return (
-    <article className="bg-card group card-interactive flex flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
-      {project.cover && (
+    <article className="bg-card group card-interactive flex h-full flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
+      {(
         <div data-browser-frame className="border-b">
           <div className="bg-muted flex items-center gap-1.5 px-3 py-2">
             <span className="size-2 rounded-full bg-[#FF5F57]" aria-hidden />
@@ -42,6 +42,7 @@ export function ProjectCard({
             )}
           </div>
           <div className="overflow-hidden">
+            {project.cover ? (
             <Image
               src={`/images/projects/${project.cover}`}
               alt=""
@@ -50,6 +51,19 @@ export function ProjectCard({
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
+            ) : (
+              // Placeholder: mesma moldura e mesma altura de mídia do print, pra
+              // todo card da grade ter a mesma estrutura. O título é decorativo
+              // (aria-hidden) — o heading do card segue único pra leitor de tela.
+              <div
+                aria-hidden="true"
+                className="from-primary/15 flex aspect-[16/10] w-full items-center justify-center bg-gradient-to-br via-transparent to-transparent p-6"
+              >
+                <span className="text-muted-foreground/60 line-clamp-3 text-center font-mono text-2xl font-bold break-words">
+                  {project.title}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}

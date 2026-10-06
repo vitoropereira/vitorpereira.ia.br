@@ -159,6 +159,32 @@
   .prose-post ul {
     @apply my-4 list-disc pl-6;
   }
+  /* Sobre: linha do tempo e destaques só por CSS sobre o MDX existente.
+     Ids vêm do rehype-slug; text-left porque a página usa text-justify.
+     Guarda: components/layout/prose-about.test.ts (renomear heading quebra o teste). */
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul,
+  .prose-about :is(h2#destaques, h2#highlights) + ul {
+    @apply pl-0 text-left;
+    list-style: none;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul {
+    @apply border-border ml-2 border-l-2;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul > li {
+    @apply relative my-5 pl-6;
+  }
+  .prose-about :is(h2#minha-jornada, h2#career-timeline) + ul > li::before {
+    content: "";
+    @apply bg-primary ring-background absolute h-2.5 w-2.5 rounded-full ring-4;
+    left: -6px;
+    top: 0.5em;
+  }
+  .prose-about :is(h2#destaques, h2#highlights) + ul {
+    @apply grid gap-3 md:grid-cols-2;
+  }
+  .prose-about :is(h2#destaques, h2#highlights) + ul > li {
+    @apply my-0 rounded-lg border p-4;
+  }
   .prose-post ol {
     @apply my-4 list-decimal pl-6;
   }
@@ -183,6 +209,20 @@
   .prose-post pre {
     @apply my-6 overflow-x-auto rounded-lg bg-[#0d1117] p-4 text-sm;
   }
+  /* O CodeBlock envolve o pre num div: a margem vertical sobe para o wrapper
+     e o pre dentro dele fica sem margem. */
+  .prose-post .code-block {
+    @apply my-6;
+  }
+  .prose-post .code-block pre {
+    @apply my-0;
+  }
+  .prose-post [data-rehype-pretty-code-title] + .code-block {
+    @apply mt-0;
+  }
+  .prose-post [data-rehype-pretty-code-title] + .code-block pre {
+    @apply rounded-t-none;
+  }
   .prose-post pre code {
     @apply grid;
   }
@@ -191,9 +231,6 @@
   }
   .prose-post [data-rehype-pretty-code-title] {
     @apply text-muted-foreground mb-0 rounded-t-lg bg-[#0d1117] px-4 py-2 text-xs;
-  }
-  .prose-post [data-rehype-pretty-code-title] + pre {
-    @apply mt-0 rounded-t-none;
   }
   .prose-post .heading-anchor {
     @apply text-muted-foreground ml-2 opacity-0 transition-opacity;

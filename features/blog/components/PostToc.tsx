@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import type { TocItem } from "../lib/toc";
 import { cn } from "@/lib/utils";
 
-export function PostToc({ items }: { items: TocItem[] }) {
+const TITLE = { pt: "Neste post", en: "On this page" } as const;
+
+export function PostToc({
+  items,
+  locale,
+}: {
+  items: TocItem[];
+  locale: "pt" | "en";
+}) {
   const [active, setActive] = useState<string>("");
 
   useEffect(() => {
@@ -30,23 +38,34 @@ export function PostToc({ items }: { items: TocItem[] }) {
 
   return (
     <nav
-      aria-label="Table of contents"
-      className="hidden text-sm lg:sticky lg:top-20 lg:block lg:self-start"
+      aria-label={TITLE[locale]}
+      className="text-sm lg:sticky lg:top-20 lg:self-start"
     >
+      <p className="text-foreground mb-3 text-xs font-semibold tracking-wide uppercase">
+        {TITLE[locale]}
+      </p>
       <ul className="space-y-2">
-        {items.map((it) => (
-          <li
-            key={it.slug}
-            className={cn(
-              "text-muted-foreground hover:text-foreground transition-colors",
-              it.level === 3 && "pl-3",
-              it.level === 4 && "pl-6",
-              active === it.slug && "text-foreground",
-            )}
-          >
-            <a href={`#${it.slug}`}>{it.text}</a>
-          </li>
-        ))}
+        {items.map((it) => {
+          const isActive = active === it.slug;
+          return (
+            <li key={it.slug}>
+              <a
+                href={`#${it.slug}`}
+                aria-current={isActive ? "location" : undefined}
+                className={cn(
+                  "focus-visible:ring-ring block rounded-sm border-l-2 pl-3 transition-colors outline-none focus-visible:ring-2",
+                  it.level === 3 && "pl-6",
+                  it.level === 4 && "pl-9",
+                  isActive
+                    ? "text-primary border-primary"
+                    : "text-muted-foreground hover:text-foreground border-transparent",
+                )}
+              >
+                {it.text}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

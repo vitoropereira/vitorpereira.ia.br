@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllTags, getPostsByLocale } from "@/features/blog/lib/queries";
+import {
+  TagChips,
+  rankTagsByFrequency,
+} from "@/features/blog/components/TagChips";
 import { PostList } from "@/features/blog/components/PostList";
 import { posts as rawPosts } from "@/content";
 import type { Post } from "@/features/blog/types";
@@ -42,11 +46,13 @@ export default async function TagPageEn({
   const tag = decodeURIComponent(rawTag);
   const posts = getPostsByLocale("en", { tag });
   if (posts.length === 0) notFound();
+  const allTags = rankTagsByFrequency(getPostsByLocale("en"));
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="mb-8 font-heading text-3xl font-bold tracking-tight">
+      <h1 className="font-heading mb-8 text-3xl font-bold tracking-tight">
         Posts tagged <span className="text-primary">#{tag}</span>
       </h1>
+      <TagChips tags={allTags} locale="en" active={tag} />
       <PostList posts={posts} />
     </section>
   );

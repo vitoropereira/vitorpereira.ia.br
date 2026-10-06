@@ -4,7 +4,11 @@
     "posts": "Blog",
     "portfolio": "Portfolio",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menu": "Menu",
+    "mainNav": "Main"
   },
   "blog": {
     "readingTime": "{minutes} min read",

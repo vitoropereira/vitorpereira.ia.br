@@ -45,6 +45,7 @@ export default function AboutPage() {
         body={page.body}
         image={{ src: "/vitor.png", alt: "Vitor Pereira" }}
         justify
+        variant="about"
       />
     </>
   );

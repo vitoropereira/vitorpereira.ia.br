@@ -4,6 +4,7 @@ import { bookingRoutes } from "@/features/booking/routes";
 import { siteConfig } from "@/lib/siteConfig";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Reveal } from "@/components/motion/Reveal";
 import { buildMetadata } from "@/components/seo/buildMetadata";
 import {
   GithubIcon,
@@ -75,7 +76,7 @@ export default function ContactPage() {
         respondo em todas.
       </p>
 
-      <div className="bg-muted/40 mb-12 rounded-lg border p-6">
+      <div className="bg-muted/40 border-primary/40 mb-12 rounded-lg border p-6">
         <h2 className="font-heading text-2xl font-bold tracking-tight">
           Diagnóstico de automação
         </h2>
@@ -104,13 +105,13 @@ export default function ContactPage() {
         Outros canais
       </h2>
       <ul className="grid gap-4 md:grid-cols-2">
-        {items.map((item) => (
-          <li key={item.name}>
+        {items.map((item, i) => (
+          <Reveal as="li" key={item.name} delay={i * 80}>
             <Link
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:border-primary hover:bg-accent flex items-start gap-4 rounded-lg border p-5 transition"
+              className="card-interactive flex items-start gap-4 rounded-lg border p-5"
             >
               <div className="text-muted-foreground mt-0.5">
                 <item.icon className="h-5 w-5" />
@@ -122,7 +123,7 @@ export default function ContactPage() {
                 </p>
               </div>
             </Link>
-          </li>
+          </Reveal>
         ))}
       </ul>
     </section>

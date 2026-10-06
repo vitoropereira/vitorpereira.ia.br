@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { OperationalAgentService } from "./OperationalAgentService";
 import { bookingRoutes } from "@/features/booking/routes";
 
@@ -10,7 +10,7 @@ describe("OperationalAgentService", () => {
       screen.getByRole("heading", { name: /um processo real/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/map → evaluate → deploy → operate/i),
+      screen.getByRole("heading", { name: "Implantar", level: 3 }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/logs, regras e aprovação humana/i),
@@ -20,7 +20,12 @@ describe("OperationalAgentService", () => {
         name: /piloto de um workflow operacional/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/a partir de r\$ 20\.000/i)).toBeInTheDocument();
+    const investment = within(
+      screen.getByRole("region", { name: /piloto de um workflow/i }),
+    );
+    expect(
+      investment.getByText(/a partir de r\$ 20\.000/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/sistema ampliado.*r\$ 40\.000/i),
     ).toBeInTheDocument();
@@ -51,7 +56,12 @@ describe("OperationalAgentService", () => {
         name: /pilot for one operational workflow/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/from r\$ 20,000/i)).toBeInTheDocument();
+    const investment = within(
+      screen.getByRole("region", {
+        name: /pilot for one operational workflow/i,
+      }),
+    );
+    expect(investment.getByText(/from r\$ 20,000/i)).toBeInTheDocument();
     expect(
       screen.getByText(/expanded system.*r\$ 40,000/i),
     ).toBeInTheDocument();
@@ -69,5 +79,23 @@ describe("OperationalAgentService", () => {
     expect(
       screen.getByRole("link", { name: /i prefer another channel/i }),
     ).toHaveAttribute("href", "/en/contact");
+  });
+
+  it.each([
+    ["pt", ["Mapear", "Avaliar", "Implantar", "Operar"]],
+    ["en", ["Map", "Evaluate", "Deploy", "Operate"]],
+  ] as const)("tem método, como funciona e FAQ (%s)", (locale, steps) => {
+    const { container } = render(<OperationalAgentService locale={locale} />);
+    for (const step of steps)
+      expect(
+        screen.getByRole("heading", { name: step, level: 3 }),
+      ).toBeInTheDocument();
+    expect(container.querySelectorAll("details")).toHaveLength(5);
+    const timeline = container.querySelector("ol[data-method-timeline]");
+    expect(timeline?.querySelectorAll(":scope > li")).toHaveLength(4);
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(
+      container.querySelector('script[type="application/ld+json"]'),
+    ).toBeNull();
   });
 });
