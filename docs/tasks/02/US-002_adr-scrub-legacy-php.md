@@ -2,7 +2,7 @@
 
 > **PRD**: `docs/prd/02_tech-debt-pos-ship.md`
 > **Task**: `docs/tasks/02/US-002_adr-scrub-legacy-php.md`
-> **Status**: Pendente
+> **Status**: Concluído
 
 ## Description
 
@@ -12,21 +12,21 @@ Como Vitor, quero uma decisão explícita e registrada sobre o que fazer com o a
 
 ### Etapa 1 — Criar ADR (sempre executada)
 
-- [ ] Diretório `docs/adr/` criado (primeira ADR do projeto)
-- [ ] Arquivo `docs/adr/001-credenciais-no-historico-legacy-php.md` criado com as seções:
+- [x] Diretório `docs/adr/` criado (primeira ADR do projeto)
+- [x] Arquivo `docs/adr/001-credenciais-no-historico-legacy-php.md` criado com as seções:
   - **Contexto**: referência à spec §13 + explicação de que senha foi rotacionada no PRD 01 US-004, então credenciais no histórico são **inertes**
   - **Opções** (A manter / B scrub com `git filter-repo`) com prós e contras claros
   - **Decisão**: A ou B, com justificativa em 2-3 frases
   - **Consequências**: o que muda operacionalmente (se A: nada; se B: forks precisam re-clonar)
   - **Data**: data da decisão
   - **Autor**: Vitor
-- [ ] ADR formata linter: `pnpm prettier --write docs/adr/`
-- [ ] Commit: `docs(adr): 001 credenciais no histórico legacy-php`
+- [x] ADR formata linter: `pnpm prettier --write docs/adr/`
+- [x] Commit: `docs(adr): 001 credenciais no histórico legacy-php`
 
 ### Etapa 2 — Se a decisão for **Opção A (manter)**
 
-- [ ] Nada mais a fazer. ADR fecha o assunto.
-- [ ] Atualizar `docs/prd/INDEX.md` PRD 02 progresso: US concluída.
+- [x] Nada mais a fazer. ADR fecha o assunto.
+- [x] Atualizar `docs/prd/INDEX.md` PRD 02 progresso: US concluída.
 
 ### Etapa 3 — Se a decisão for **Opção B (scrub via `git filter-repo`)**
 

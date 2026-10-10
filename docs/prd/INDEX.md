@@ -13,7 +13,7 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 | #   | PRD                                              | Tema                                                                                            | Status       | Progresso |
 | --- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------ | --------- |
 | 01  | [Deploy & go-live](./01_deploy-e-go-live.md)     | Fechar Phase 7: Giscus + Vercel + DNS cutover + pós-ship                                        | Em andamento | 4/5 US    |
-| 02  | [Tech-debt pós-ship](./02_tech-debt-pos-ship.md) | Migração `middleware.ts` → `proxy.ts` (Next 16); scrub de credenciais do histórico `legacy-php` | Em andamento | 0/2 US    |
+| 02  | [Tech-debt pós-ship](./02_tech-debt-pos-ship.md) | Migração `middleware.ts` → `proxy.ts` (Next 16); scrub de credenciais do histórico `legacy-php` | Em andamento | 1/2 US    |
 
 ## Moments em que o INDEX deve ser atualizado
 
@@ -42,7 +42,7 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 
 ## PRD 02: Tech-debt pós-ship
 
-| US     | Título                                                           | Status   | Branch/PR |
-| ------ | ---------------------------------------------------------------- | -------- | --------- |
-| US-001 | Migrar `middleware.ts` → `proxy.ts` (Next 16)                    | Pendente | —         |
-| US-002 | Decisão (ADR) sobre scrub de credenciais do histórico legacy-php | Pendente | —         |
+| US     | Título                                                           | Status    | Branch/PR   |
+| ------ | ---------------------------------------------------------------- | --------- | ----------- |
+| US-001 | Migrar `middleware.ts` → `proxy.ts` (Next 16)                    | Pendente  | —           |
+| US-002 | Decisão (ADR) sobre scrub de credenciais do histórico legacy-php | Concluída | #65 (df/65) |
