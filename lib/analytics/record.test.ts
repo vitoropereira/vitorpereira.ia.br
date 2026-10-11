@@ -1,9 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
-import { recordSyndication, snapshotMetrics, getSyndicationsWithStats } from "./record.ts";
+import {
+  recordSyndication,
+  snapshotMetrics,
+  getSyndicationsWithStats,
+} from "./record.ts";
 
 const config = { token: "t", ref: "r" };
 function fetchReturning(body: unknown) {
-  return vi.fn().mockResolvedValue(new Response(JSON.stringify(body), { status: 200 }));
+  return vi
+    .fn()
+    .mockResolvedValue(new Response(JSON.stringify(body), { status: 200 }));
 }
 const rec = {
   postPermalink: "/2026/05/31/ancora",
@@ -51,7 +57,15 @@ describe("snapshotMetrics", () => {
 
 describe("getSyndicationsWithStats", () => {
   it("devolve as linhas do join", async () => {
-    const rows = [{ id: "1", post_permalink: "/x", format: "summary", clicks: 5, tabcoins: 2 }];
+    const rows = [
+      {
+        id: "1",
+        post_permalink: "/x",
+        format: "summary",
+        clicks: 5,
+        tabcoins: 2,
+      },
+    ];
     const fetch = fetchReturning(rows);
     const out = await getSyndicationsWithStats({ fetch, config });
     expect(out).toEqual(rows);

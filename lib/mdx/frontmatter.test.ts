@@ -7,13 +7,18 @@ import { join } from "node:path";
 let file: string;
 beforeEach(() => {
   file = join(mkdtempSync(join(tmpdir(), "post-")), "index.mdx");
-  writeFileSync(file, `---\ntitle: "T"\ndraft: false\ntags: [agentes]\n---\n\nCorpo.\n`);
+  writeFileSync(
+    file,
+    `---\ntitle: "T"\ndraft: false\ntags: [agentes]\n---\n\nCorpo.\n`,
+  );
 });
 
 describe("frontmatter", () => {
   it("grava e lê o campo tabnews", () => {
     writeSyndicationMarker(file, "https://www.tabnews.com.br/vitor/x");
-    expect(readFrontmatterField(file, "tabnews")).toBe("https://www.tabnews.com.br/vitor/x");
+    expect(readFrontmatterField(file, "tabnews")).toBe(
+      "https://www.tabnews.com.br/vitor/x",
+    );
   });
   it("preserva os campos existentes", () => {
     writeSyndicationMarker(file, "https://www.tabnews.com.br/vitor/x");
@@ -33,7 +38,9 @@ describe("frontmatter", () => {
     const raw = readFileSync(file, "utf8");
     const matches = raw.match(/^tabnews:/gm) ?? [];
     expect(matches).toHaveLength(1);
-    expect(readFrontmatterField(file, "tabnews")).toBe("https://www.tabnews.com.br/vitor/second");
+    expect(readFrontmatterField(file, "tabnews")).toBe(
+      "https://www.tabnews.com.br/vitor/second",
+    );
     expect(raw).toContain("Corpo.");
   });
 });

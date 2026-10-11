@@ -1,26 +1,36 @@
 import { describe, expect, it } from "vitest";
 import matter from "gray-matter";
-import { buildEnglishMdx, englishPathFor, localizeInternalLinks } from "./translate.ts";
+import {
+  buildEnglishMdx,
+  englishPathFor,
+  localizeInternalLinks,
+} from "./translate.ts";
 
 describe("localizeInternalLinks", () => {
   it("mapeia rotas institucionais para os equivalentes EN", () => {
-    expect(localizeInternalLinks("veja o [blog](/posts) e o [sobre](/sobre)")).toBe(
-      "veja o [blog](/en/posts) e o [sobre](/en/about)",
+    expect(
+      localizeInternalLinks("veja o [blog](/posts) e o [sobre](/sobre)"),
+    ).toBe("veja o [blog](/en/posts) e o [sobre](/en/about)");
+    expect(localizeInternalLinks("[contato](/contato)")).toBe(
+      "[contato](/en/contact)",
     );
-    expect(localizeInternalLinks("[contato](/contato)")).toBe("[contato](/en/contact)");
   });
 
   it("prefixa permalinks de post com /en", () => {
-    expect(localizeInternalLinks("[texto anterior](/2026/07/18/arquitetura-mental-do-agente)")).toBe(
-      "[texto anterior](/en/2026/07/18/arquitetura-mental-do-agente)",
-    );
+    expect(
+      localizeInternalLinks(
+        "[texto anterior](/2026/07/18/arquitetura-mental-do-agente)",
+      ),
+    ).toBe("[texto anterior](/en/2026/07/18/arquitetura-mental-do-agente)");
   });
 
   it("preserva a âncora ao reescrever", () => {
     expect(localizeInternalLinks("[x](/2026/07/18/slug#uma-secao)")).toBe(
       "[x](/en/2026/07/18/slug#uma-secao)",
     );
-    expect(localizeInternalLinks("[x](/sobre#destaques)")).toBe("[x](/en/about#destaques)");
+    expect(localizeInternalLinks("[x](/sobre#destaques)")).toBe(
+      "[x](/en/about#destaques)",
+    );
   });
 
   it("não mexe em URLs absolutas, âncoras puras nem links já em /en", () => {
@@ -34,7 +44,9 @@ describe("localizeInternalLinks", () => {
   });
 
   it("não reescreve caminhos internos desconhecidos", () => {
-    expect(localizeInternalLinks("[algo](/rota-que-nao-existe)")).toBe("[algo](/rota-que-nao-existe)");
+    expect(localizeInternalLinks("[algo](/rota-que-nao-existe)")).toBe(
+      "[algo](/rota-que-nao-existe)",
+    );
   });
 });
 
@@ -72,11 +84,15 @@ describe("buildEnglishMdx", () => {
   it("traduz title/description e preserva o resto do frontmatter", () => {
     const { data } = matter(buildEnglishMdx(source, translated));
     expect(data.title).toBe("Tools as contracts");
-    expect(data.description).toBe("An agent does not call your API because it read the code.");
+    expect(data.description).toBe(
+      "An agent does not call your API because it read the code.",
+    );
     expect(data.draft).toBe(true);
     expect(data.comments).toBe(true);
     expect(data.tags).toEqual(["agentes", "arquitetura"]);
-    expect(new Date(data.date as string).toISOString()).toBe("2026-07-25T13:00:00.000Z");
+    expect(new Date(data.date as string).toISOString()).toBe(
+      "2026-07-25T13:00:00.000Z",
+    );
   });
 
   it("remove o marcador tabnews (sindicação é do post PT)", () => {
@@ -109,6 +125,8 @@ describe("englishPathFor", () => {
   });
 
   it("rejeita caminho que não é um post PT", () => {
-    expect(() => englishPathFor("content/posts/2026/07/25/slug/index.en.mdx")).toThrow();
+    expect(() =>
+      englishPathFor("content/posts/2026/07/25/slug/index.en.mdx"),
+    ).toThrow();
   });
 });

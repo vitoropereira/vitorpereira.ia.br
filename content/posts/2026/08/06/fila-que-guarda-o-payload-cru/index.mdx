@@ -83,13 +83,13 @@ JSON original, timestamp de chegada, e um estado de processamento.
 
 O que isso muda na prática:
 
-| Situação | Fila tradicional | Fila com payload cru |
-| --- | --- | --- |
-| Bug de parsing descoberto depois | dado perdido, sem reconstrução | reprocessa desde a origem |
-| Regra de negócio mudou | vale só daqui pra frente | reaplica no histórico |
-| "Por que esse registro está assim?" | inferência | lê o que chegou de fato |
-| Pico de volume | absorve | absorve |
-| Infra pra operar | +1 serviço | zero — já tinha Postgres |
+| Situação                            | Fila tradicional               | Fila com payload cru      |
+| ----------------------------------- | ------------------------------ | ------------------------- |
+| Bug de parsing descoberto depois    | dado perdido, sem reconstrução | reprocessa desde a origem |
+| Regra de negócio mudou              | vale só daqui pra frente       | reaplica no histórico     |
+| "Por que esse registro está assim?" | inferência                     | lê o que chegou de fato   |
+| Pico de volume                      | absorve                        | absorve                   |
+| Infra pra operar                    | +1 serviço                     | zero — já tinha Postgres  |
 
 A coluna da direita é a que descreve o nosso dia a dia. A da esquerda descreve a
 arquitetura que o livro recomenda.

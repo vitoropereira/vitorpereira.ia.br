@@ -23,13 +23,13 @@ Isso não é memória. Isso é um log que ninguém poda.
 
 A separação que resolve metade da confusão:
 
-| | Memória de tarefa | Memória entre tarefas |
-| --- | --- | --- |
-| Vive por | uma execução | várias execuções |
-| Guarda | o estado do que está sendo feito agora | o que vale a pena carregar pro futuro |
-| Exemplo | qual arquivo já foi lido, qual passo falhou | preferência do usuário, o que já foi tentado e não deu certo |
-| Se perder | a execução atual quebra | o agente repete um erro antigo |
-| Cresce | dentro de um limite conhecido | indefinidamente, se você deixar |
+|           | Memória de tarefa                           | Memória entre tarefas                                        |
+| --------- | ------------------------------------------- | ------------------------------------------------------------ |
+| Vive por  | uma execução                                | várias execuções                                             |
+| Guarda    | o estado do que está sendo feito agora      | o que vale a pena carregar pro futuro                        |
+| Exemplo   | qual arquivo já foi lido, qual passo falhou | preferência do usuário, o que já foi tentado e não deu certo |
+| Se perder | a execução atual quebra                     | o agente repete um erro antigo                               |
+| Cresce    | dentro de um limite conhecido               | indefinidamente, se você deixar                              |
 
 São problemas diferentes com soluções diferentes, e tratá-los como uma coisa só
 é a origem de quase todo sistema de memória ruim que eu já vi.

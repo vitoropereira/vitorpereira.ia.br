@@ -22,7 +22,10 @@ type Publishable = Pick<Post, "date" | "draft">;
  * schema do velite (`s.isodate()`) já garante data válida em todo post real,
  * então isso só afeta fixture de teste incompleta.
  */
-export function isScheduled(post: Schedulable, now: Date = new Date()): boolean {
+export function isScheduled(
+  post: Schedulable,
+  now: Date = new Date(),
+): boolean {
   const at = new Date(post.date).getTime();
   if (Number.isNaN(at)) return false;
   return at > now.getTime();

@@ -30,13 +30,13 @@ Rastreador leve do status de cada PRD. **Single source of truth** para saber o q
 
 ## PRD 01: Deploy & go-live
 
-| US     | Título                                          | Status   | Branch/PR |
-| ------ | ----------------------------------------------- | -------- | --------- |
-| US-001 | Giscus configurado contra o repo real           | Concluída | local-only (env) |
-| US-002 | Vercel bootstrap (link + env vars)              | Concluída | dashboard (no CLI) |
-| US-003 | Deploy provisório passando aceite completo      | Concluída | PRs #7–#11 (fixes do smoke) |
+| US     | Título                                          | Status    | Branch/PR                                  |
+| ------ | ----------------------------------------------- | --------- | ------------------------------------------ |
+| US-001 | Giscus configurado contra o repo real           | Concluída | local-only (env)                           |
+| US-002 | Vercel bootstrap (link + env vars)              | Concluída | dashboard (no CLI)                         |
+| US-003 | Deploy provisório passando aceite completo      | Concluída | PRs #7–#11 (fixes do smoke)                |
 | US-004 | DNS cutover para domínio real                   | Concluída | feito (Cloudflare→Vercel, cert 2026-05-31) |
-| US-005 | Pós-ship — Search Console + validators + uptime | Pendente | — (destravado pós-cutover) |
+| US-005 | Pós-ship — Search Console + validators + uptime | Pendente  | — (destravado pós-cutover)                 |
 
 ---
 

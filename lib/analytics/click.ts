@@ -9,7 +9,10 @@ export const SITE_ORIGIN = "https://vitorpereira.ia.br";
  * Anti open-redirect: só aceita destinos no NOSSO domínio. Monta a URL final com
  * UTM (pra o GA também enxergar). Devolve null se o destino for inválido/externo.
  */
-export function resolveTrackRedirect(to: string, format: string | null): string | null {
+export function resolveTrackRedirect(
+  to: string,
+  format: string | null,
+): string | null {
   let dest: URL;
   try {
     dest = new URL(to);
@@ -48,7 +51,8 @@ export function isLikelyBot(ua: string): boolean {
 /** Hash não-reversível do UA (privacidade — não guardamos UA cru). */
 export function hashUA(ua: string): string {
   let h = 0;
-  for (let i = 0; i < ua.length; i++) h = (Math.imul(31, h) + ua.charCodeAt(i)) | 0;
+  for (let i = 0; i < ua.length; i++)
+    h = (Math.imul(31, h) + ua.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
 
@@ -64,7 +68,11 @@ export interface ClickPayload {
 export function buildClickPayload(
   to: string,
   format: string | null,
-  headers: { userAgent: string; referrer: string | null; country: string | null },
+  headers: {
+    userAgent: string;
+    referrer: string | null;
+    country: string | null;
+  },
 ): ClickPayload {
   return {
     post_permalink: permalinkFromCanonical(to),
@@ -83,7 +91,10 @@ type LogDeps = { fetch?: typeof fetch; env?: NodeJS.ProcessEnv };
  * Gated: sem NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, é no-op.
  * Devolve true se gravou, false se pulou/ignorado. Nunca lança (o redirect manda).
  */
-export async function logClick(payload: ClickPayload, deps: LogDeps = {}): Promise<boolean> {
+export async function logClick(
+  payload: ClickPayload,
+  deps: LogDeps = {},
+): Promise<boolean> {
   const env = deps.env ?? process.env;
   const url = env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const key = env.SUPABASE_SERVICE_ROLE_KEY?.trim();

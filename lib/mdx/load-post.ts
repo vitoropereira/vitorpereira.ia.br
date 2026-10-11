@@ -5,8 +5,13 @@ import type { SourcePost } from "../syndication/types.ts";
 
 /** Deriva o permalink PT do caminho content/posts/AAAA/MM/DD/slug/index.mdx */
 export function permalinkFromPath(mdxPath: string): string {
-  const m = mdxPath.replace(/\\/g, "/").match(/content\/posts\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+)\/index\.mdx$/);
-  if (!m) throw new Error(`Caminho não é um post PT válido (…/index.mdx): ${mdxPath}`);
+  const m = mdxPath
+    .replace(/\\/g, "/")
+    .match(/content\/posts\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+)\/index\.mdx$/);
+  if (!m)
+    throw new Error(
+      `Caminho não é um post PT válido (…/index.mdx): ${mdxPath}`,
+    );
   const [, y, mo, d, slug] = m;
   return `/${y}/${mo}/${d}/${slug}`;
 }

@@ -34,22 +34,22 @@
 
 ## File Structure
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `content/cover-style.txt` (create) | preâmbulo de estilo 3D, fonte única |
-| `scripts/gen-cover.ts` (modify) | compõe preâmbulo + assunto; recusa prompt `TODO` |
-| `scripts/gen-cover.test.ts` (modify) | testes de `composeCoverPrompt` |
-| `scripts/new-post.ts` (modify) | cria `cover.prompt.txt` por padrão (`--no-cover-prompt` desliga) |
-| `scripts/gen-screenshots.ts` (create) | CLI de prints via CDP |
-| `scripts/gen-screenshots.test.ts` (create) | testes das funções puras |
-| `package.json` (modify) | script `gen:screenshots` |
-| `features/portfolio/components/ProjectCard.tsx` (modify) | moldura de navegador + hover |
-| `features/portfolio/components/ProjectCard.test.tsx` (create) | moldura com/sem url |
-| `features/portfolio/data/projects.ts` (modify) | `cover: "<id>.webp"` |
-| `features/portfolio/data/projects.test.ts` (create) | integridade cover ↔ arquivo |
-| `public/images/projects/*.webp` (create) | prints |
-| `content/posts/**/cover.prompt.txt` + `assets/cover.webp` (create) | 15 capas |
-| `docs/redesign/` (create) | folhas de contato para aprovação |
+| Arquivo                                                            | Responsabilidade                                                 |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `content/cover-style.txt` (create)                                 | preâmbulo de estilo 3D, fonte única                              |
+| `scripts/gen-cover.ts` (modify)                                    | compõe preâmbulo + assunto; recusa prompt `TODO`                 |
+| `scripts/gen-cover.test.ts` (modify)                               | testes de `composeCoverPrompt`                                   |
+| `scripts/new-post.ts` (modify)                                     | cria `cover.prompt.txt` por padrão (`--no-cover-prompt` desliga) |
+| `scripts/gen-screenshots.ts` (create)                              | CLI de prints via CDP                                            |
+| `scripts/gen-screenshots.test.ts` (create)                         | testes das funções puras                                         |
+| `package.json` (modify)                                            | script `gen:screenshots`                                         |
+| `features/portfolio/components/ProjectCard.tsx` (modify)           | moldura de navegador + hover                                     |
+| `features/portfolio/components/ProjectCard.test.tsx` (create)      | moldura com/sem url                                              |
+| `features/portfolio/data/projects.ts` (modify)                     | `cover: "<id>.webp"`                                             |
+| `features/portfolio/data/projects.test.ts` (create)                | integridade cover ↔ arquivo                                      |
+| `public/images/projects/*.webp` (create)                           | prints                                                           |
+| `content/posts/**/cover.prompt.txt` + `assets/cover.webp` (create) | 15 capas                                                         |
+| `docs/redesign/` (create)                                          | folhas de contato para aprovação                                 |
 
 ---
 
@@ -80,10 +80,12 @@ Se der 0, pare e peça a chave ao Vitor.
 ### Task 1: Preâmbulo de estilo no `gen:cover` + `new:post`
 
 **Files:**
+
 - Create: `content/cover-style.txt`
 - Modify: `scripts/gen-cover.ts` (função `resolvePrompt`, linhas ~187-195), `scripts/gen-cover.test.ts`, `scripts/new-post.ts`
 
 **Interfaces:**
+
 - Produces: `export function composeCoverPrompt(style: string, subject: string): string` — lança `Error` se `subject` estiver vazio ou começar com `TODO`.
 
 - [ ] **Step 1: `content/cover-style.txt`**
@@ -116,7 +118,9 @@ describe("composeCoverPrompt", () => {
   });
 
   it("recusa o placeholder TODO antes de gastar chamada de API", () => {
-    expect(() => composeCoverPrompt("STYLE", "TODO: prompt da capa.")).toThrow(/TODO/);
+    expect(() => composeCoverPrompt("STYLE", "TODO: prompt da capa.")).toThrow(
+      /TODO/,
+    );
   });
 
   it("recusa assunto vazio", () => {
@@ -143,7 +147,9 @@ export function composeCoverPrompt(style: string, subject: string): string {
   const s = subject.trim();
   if (!s) throw new Error("Prompt da capa vazio.");
   if (/^TODO\b/.test(s)) {
-    throw new Error("cover.prompt.txt ainda está no placeholder TODO — escreva o assunto antes de gerar.");
+    throw new Error(
+      "cover.prompt.txt ainda está no placeholder TODO — escreva o assunto antes de gerar.",
+    );
   }
   return `${style.trim()}\n\nComposition for this post:\n${s}`;
 }
@@ -152,12 +158,14 @@ export function composeCoverPrompt(style: string, subject: string): string {
 E, dentro de `resolvePrompt`, no caminho que lê arquivo (não no `--prompt` inline, que continua literal), trocar o `return text;` final por:
 
 ```ts
-  const style = existsSync(STYLE_FILE) ? await readFile(STYLE_FILE, "utf8") : "";
-  try {
-    return style ? composeCoverPrompt(style, text) : composeCoverPrompt("", text).trimStart();
-  } catch (e) {
-    return fail(errMsg(e));
-  }
+const style = existsSync(STYLE_FILE) ? await readFile(STYLE_FILE, "utf8") : "";
+try {
+  return style
+    ? composeCoverPrompt(style, text)
+    : composeCoverPrompt("", text).trimStart();
+} catch (e) {
+  return fail(errMsg(e));
+}
 ```
 
 Atualizar o comentário de cabeçalho do arquivo com uma linha: ` *   O conteúdo de content/cover-style.txt é prefixado a todo prompt lido de arquivo.`
@@ -179,12 +187,12 @@ Em `scripts/new-post.ts`: `let coverPrompt = true;`, trocar o ramo `--cover-prom
 E no texto do placeholder:
 
 ```ts
-      writeFileSync(
-        promptPath,
-        "TODO: descreva só a composição da capa (o estilo vem de content/cover-style.txt). Rode `pnpm gen:cover --post " +
-          dir +
-          " --attach-frontmatter`.\n",
-      );
+writeFileSync(
+  promptPath,
+  "TODO: descreva só a composição da capa (o estilo vem de content/cover-style.txt). Rode `pnpm gen:cover --post " +
+    dir +
+    " --attach-frontmatter`.\n",
+);
 ```
 
 Atualizar o comentário de flags no topo: `--cover-prompt` vira padrão; documentar `--no-cover-prompt`.
@@ -194,6 +202,7 @@ Atualizar o comentário de flags no topo: `--cover-prompt` vira padrão; documen
 ```bash
 pnpm gen:cover --post content/posts/2026/09/21/idempotencia-efeito-externo --dry-run --prompt "smoke"
 ```
+
 Expected: sai sem chamar API (valida que nada quebrou na leitura de args).
 
 - [ ] **Step 8: Commit**
@@ -210,16 +219,25 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 2: `gen:screenshots`
 
 **Files:**
+
 - Create: `scripts/gen-screenshots.ts`, `scripts/gen-screenshots.test.ts`
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Consumes: `projects` de `features/portfolio/data/projects.ts` (import `../features/portfolio/data/projects.ts`; esse arquivo só importa `type` de `../types`, então o Node type-stripping resolve).
 - Produces:
+
   ```ts
-  export function selectTargets(list: { id: string; url: string | null }[], only?: string[]): { id: string; url: string }[];
-  export function outputPathFor(id: string): string;              // "public/images/projects/<id>.webp"
-  export function classifyNavigation(status: number | undefined, finalUrl: string): "ok" | "http-error" | "no-response";
+  export function selectTargets(
+    list: { id: string; url: string | null }[],
+    only?: string[],
+  ): { id: string; url: string }[];
+  export function outputPathFor(id: string): string; // "public/images/projects/<id>.webp"
+  export function classifyNavigation(
+    status: number | undefined,
+    finalUrl: string,
+  ): "ok" | "http-error" | "no-response";
   ```
 
 - [ ] **Step 1: Teste das funções puras**
@@ -228,7 +246,11 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 
 ```ts
 import { describe, expect, it } from "vitest";
-import { classifyNavigation, outputPathFor, selectTargets } from "./gen-screenshots.ts";
+import {
+  classifyNavigation,
+  outputPathFor,
+  selectTargets,
+} from "./gen-screenshots.ts";
 
 describe("selectTargets", () => {
   const list = [
@@ -249,7 +271,9 @@ describe("selectTargets", () => {
 
 describe("outputPathFor", () => {
   it("grava em public/images/projects/<id>.webp", () => {
-    expect(outputPathFor("clearseg")).toBe("public/images/projects/clearseg.webp");
+    expect(outputPathFor("clearseg")).toBe(
+      "public/images/projects/clearseg.webp",
+    );
   });
 });
 
@@ -265,7 +289,9 @@ describe("classifyNavigation", () => {
     expect(classifyNavigation(undefined, "")).toBe("no-response");
   });
   it("chrome-error:// é no-response mesmo com status", () => {
-    expect(classifyNavigation(200, "chrome-error://chromewebdata/")).toBe("no-response");
+    expect(classifyNavigation(200, "chrome-error://chromewebdata/")).toBe(
+      "no-response",
+    );
   });
 });
 ```
@@ -311,10 +337,15 @@ export function selectTargets(
   list: { id: string; url: string | null }[],
   only?: string[],
 ): Target[] {
-  const withUrl = list.filter((p): p is Target => typeof p.url === "string" && p.url.length > 0);
+  const withUrl = list.filter(
+    (p): p is Target => typeof p.url === "string" && p.url.length > 0,
+  );
   if (!only?.length) return withUrl;
   const missing = only.filter((id) => !withUrl.some((p) => p.id === id));
-  if (missing.length) throw new Error(`--only com id sem url ou inexistente: ${missing.join(", ")}`);
+  if (missing.length)
+    throw new Error(
+      `--only com id sem url ou inexistente: ${missing.join(", ")}`,
+    );
   return withUrl.filter((p) => only.includes(p.id));
 }
 
@@ -326,14 +357,21 @@ export function classifyNavigation(
   status: number | undefined,
   finalUrl: string,
 ): "ok" | "http-error" | "no-response" {
-  if (status === undefined || finalUrl.startsWith("chrome-error://")) return "no-response";
+  if (status === undefined || finalUrl.startsWith("chrome-error://"))
+    return "no-response";
   return status >= 400 ? "http-error" : "ok";
 }
 
 // ── CDP mínimo ────────────────────────────────────────────────────────────
 // Mensagens CDP chegam como JSON solto; cada uso faz o cast do campo que lê.
 type Json = Record<string, unknown>;
-type CdpMsg = { id?: number; method?: string; params?: Json; result?: Json; error?: { message: string } };
+type CdpMsg = {
+  id?: number;
+  method?: string;
+  params?: Json;
+  result?: Json;
+  error?: { message: string };
+};
 type Pending = { resolve: (v: Json) => void; reject: (e: Error) => void };
 
 class Cdp {
@@ -361,7 +399,11 @@ class Cdp {
     const ws = new WebSocket(url);
     await new Promise<void>((res, rej) => {
       ws.addEventListener("open", () => res(), { once: true });
-      ws.addEventListener("error", () => rej(new Error("WebSocket CDP falhou")), { once: true });
+      ws.addEventListener(
+        "error",
+        () => rej(new Error("WebSocket CDP falhou")),
+        { once: true },
+      );
     });
     return new Cdp(ws);
   }
@@ -369,7 +411,9 @@ class Cdp {
   send(method: string, params: object = {}): Promise<Json> {
     const id = ++this.seq;
     this.ws.send(JSON.stringify({ id, method, params }));
-    return new Promise<Json>((resolve, reject) => this.pending.set(id, { resolve, reject }));
+    return new Promise<Json>((resolve, reject) =>
+      this.pending.set(id, { resolve, reject }),
+    );
   }
 
   on(fn: (m: CdpMsg) => void): () => void {
@@ -388,7 +432,10 @@ async function waitForDebugger(): Promise<string> {
   for (let i = 0; i < 50; i++) {
     try {
       const r = await fetch(`http://127.0.0.1:${PORT}/json/list`);
-      const pages = (await r.json()) as { type: string; webSocketDebuggerUrl: string }[];
+      const pages = (await r.json()) as {
+        type: string;
+        webSocketDebuggerUrl: string;
+      }[];
       const page = pages.find((p) => p.type === "page");
       if (page) return page.webSocketDebuggerUrl;
     } catch {
@@ -408,10 +455,17 @@ const DISMISS_COOKIES = `(() => {
   return false;
 })()`;
 
-async function capture(cdp: Cdp, t: Target): Promise<"ok" | "http-error" | "no-response"> {
+async function capture(
+  cdp: Cdp,
+  t: Target,
+): Promise<"ok" | "http-error" | "no-response"> {
   let status: number | undefined;
   const off = cdp.on((m) => {
-    if (m.method === "Network.responseReceived" && m.params?.type === "Document" && status === undefined) {
+    if (
+      m.method === "Network.responseReceived" &&
+      m.params?.type === "Document" &&
+      status === undefined
+    ) {
       status = (m.params.response as { status: number }).status;
     }
   });
@@ -424,32 +478,59 @@ async function capture(cdp: Cdp, t: Target): Promise<"ok" | "http-error" | "no-r
     });
   });
   await cdp.send("Page.navigate", { url: t.url });
-  await Promise.race([loaded, new Promise((r) => setTimeout(r, NAV_TIMEOUT_MS))]);
+  await Promise.race([
+    loaded,
+    new Promise((r) => setTimeout(r, NAV_TIMEOUT_MS)),
+  ]);
   off();
-  const evalRes = await cdp.send("Runtime.evaluate", { expression: "location.href", returnByValue: true });
+  const evalRes = await cdp.send("Runtime.evaluate", {
+    expression: "location.href",
+    returnByValue: true,
+  });
   const href = (evalRes.result as { value?: string } | undefined)?.value ?? "";
   const verdict = classifyNavigation(status, href);
   if (verdict !== "ok") return verdict;
 
-  await cdp.send("Runtime.evaluate", { expression: DISMISS_COOKIES, returnByValue: true });
+  await cdp.send("Runtime.evaluate", {
+    expression: DISMISS_COOKIES,
+    returnByValue: true,
+  });
   await new Promise((r) => setTimeout(r, SETTLE_MS));
-  const shot = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
+  const shot = await cdp.send("Page.captureScreenshot", {
+    format: "png",
+    captureBeyondViewport: false,
+  });
   const out = outputPathFor(t.id);
   await mkdir(path.dirname(out), { recursive: true });
-  await sharp(Buffer.from(String(shot.data), "base64")).resize({ width: OUT_WIDTH }).webp({ quality: 82 }).toFile(out);
+  await sharp(Buffer.from(String(shot.data), "base64"))
+    .resize({ width: OUT_WIDTH })
+    .webp({ quality: 82 })
+    .toFile(out);
   return "ok";
 }
 
 async function main() {
   const argv = process.argv.slice(2);
   const i = argv.indexOf("--only");
-  const only = i >= 0 ? (argv[i + 1] ?? "").split(",").map((s) => s.trim()).filter(Boolean) : undefined;
+  const only =
+    i >= 0
+      ? (argv[i + 1] ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : undefined;
   const targets = selectTargets(projects, only);
 
   const profile = await mkdtemp(path.join(tmpdir(), "gen-shots-"));
   const chrome = spawn(
     CHROME,
-    ["--headless=new", `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`, "--hide-scrollbars", "about:blank"],
+    [
+      "--headless=new",
+      `--remote-debugging-port=${PORT}`,
+      `--user-data-dir=${profile}`,
+      "--hide-scrollbars",
+      "about:blank",
+    ],
     { stdio: "ignore" },
   );
   const report: Record<string, string> = {};
@@ -457,15 +538,23 @@ async function main() {
     const cdp = await Cdp.connect(await waitForDebugger());
     await cdp.send("Page.enable");
     await cdp.send("Network.enable");
-    await cdp.send("Emulation.setDeviceMetricsOverride", { ...VIEWPORT, deviceScaleFactor: 2, mobile: false });
-    await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+    await cdp.send("Emulation.setDeviceMetricsOverride", {
+      ...VIEWPORT,
+      deviceScaleFactor: 2,
+      mobile: false,
+    });
+    await cdp.send("Emulation.setEmulatedMedia", {
+      features: [{ name: "prefers-color-scheme", value: "dark" }],
+    });
     for (const t of targets) {
       try {
         report[t.id] = await capture(cdp, t);
       } catch (e) {
         report[t.id] = `erro: ${e instanceof Error ? e.message : String(e)}`;
       }
-      console.log(`${report[t.id] === "ok" ? "✓" : "✖"} ${t.id} — ${report[t.id]}`);
+      console.log(
+        `${report[t.id] === "ok" ? "✓" : "✖"} ${t.id} — ${report[t.id]}`,
+      );
     }
     cdp.close();
   } finally {
@@ -474,7 +563,9 @@ async function main() {
   }
   const failed = Object.entries(report).filter(([, v]) => v !== "ok");
   if (failed.length) {
-    console.log(`\n${failed.length} sem print (ficam sem cover): ${failed.map(([k]) => k).join(", ")}`);
+    console.log(
+      `\n${failed.length} sem print (ficam sem cover): ${failed.map(([k]) => k).join(", ")}`,
+    );
   }
 }
 
@@ -520,10 +611,12 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 3: Moldura de navegador no `ProjectCard`
 
 **Files:**
+
 - Modify: `features/portfolio/components/ProjectCard.tsx`
 - Create: `features/portfolio/components/ProjectCard.test.tsx`
 
 **Interfaces:**
+
 - Produces: `export function domainOf(url: string | null): string | null` (no mesmo arquivo do card) — `"https://www.sarcorps.com.br/pt"` → `"sarcorps.com.br"`.
 
 - [ ] **Step 1: Teste**
@@ -548,18 +641,30 @@ describe("domainOf", () => {
 
 describe("ProjectCard", () => {
   it("com cover e url mostra a moldura com o domínio", () => {
-    render(<ProjectCard project={{ ...base, cover: "x.webp", url: "https://clearseg.com.br" }} locale="pt" />);
+    render(
+      <ProjectCard
+        project={{ ...base, cover: "x.webp", url: "https://clearseg.com.br" }}
+        locale="pt"
+      />,
+    );
     expect(screen.getByText("clearseg.com.br")).toBeInTheDocument();
   });
 
   it("com cover e sem url renderiza a imagem sem domínio, sem lançar", () => {
-    const { container } = render(<ProjectCard project={{ ...base, cover: "x.webp", url: null }} locale="pt" />);
+    const { container } = render(
+      <ProjectCard
+        project={{ ...base, cover: "x.webp", url: null }}
+        locale="pt"
+      />,
+    );
     expect(container.querySelector("img")).not.toBeNull();
     expect(screen.queryByText("clearseg.com.br")).toBeNull();
   });
 
   it("sem cover não renderiza moldura", () => {
-    const { container } = render(<ProjectCard project={{ ...base, cover: null }} locale="pt" />);
+    const { container } = render(
+      <ProjectCard project={{ ...base, cover: null }} locale="pt" />,
+    );
     expect(container.querySelector("[data-browser-frame]")).toBeNull();
   });
 });
@@ -588,30 +693,32 @@ export function domainOf(url: string | null): string | null {
 Trocar o bloco `{project.cover && (<Image ... />)}` por:
 
 ```tsx
-      {project.cover && (
-        <div data-browser-frame className="border-b">
-          <div className="bg-muted flex items-center gap-1.5 px-3 py-2">
-            <span className="size-2 rounded-full bg-[#FF5F57]" aria-hidden />
-            <span className="size-2 rounded-full bg-[#FEBC2E]" aria-hidden />
-            <span className="size-2 rounded-full bg-[#28C840]" aria-hidden />
-            {domainOf(project.url) && (
-              <span className="text-muted-foreground ml-2 truncate font-mono text-[11px]">
-                {domainOf(project.url)}
-              </span>
-            )}
-          </div>
-          <div className="overflow-hidden">
-            <Image
-              src={`/images/projects/${project.cover}`}
-              alt=""
-              width={1280}
-              height={800}
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-              className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-            />
-          </div>
-        </div>
-      )}
+{
+  project.cover && (
+    <div data-browser-frame className="border-b">
+      <div className="bg-muted flex items-center gap-1.5 px-3 py-2">
+        <span className="size-2 rounded-full bg-[#FF5F57]" aria-hidden />
+        <span className="size-2 rounded-full bg-[#FEBC2E]" aria-hidden />
+        <span className="size-2 rounded-full bg-[#28C840]" aria-hidden />
+        {domainOf(project.url) && (
+          <span className="text-muted-foreground ml-2 truncate font-mono text-[11px]">
+            {domainOf(project.url)}
+          </span>
+        )}
+      </div>
+      <div className="overflow-hidden">
+        <Image
+          src={`/images/projects/${project.cover}`}
+          alt=""
+          width={1280}
+          height={800}
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
+      </div>
+    </div>
+  );
+}
 ```
 
 E no `<article>`, trocar `transition-shadow hover:shadow-md` por `group card-interactive` (a classe vem do PR ①; se o PR ① ainda não estiver na main quando este for mergeado, `card-interactive` é inerte e nada quebra).
@@ -637,6 +744,7 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 4: Gerar prints, portão do Vitor, ligar `cover`
 
 **Files:**
+
 - Create: `public/images/projects/*.webp`, `features/portfolio/data/projects.test.ts`, `docs/redesign/prints-projetos.png`
 - Modify: `features/portfolio/data/projects.ts`
 
@@ -654,13 +762,17 @@ describe("projects cover", () => {
   it("todo cover aponta para um arquivo existente em public/images/projects", () => {
     const missing = projects
       .filter((p) => p.cover)
-      .filter((p) => !existsSync(path.join("public", "images", "projects", p.cover!)))
+      .filter(
+        (p) => !existsSync(path.join("public", "images", "projects", p.cover!)),
+      )
       .map((p) => `${p.id} → ${p.cover}`);
     expect(missing).toEqual([]);
   });
 
   it("todo projeto em destaque com url tem print", () => {
-    const semPrint = projects.filter((p) => p.featured && p.url && !p.cover).map((p) => p.id);
+    const semPrint = projects
+      .filter((p) => p.featured && p.url && !p.cover)
+      .map((p) => p.id);
     expect(semPrint).toEqual([]);
   });
 });
@@ -720,6 +832,7 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 5: 15 capas de post — prompts, geração, portão
 
 **Files:**
+
 - Create: `content/posts/<post>/cover.prompt.txt` e `content/posts/<post>/assets/cover.webp` para os 15 abaixo
 - Modify: `index.mdx` / `index.en.mdx` desses posts (frontmatter `cover:`, via `--attach-frontmatter`)
 - Create: `docs/redesign/capas-posts.png`
@@ -728,23 +841,23 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 
 Só a composição (o estilo vem do `content/cover-style.txt`). Um arquivo por pasta, com exatamente este conteúdo:
 
-| Post (`content/posts/2026/…`) | `cover.prompt.txt` |
-|---|---|
-| `07/25/ferramentas-como-contrato` | A row of five matte tiles, each a tool glyph (wrench, envelope, database cylinder, calendar, padlock), each tile sitting inside a thin glowing blue outlined frame like a contract boundary; one darker agent cube on the left sends a single blue wire that only plugs into the frames' defined sockets. |
-| `08/04/nove-numeros-banidos` | Ten small matte phone-shaped tiles in a grid; nine of them dimmed and tipped over with their blue wires cut, one still upright and lit; on the right, a new sturdier stack of tiles being assembled, connected by fresh blue wires. |
-| `08/06/fila-que-guarda-o-payload-cru` | A long translucent matte tray holding a queue of small sealed envelope-tiles in order; above it, a processing tile with a broken wire spark (amber), while the envelopes in the tray stay intact and glowing softly blue. |
-| `08/08/idor-a-fronteira-e-o-servidor` | Two separate groups of matte document tiles on the left and right, divided by a tall glowing blue vertical wall; a single key-shaped tile is stopped against the wall, unable to pass; a shield glyph tile sits on top of the wall. |
-| `08/11/memoria-de-agente` | A wide funnel made of thin blue wire rings; many small scattered matte fragments enter at the top, only three well-formed tiles come out at the bottom into a neat small shelf; the rest fade away into the gradient. |
-| `08/13/avaliar-agente-quatro-eixos` | A central dark agent cube with four blue wires going to four tiles arranged as a cross: a target glyph, a winding path glyph, a shield glyph and a coin glyph; the path tile is highlighted with one amber dot. |
-| `08/15/limites-do-agente` | Three concentric rounded platforms like steps, labeled only by glyphs: an eye (read), a clipboard (prepare), a pen (write); the agent cube sits on the outer step and a thin blue gate stands before the inner pen step. |
-| `08/18/llms-txt-funciona` | A single flat matte document tile with a few simple horizontal lines (no letters) at the center, with thin blue wires fanning out to several small anonymous crawler tiles; some wires connect, some stop short and fade. |
-| `08/19/demo-ao-vivo-de-agente` | A small matte stage platform with a screen tile showing a frozen loading ring glyph; three tiny abstract audience pucks in front; a single simple lever tile at the side glowing blue, the one thing that works. |
-| `09/13/agente-nao-amadurece-no-prompt` | On the left, a lone terminal tile with a caret glyph; on the right, the same agent cube surrounded by real-world tiles: a wifi glyph with a dimmed bar, a blocked channel glyph, and a printed QR-like square pattern tile (abstract squares, no readable code); blue wires reconnect them. |
-| `09/17/logs-para-operar-agentes` | A vertical timeline of five stacked thin matte tiles, each with a different glyph (link chain, decision fork, wrench, state arrows, hand-off hand), connected by a single blue wire running down the stack like a trace. |
-| `09/21/idempotencia-efeito-externo` | Two identical blue wires arriving from the left converge into a single matte stamp-shaped tile; on the right, exactly one document tile is produced; a faint ghost of a second document is crossed out with an amber dot. |
-| `10/01/mdx-nao-e-so-texto` | A matte document tile on the left with simple lines; from it, blue wires lead to a row of tiles representing a route path glyph, a sitemap tree glyph, a globe glyph and a checklist glyph, with a small gate tile with a check mark in the middle of the wires. |
-| `10/05/claude-code-projetou-a-eleicao` | A matte ballot-box-shaped tile on the left feeding blue wires into a dark agent cube; out of the cube, a smooth rising line chart rendered as a thin blue wire with a confidence band, and two small source tiles cross-checking it with linked wires; no numbers. |
-| `10/05/read-only-nao-e-politica-de-seguranca` | A matte tool tile with an open eye glyph and a small "lock-off" closed padlock tag hanging from it, yet a blue wire still runs from it into a stack of sensitive document tiles; around the wire, a thin gate, a rate meter dial and a filter funnel tile actually guard the flow. |
+| Post (`content/posts/2026/…`)                 | `cover.prompt.txt`                                                                                                                                                                                                                                                                                        |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `07/25/ferramentas-como-contrato`             | A row of five matte tiles, each a tool glyph (wrench, envelope, database cylinder, calendar, padlock), each tile sitting inside a thin glowing blue outlined frame like a contract boundary; one darker agent cube on the left sends a single blue wire that only plugs into the frames' defined sockets. |
+| `08/04/nove-numeros-banidos`                  | Ten small matte phone-shaped tiles in a grid; nine of them dimmed and tipped over with their blue wires cut, one still upright and lit; on the right, a new sturdier stack of tiles being assembled, connected by fresh blue wires.                                                                       |
+| `08/06/fila-que-guarda-o-payload-cru`         | A long translucent matte tray holding a queue of small sealed envelope-tiles in order; above it, a processing tile with a broken wire spark (amber), while the envelopes in the tray stay intact and glowing softly blue.                                                                                 |
+| `08/08/idor-a-fronteira-e-o-servidor`         | Two separate groups of matte document tiles on the left and right, divided by a tall glowing blue vertical wall; a single key-shaped tile is stopped against the wall, unable to pass; a shield glyph tile sits on top of the wall.                                                                       |
+| `08/11/memoria-de-agente`                     | A wide funnel made of thin blue wire rings; many small scattered matte fragments enter at the top, only three well-formed tiles come out at the bottom into a neat small shelf; the rest fade away into the gradient.                                                                                     |
+| `08/13/avaliar-agente-quatro-eixos`           | A central dark agent cube with four blue wires going to four tiles arranged as a cross: a target glyph, a winding path glyph, a shield glyph and a coin glyph; the path tile is highlighted with one amber dot.                                                                                           |
+| `08/15/limites-do-agente`                     | Three concentric rounded platforms like steps, labeled only by glyphs: an eye (read), a clipboard (prepare), a pen (write); the agent cube sits on the outer step and a thin blue gate stands before the inner pen step.                                                                                  |
+| `08/18/llms-txt-funciona`                     | A single flat matte document tile with a few simple horizontal lines (no letters) at the center, with thin blue wires fanning out to several small anonymous crawler tiles; some wires connect, some stop short and fade.                                                                                 |
+| `08/19/demo-ao-vivo-de-agente`                | A small matte stage platform with a screen tile showing a frozen loading ring glyph; three tiny abstract audience pucks in front; a single simple lever tile at the side glowing blue, the one thing that works.                                                                                          |
+| `09/13/agente-nao-amadurece-no-prompt`        | On the left, a lone terminal tile with a caret glyph; on the right, the same agent cube surrounded by real-world tiles: a wifi glyph with a dimmed bar, a blocked channel glyph, and a printed QR-like square pattern tile (abstract squares, no readable code); blue wires reconnect them.               |
+| `09/17/logs-para-operar-agentes`              | A vertical timeline of five stacked thin matte tiles, each with a different glyph (link chain, decision fork, wrench, state arrows, hand-off hand), connected by a single blue wire running down the stack like a trace.                                                                                  |
+| `09/21/idempotencia-efeito-externo`           | Two identical blue wires arriving from the left converge into a single matte stamp-shaped tile; on the right, exactly one document tile is produced; a faint ghost of a second document is crossed out with an amber dot.                                                                                 |
+| `10/01/mdx-nao-e-so-texto`                    | A matte document tile on the left with simple lines; from it, blue wires lead to a row of tiles representing a route path glyph, a sitemap tree glyph, a globe glyph and a checklist glyph, with a small gate tile with a check mark in the middle of the wires.                                          |
+| `10/05/claude-code-projetou-a-eleicao`        | A matte ballot-box-shaped tile on the left feeding blue wires into a dark agent cube; out of the cube, a smooth rising line chart rendered as a thin blue wire with a confidence band, and two small source tiles cross-checking it with linked wires; no numbers.                                        |
+| `10/05/read-only-nao-e-politica-de-seguranca` | A matte tool tile with an open eye glyph and a small "lock-off" closed padlock tag hanging from it, yet a blue wire still runs from it into a stack of sensitive document tiles; around the wire, a thin gate, a rate meter dial and a filter funnel tile actually guard the flow.                        |
 
 - [ ] **Step 2: Dry-run de todos**
 
@@ -754,6 +867,7 @@ for p in 07/25/ferramentas-como-contrato 08/04/nove-numeros-banidos 08/06/fila-q
   pnpm -s gen:cover --post content/posts/2026/$p $REFS --attach-frontmatter --dry-run || echo "FALHOU $p"
 done
 ```
+
 Expected: nenhum `FALHOU`.
 
 - [ ] **Step 3: Uma capa piloto**

@@ -10,21 +10,23 @@
 
 ## Arquivos (visuais, prontos)
 
-| Arquivo | Tamanho | Uso |
-|---|---|---|
-| `vitorpereira-linkedin-banner-1584x396.png` | 1584×396 | Banner do perfil. Canto inferior-esquerdo deixado livre (a foto de perfil sobrepõe ali). |
-| `vitorpereira-linkedin-post-example-1080x1080.png` | 1080×1080 | Exemplo do template de post ("A chatbot isn't an agent"). |
+| Arquivo                                            | Tamanho   | Uso                                                                                      |
+| -------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- |
+| `vitorpereira-linkedin-banner-1584x396.png`        | 1584×396  | Banner do perfil. Canto inferior-esquerdo deixado livre (a foto de perfil sobrepõe ali). |
+| `vitorpereira-linkedin-post-example-1080x1080.png` | 1080×1080 | Exemplo do template de post ("A chatbot isn't an agent").                                |
 
 **Foto de perfil:** reusar o avatar do YouTube (recorte no ink) — ver `docs/kit-youtube/`.
 
 ## Copy (DRAFT — revisar antes de aplicar)
 
 ### Headline (opções)
-1. `Building applied AI in real systems — 13+ years shipping real software · CTO @ SARCORPS & ClearSeg`  ← recomendada
+
+1. `Building applied AI in real systems — 13+ years shipping real software · CTO @ SARCORPS & ClearSeg` ← recomendada
 2. `Applied AI in real systems, shown by the person who builds it · CTO · no hype, no fake demos`
 3. `Engineer who gets AI working in real systems · CTO @ SARCORPS & ClearSeg`
 
 ### About (draft)
+
 ```
 I was building real systems before AI got hyped. Now I show how to put AI inside them.
 

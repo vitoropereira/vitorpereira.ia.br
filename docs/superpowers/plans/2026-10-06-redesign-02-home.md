@@ -37,21 +37,21 @@
 
 ## File Structure
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `features/marketing/components/Proof.tsx` (modify) | valor por idioma |
-| `features/marketing/data/agentLogScenarios.ts` (create) | 3 cenários fictícios PT/EN |
-| `features/marketing/components/AgentLog.tsx` (create) | janela de terminal animada |
-| `features/marketing/components/Hero.tsx` (modify) | 2 colunas com `AgentLog` |
-| `features/marketing/components/HowItWorks.tsx` (create) | 5 passos + linha desenhada |
-| `features/marketing/components/BeforeAfter.tsx` (create) | hoje × com agente |
-| `features/marketing/components/Faq.tsx` (create) | acordeão + JSON-LD |
-| `components/seo/JsonLd.tsx` (modify) | tipo `FAQPage` |
-| `features/marketing/components/Specialties.tsx` (modify) | copy sem jargão + Reveal |
-| `features/marketing/components/CaseStudies.tsx` (modify) | capas, primeiro em destaque |
-| `features/marketing/components/LatestPosts.tsx` (modify) | cards com capa |
-| `features/blog/lib/cover.ts` (create) | extrair `{src,width,height}` do `post.cover` (hoje repetido em 3 lugares) |
-| `app/(site)/page.tsx`, `app/(site)/en/page.tsx` (modify) | nova ordem |
+| Arquivo                                                  | Responsabilidade                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `features/marketing/components/Proof.tsx` (modify)       | valor por idioma                                                          |
+| `features/marketing/data/agentLogScenarios.ts` (create)  | 3 cenários fictícios PT/EN                                                |
+| `features/marketing/components/AgentLog.tsx` (create)    | janela de terminal animada                                                |
+| `features/marketing/components/Hero.tsx` (modify)        | 2 colunas com `AgentLog`                                                  |
+| `features/marketing/components/HowItWorks.tsx` (create)  | 5 passos + linha desenhada                                                |
+| `features/marketing/components/BeforeAfter.tsx` (create) | hoje × com agente                                                         |
+| `features/marketing/components/Faq.tsx` (create)         | acordeão + JSON-LD                                                        |
+| `components/seo/JsonLd.tsx` (modify)                     | tipo `FAQPage`                                                            |
+| `features/marketing/components/Specialties.tsx` (modify) | copy sem jargão + Reveal                                                  |
+| `features/marketing/components/CaseStudies.tsx` (modify) | capas, primeiro em destaque                                               |
+| `features/marketing/components/LatestPosts.tsx` (modify) | cards com capa                                                            |
+| `features/blog/lib/cover.ts` (create)                    | extrair `{src,width,height}` do `post.cover` (hoje repetido em 3 lugares) |
+| `app/(site)/page.tsx`, `app/(site)/en/page.tsx` (modify) | nova ordem                                                                |
 
 ---
 
@@ -73,14 +73,14 @@ pnpm install --frozen-lockfile && pnpm exec velite build && pnpm exec vitest run
 - [ ] **Step 1: Teste (acrescentar ao `Proof.test.tsx`)**
 
 ```tsx
-  it("usa o separador decimal de cada idioma", () => {
-    const { unmount } = render(<Proof locale="en" />);
-    expect(screen.getAllByText("3.6M+").length).toBeGreaterThan(0);
-    expect(screen.queryByText("3,6M+")).toBeNull();
-    unmount();
-    render(<Proof locale="pt" />);
-    expect(screen.getAllByText("3,6M+").length).toBeGreaterThan(0);
-  });
+it("usa o separador decimal de cada idioma", () => {
+  const { unmount } = render(<Proof locale="en" />);
+  expect(screen.getAllByText("3.6M+").length).toBeGreaterThan(0);
+  expect(screen.queryByText("3,6M+")).toBeNull();
+  unmount();
+  render(<Proof locale="pt" />);
+  expect(screen.getAllByText("3,6M+").length).toBeGreaterThan(0);
+});
 ```
 
 - [ ] **Step 2: Rodar e ver falhar** — `pnpm vitest run features/marketing/components/Proof.test.tsx </dev/null` → FAIL (EN mostra `3,6M+`).
@@ -94,16 +94,22 @@ pnpm install --frozen-lockfile && pnpm exec velite build && pnpm exec vitest run
 ### Task 2: `AgentLog` + cenários
 
 **Files:**
+
 - Create: `features/marketing/data/agentLogScenarios.ts`, `features/marketing/components/AgentLog.tsx`, `features/marketing/components/AgentLog.test.tsx`
 
 **Interfaces:**
+
 - Produces:
+
   ```ts
   export type LogKind = "input" | "read" | "alert" | "human" | "done";
   export type LogLine = { time: string; kind: LogKind; text: string };
   export type Scenario = { agent: string; lines: LogLine[] };
   export const agentLogScenarios: Record<"pt" | "en", Scenario[]>;
-  export function AgentLog(props: { locale: Locale; className?: string }): JSX.Element;
+  export function AgentLog(props: {
+    locale: Locale;
+    className?: string;
+  }): JSX.Element;
   ```
 
 - [ ] **Step 1: Dados — `agentLogScenarios.ts`**
@@ -122,11 +128,31 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
     {
       agent: "agente-financeiro",
       lines: [
-        { time: "09:14:02", kind: "input", text: "nota fiscal recebida por e-mail" },
-        { time: "09:14:03", kind: "read", text: "valores conferidos com o pedido" },
-        { time: "09:14:03", kind: "alert", text: "divergência de R$ 312,00 no frete" },
-        { time: "09:14:04", kind: "human", text: "aguardando aprovação → Ana (financeiro)" },
-        { time: "09:16:40", kind: "done", text: "aprovado por Ana — lançamento feito" },
+        {
+          time: "09:14:02",
+          kind: "input",
+          text: "nota fiscal recebida por e-mail",
+        },
+        {
+          time: "09:14:03",
+          kind: "read",
+          text: "valores conferidos com o pedido",
+        },
+        {
+          time: "09:14:03",
+          kind: "alert",
+          text: "divergência de R$ 312,00 no frete",
+        },
+        {
+          time: "09:14:04",
+          kind: "human",
+          text: "aguardando aprovação → Ana (financeiro)",
+        },
+        {
+          time: "09:16:40",
+          kind: "done",
+          text: "aprovado por Ana — lançamento feito",
+        },
       ],
     },
     {
@@ -134,7 +160,11 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
       lines: [
         { time: "10:02:11", kind: "input", text: "mensagem nova no WhatsApp" },
         { time: "10:02:12", kind: "read", text: "pedido #4812 identificado" },
-        { time: "10:02:12", kind: "read", text: "status conferido no sistema: em separação" },
+        {
+          time: "10:02:12",
+          kind: "read",
+          text: "status conferido no sistema: em separação",
+        },
         { time: "10:02:13", kind: "done", text: "resposta enviada ao cliente" },
       ],
     },
@@ -144,7 +174,11 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
         { time: "14:30:00", kind: "input", text: "planilha nova no Drive" },
         { time: "14:30:04", kind: "read", text: "214 linhas validadas" },
         { time: "14:30:04", kind: "alert", text: "3 linhas com CNPJ inválido" },
-        { time: "14:30:05", kind: "human", text: "responsável avisado → Bruno (operações)" },
+        {
+          time: "14:30:05",
+          kind: "human",
+          text: "responsável avisado → Bruno (operações)",
+        },
         { time: "14:30:05", kind: "done", text: "211 linhas importadas" },
       ],
     },
@@ -154,10 +188,26 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
       agent: "finance-agent",
       lines: [
         { time: "09:14:02", kind: "input", text: "invoice received by email" },
-        { time: "09:14:03", kind: "read", text: "amounts checked against the order" },
-        { time: "09:14:03", kind: "alert", text: "R$ 312.00 mismatch on shipping" },
-        { time: "09:14:04", kind: "human", text: "waiting for approval → Ana (finance)" },
-        { time: "09:16:40", kind: "done", text: "approved by Ana — entry posted" },
+        {
+          time: "09:14:03",
+          kind: "read",
+          text: "amounts checked against the order",
+        },
+        {
+          time: "09:14:03",
+          kind: "alert",
+          text: "R$ 312.00 mismatch on shipping",
+        },
+        {
+          time: "09:14:04",
+          kind: "human",
+          text: "waiting for approval → Ana (finance)",
+        },
+        {
+          time: "09:16:40",
+          kind: "done",
+          text: "approved by Ana — entry posted",
+        },
       ],
     },
     {
@@ -165,7 +215,11 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
       lines: [
         { time: "10:02:11", kind: "input", text: "new WhatsApp message" },
         { time: "10:02:12", kind: "read", text: "order #4812 identified" },
-        { time: "10:02:12", kind: "read", text: "status checked in the system: being packed" },
+        {
+          time: "10:02:12",
+          kind: "read",
+          text: "status checked in the system: being packed",
+        },
         { time: "10:02:13", kind: "done", text: "reply sent to the customer" },
       ],
     },
@@ -174,8 +228,16 @@ export const agentLogScenarios: Record<Locale, Scenario[]> = {
       lines: [
         { time: "14:30:00", kind: "input", text: "new spreadsheet in Drive" },
         { time: "14:30:04", kind: "read", text: "214 rows validated" },
-        { time: "14:30:04", kind: "alert", text: "3 rows with an invalid tax ID" },
-        { time: "14:30:05", kind: "human", text: "owner notified → Bruno (operations)" },
+        {
+          time: "14:30:04",
+          kind: "alert",
+          text: "3 rows with an invalid tax ID",
+        },
+        {
+          time: "14:30:05",
+          kind: "human",
+          text: "owner notified → Bruno (operations)",
+        },
         { time: "14:30:05", kind: "done", text: "211 rows imported" },
       ],
     },
@@ -192,7 +254,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import { AgentLog } from "./AgentLog";
 import { agentLogScenarios } from "../data/agentLogScenarios";
-import { mockIntersectionObserver, mockMatchMedia } from "@/components/motion/testUtils";
+import {
+  mockIntersectionObserver,
+  mockMatchMedia,
+} from "@/components/motion/testUtils";
 
 const pt = agentLogScenarios.pt;
 
@@ -212,7 +277,8 @@ describe("AgentLog", () => {
 
   it("o HTML inicial já traz o cenário 1 completo e o rótulo de exemplo (sem JS)", () => {
     render(<AgentLog locale="pt" />);
-    for (const l of pt[0]!.lines) expect(screen.getAllByText(l.text).length).toBeGreaterThan(0);
+    for (const l of pt[0]!.lines)
+      expect(screen.getAllByText(l.text).length).toBeGreaterThan(0);
     expect(screen.getByText(/exemplo de execução/i)).toBeInTheDocument();
   });
 
@@ -230,7 +296,9 @@ describe("AgentLog", () => {
     render(<AgentLog locale="pt" />);
     act(() => io.trigger(false));
     act(() => vi.advanceTimersByTime(10000));
-    expect(screen.getAllByText(pt[0]!.lines[0]!.text).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(pt[0]!.lines[0]!.text).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("com reduced-motion fica estático no cenário 1", () => {
@@ -239,7 +307,9 @@ describe("AgentLog", () => {
     render(<AgentLog locale="pt" />);
     act(() => io.trigger(true));
     act(() => vi.advanceTimersByTime(20000));
-    expect(screen.getAllByText(pt[0]!.lines[4]!.text).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(pt[0]!.lines[4]!.text).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("desmontar no meio da animação limpa os timers", () => {
@@ -253,7 +323,9 @@ describe("AgentLog", () => {
   it("EN usa os cenários em inglês", () => {
     render(<AgentLog locale="en" />);
     expect(screen.getByText(/example run/i)).toBeInTheDocument();
-    expect(screen.getAllByText(agentLogScenarios.en[0]!.lines[0]!.text).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(agentLogScenarios.en[0]!.lines[0]!.text).length,
+    ).toBeGreaterThan(0);
   });
 });
 ```
@@ -266,7 +338,14 @@ describe("AgentLog", () => {
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Hand, Inbox, ScanSearch, TriangleAlert, type LucideIcon } from "lucide-react";
+import {
+  CheckCircle2,
+  Hand,
+  Inbox,
+  ScanSearch,
+  TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
 import { prefersReducedMotion } from "@/components/motion/reducedMotion";
 import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
@@ -291,14 +370,28 @@ const TONE: Record<LogKind, string> = {
 };
 
 const LABEL = {
-  pt: { live: "ao vivo", example: "exemplo de execução", aria: "Exemplo de um agente executando um processo" },
-  en: { live: "live", example: "example run", aria: "Example of an agent running a workflow" },
+  pt: {
+    live: "ao vivo",
+    example: "exemplo de execução",
+    aria: "Exemplo de um agente executando um processo",
+  },
+  en: {
+    live: "live",
+    example: "example run",
+    aria: "Example of an agent running a workflow",
+  },
 } as const;
 
 // O servidor manda o cenário 1 inteiro (sem JS, leitor de tela e crawler veem
 // o exemplo completo). No cliente, depois de uma pausa, a animação passa ao
 // próximo cenário e digita linha a linha. Altura fixa = sem layout shift.
-export function AgentLog({ locale, className }: { locale: Locale; className?: string }) {
+export function AgentLog({
+  locale,
+  className,
+}: {
+  locale: Locale;
+  className?: string;
+}) {
   const scenarios = agentLogScenarios[locale];
   const [index, setIndex] = useState(0);
   const [shown, setShown] = useState(scenarios[0]!.lines.length);
@@ -308,7 +401,12 @@ export function AgentLog({ locale, className }: { locale: Locale; className?: st
 
   useEffect(() => {
     const el = rootRef.current;
-    if (!el || prefersReducedMotion() || typeof IntersectionObserver === "undefined") return;
+    if (
+      !el ||
+      prefersReducedMotion() ||
+      typeof IntersectionObserver === "undefined"
+    )
+      return;
 
     let i = 0;
     let n = scenarios[0]!.lines.length;
@@ -360,15 +458,23 @@ export function AgentLog({ locale, className }: { locale: Locale; className?: st
     <figure
       ref={rootRef}
       aria-label={t.aria}
-      className={cn("bg-card overflow-hidden rounded-xl border font-mono text-[13px] shadow-sm", className)}
+      className={cn(
+        "bg-card overflow-hidden rounded-xl border font-mono text-[13px] shadow-sm",
+        className,
+      )}
     >
       <div className="bg-muted flex items-center gap-1.5 border-b px-4 py-2.5">
         <span className="size-2.5 rounded-full bg-[#FF5F57]" aria-hidden />
         <span className="size-2.5 rounded-full bg-[#FEBC2E]" aria-hidden />
         <span className="size-2.5 rounded-full bg-[#28C840]" aria-hidden />
-        <span className="text-muted-foreground ml-3 truncate">{scenario.agent}</span>
+        <span className="text-muted-foreground ml-3 truncate">
+          {scenario.agent}
+        </span>
         <span className="text-primary ml-auto flex items-center gap-1.5 text-xs">
-          <span className="bg-primary size-1.5 animate-pulse rounded-full motion-reduce:animate-none" aria-hidden />
+          <span
+            className="bg-primary size-1.5 animate-pulse rounded-full motion-reduce:animate-none"
+            aria-hidden
+          />
           {t.live}
         </span>
       </div>
@@ -376,9 +482,17 @@ export function AgentLog({ locale, className }: { locale: Locale; className?: st
         {scenario.lines.slice(0, shown).map((line, k) => {
           const Icon = ICON[line.kind];
           return (
-            <li key={`${index}-${k}`} className="animate-in fade-in flex gap-3 duration-300 motion-reduce:animate-none">
-              <span className="text-muted-foreground shrink-0 tabular-nums">{line.time}</span>
-              <Icon className={cn("mt-0.5 size-3.5 shrink-0", TONE[line.kind])} aria-hidden />
+            <li
+              key={`${index}-${k}`}
+              className="animate-in fade-in flex gap-3 duration-300 motion-reduce:animate-none"
+            >
+              <span className="text-muted-foreground shrink-0 tabular-nums">
+                {line.time}
+              </span>
+              <Icon
+                className={cn("mt-0.5 size-3.5 shrink-0", TONE[line.kind])}
+                aria-hidden
+              />
               <span className={TONE[line.kind]}>{line.text}</span>
             </li>
           );
@@ -393,6 +507,7 @@ export function AgentLog({ locale, className }: { locale: Locale; className?: st
 ```
 
 Notas:
+
 - `animate-in fade-in` vem do `tw-animate-css` já importado no `globals.css`.
 - Os tons `text-amber-500`/`text-emerald-500` precisam de contraste AA nos dois temas; conferir na tela (Task 8). Se o amber falhar no tema claro, usar `text-amber-600 dark:text-amber-400`.
 - Se o lint reclamar de `setState` síncrono em efeito, ele não deve: os `setState` estão em callbacks de timer/observer.
@@ -410,15 +525,17 @@ Notas:
 - [ ] **Step 1: Teste (acrescentar)**
 
 ```tsx
-  it("mostra o log de exemplo ao lado do texto", () => {
-    render(<Hero locale="pt" />);
-    expect(screen.getByRole("figure", { name: /exemplo de um agente/i })).toBeInTheDocument();
-  });
+it("mostra o log de exemplo ao lado do texto", () => {
+  render(<Hero locale="pt" />);
+  expect(
+    screen.getByRole("figure", { name: /exemplo de um agente/i }),
+  ).toBeInTheDocument();
+});
 
-  it("o hero não é envolvido por Reveal (é o LCP)", () => {
-    const { container } = render(<Hero locale="pt" />);
-    expect(container.querySelector("[data-reveal]")).toBeNull();
-  });
+it("o hero não é envolvido por Reveal (é o LCP)", () => {
+  const { container } = render(<Hero locale="pt" />);
+  expect(container.querySelector("[data-reveal]")).toBeNull();
+});
 ```
 
 (Os testes de jsdom do `AgentLog` precisam dos mocks; adicionar `beforeEach`/`afterEach` com `mockIntersectionObserver`/`mockMatchMedia` ao `Hero.test.tsx`.)
@@ -457,7 +574,9 @@ describe("HowItWorks", () => {
 
   it("destaca a aprovação humana", () => {
     render(<HowItWorks locale="pt" />);
-    expect(screen.getByText(/você aprova o que é sensível/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/você aprova o que é sensível/i),
+    ).toBeInTheDocument();
   });
 });
 ```
@@ -470,13 +589,16 @@ import { render, screen } from "@testing-library/react";
 import { BeforeAfter } from "./BeforeAfter";
 
 describe("BeforeAfter", () => {
-  it.each(["pt", "en"] as const)("duas colunas, 4 itens cada, sem números (%s)", (locale) => {
-    const { container } = render(<BeforeAfter locale={locale} />);
-    const lists = container.querySelectorAll("ul");
-    expect(lists).toHaveLength(2);
-    lists.forEach((ul) => expect(ul.querySelectorAll("li")).toHaveLength(4));
-    expect(container.textContent).not.toMatch(/\d/);
-  });
+  it.each(["pt", "en"] as const)(
+    "duas colunas, 4 itens cada, sem números (%s)",
+    (locale) => {
+      const { container } = render(<BeforeAfter locale={locale} />);
+      const lists = container.querySelectorAll("ul");
+      expect(lists).toHaveLength(2);
+      lists.forEach((ul) => expect(ul.querySelectorAll("li")).toHaveLength(4));
+      expect(container.textContent).not.toMatch(/\d/);
+    },
+  );
 
   it("é rotulado como exemplo", () => {
     render(<BeforeAfter locale="pt" />);
@@ -495,22 +617,62 @@ const copy = {
     eyebrow: "como funciona",
     title: "Como um agente trabalha no seu processo",
     steps: [
-      { icon: Inbox, title: "Algo chega", text: "Uma mensagem, um e-mail, um arquivo ou um pedido." },
-      { icon: ScanSearch, title: "O agente entende", text: "Lê, extrai o que importa e confere com as regras do processo." },
-      { icon: Cog, title: "Age nas suas ferramentas", text: "Nas que a empresa já usa. Não precisa trocar de sistema." },
-      { icon: Hand, title: "Você aprova o que é sensível", text: "Ação que não dá para desfazer espera uma pessoa decidir." },
-      { icon: ScrollText, title: "Tudo fica registrado", text: "Dá para ver o que foi feito, quando e por quê." },
+      {
+        icon: Inbox,
+        title: "Algo chega",
+        text: "Uma mensagem, um e-mail, um arquivo ou um pedido.",
+      },
+      {
+        icon: ScanSearch,
+        title: "O agente entende",
+        text: "Lê, extrai o que importa e confere com as regras do processo.",
+      },
+      {
+        icon: Cog,
+        title: "Age nas suas ferramentas",
+        text: "Nas que a empresa já usa. Não precisa trocar de sistema.",
+      },
+      {
+        icon: Hand,
+        title: "Você aprova o que é sensível",
+        text: "Ação que não dá para desfazer espera uma pessoa decidir.",
+      },
+      {
+        icon: ScrollText,
+        title: "Tudo fica registrado",
+        text: "Dá para ver o que foi feito, quando e por quê.",
+      },
     ],
   },
   en: {
     eyebrow: "how it works",
     title: "How an agent works inside your process",
     steps: [
-      { icon: Inbox, title: "Something arrives", text: "A message, an email, a file, or an order." },
-      { icon: ScanSearch, title: "The agent understands it", text: "It reads, extracts what matters, and checks it against the process rules." },
-      { icon: Cog, title: "It acts in your tools", text: "The ones your company already uses. No need to switch systems." },
-      { icon: Hand, title: "You approve what is sensitive", text: "Anything that can't be undone waits for a person to decide." },
-      { icon: ScrollText, title: "Everything is recorded", text: "You can see what was done, when, and why." },
+      {
+        icon: Inbox,
+        title: "Something arrives",
+        text: "A message, an email, a file, or an order.",
+      },
+      {
+        icon: ScanSearch,
+        title: "The agent understands it",
+        text: "It reads, extracts what matters, and checks it against the process rules.",
+      },
+      {
+        icon: Cog,
+        title: "It acts in your tools",
+        text: "The ones your company already uses. No need to switch systems.",
+      },
+      {
+        icon: Hand,
+        title: "You approve what is sensitive",
+        text: "Anything that can't be undone waits for a person to decide.",
+      },
+      {
+        icon: ScrollText,
+        title: "Everything is recorded",
+        text: "You can see what was done, when, and why.",
+      },
     ],
   },
 };
@@ -521,10 +683,10 @@ Markup: `<section className="mx-auto max-w-6xl px-6 py-20">` com eyebrow mono `t
 Linha conectando (só `md+`): um `<svg aria-hidden className="pointer-events-none absolute top-6 right-[10%] left-[10%] hidden h-px md:block" preserveAspectRatio="none" viewBox="0 0 100 1">` com `<line x1="0" y1="0.5" x2="100" y2="0.5" stroke="var(--brand)" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" strokeDasharray="100" strokeDashoffset="100" pathLength={100} className="how-line" />`, envolto num `<Reveal variant="fade">`. Em `app/globals.css` (dentro do bloco de motion do `@layer components`):
 
 ```css
-  /* A linha do "Como funciona" se desenha quando a seção é revelada. */
-  [data-revealed] .how-line {
-    animation: draw 1.2s var(--ease-out) forwards;
-  }
+/* A linha do "Como funciona" se desenha quando a seção é revelada. */
+[data-revealed] .how-line {
+  animation: draw 1.2s var(--ease-out) forwards;
+}
 ```
 
 e no bloco de reduced-motion: `.how-line { stroke-dashoffset: 0 !important; animation: none !important; }`. Sem JS (sem `.js`), a linha também precisa aparecer: adicionar `html:not(.js) .how-line { stroke-dashoffset: 0; }`.
@@ -536,34 +698,46 @@ const copy = {
   pt: {
     eyebrow: "exemplo",
     title: "O mesmo processo, antes e depois",
-    before: { label: "Hoje", items: [
-      "Alguém copia dados de um sistema para outro.",
-      "A conferência é feita à mão, item por item.",
-      "O erro aparece tarde, quando já virou retrabalho.",
-      "Ninguém sabe ao certo o que foi feito e quando.",
-    ]},
-    after: { label: "Com um agente", items: [
-      "O repetitivo é executado sozinho, no ritmo em que chega.",
-      "O agente para e pergunta quando o caso é sensível.",
-      "A divergência aparece na hora, com o motivo.",
-      "Cada passo fica registrado e pode ser revisto.",
-    ]},
+    before: {
+      label: "Hoje",
+      items: [
+        "Alguém copia dados de um sistema para outro.",
+        "A conferência é feita à mão, item por item.",
+        "O erro aparece tarde, quando já virou retrabalho.",
+        "Ninguém sabe ao certo o que foi feito e quando.",
+      ],
+    },
+    after: {
+      label: "Com um agente",
+      items: [
+        "O repetitivo é executado sozinho, no ritmo em que chega.",
+        "O agente para e pergunta quando o caso é sensível.",
+        "A divergência aparece na hora, com o motivo.",
+        "Cada passo fica registrado e pode ser revisto.",
+      ],
+    },
   },
   en: {
     eyebrow: "example",
     title: "The same process, before and after",
-    before: { label: "Today", items: [
-      "Someone copies data from one system into another.",
-      "Checks are done by hand, item by item.",
-      "Errors show up late, after they turned into rework.",
-      "Nobody knows exactly what was done and when.",
-    ]},
-    after: { label: "With an agent", items: [
-      "Repetitive work runs on its own, as it arrives.",
-      "The agent stops and asks when a case is sensitive.",
-      "Mismatches show up right away, with the reason.",
-      "Every step is recorded and can be reviewed.",
-    ]},
+    before: {
+      label: "Today",
+      items: [
+        "Someone copies data from one system into another.",
+        "Checks are done by hand, item by item.",
+        "Errors show up late, after they turned into rework.",
+        "Nobody knows exactly what was done and when.",
+      ],
+    },
+    after: {
+      label: "With an agent",
+      items: [
+        "Repetitive work runs on its own, as it arrives.",
+        "The agent stops and asks when a case is sensitive.",
+        "Mismatches show up right away, with the reason.",
+        "Every step is recorded and can be reviewed.",
+      ],
+    },
   },
 };
 ```
@@ -579,6 +753,7 @@ Layout: `md:grid-cols-2 gap-6`. Coluna "Hoje": card `border bg-muted/40`, ícone
 **Files:** Create `features/marketing/components/Faq.tsx`, `Faq.test.tsx`; Modify `components/seo/JsonLd.tsx`, `components/seo/JsonLd.test.tsx`
 
 **Interfaces:**
+
 - Produces: `type FaqItem = { q: string; a: string }`; `export function getFaq(locale: Locale): FaqItem[]`; `export function Faq(props: { locale: Locale; withJsonLd?: boolean }): JSX.Element` (default `withJsonLd = true`; a página de serviço do PR ④ reutiliza). `JsonLdData` ganha `{ type: "FAQPage"; items: { q: string; a: string }[] }`.
 
 - [ ] **Step 1: Testes**
@@ -592,22 +767,34 @@ import { Faq, getFaq } from "./Faq";
 import { formatPrice, getBookingService } from "@/features/booking/services";
 
 describe("Faq", () => {
-  it.each(["pt", "en"] as const)("5 perguntas como <details> (%s)", (locale) => {
-    const { container } = render(<Faq locale={locale} />);
-    expect(container.querySelectorAll("details")).toHaveLength(5);
-  });
+  it.each(["pt", "en"] as const)(
+    "5 perguntas como <details> (%s)",
+    (locale) => {
+      const { container } = render(<Faq locale={locale} />);
+      expect(container.querySelectorAll("details")).toHaveLength(5);
+    },
+  );
 
   it("o preço vem do catálogo de agendamento, não de texto fixo", () => {
     const service = getBookingService("escopo-software-30-dias")!;
-    const pt = getFaq("pt").map((i) => i.a).join(" ").toLowerCase();
-    const en = getFaq("en").map((i) => i.a).join(" ").toLowerCase();
+    const pt = getFaq("pt")
+      .map((i) => i.a)
+      .join(" ")
+      .toLowerCase();
+    const en = getFaq("en")
+      .map((i) => i.a)
+      .join(" ")
+      .toLowerCase();
     expect(pt).toContain(formatPrice(service, "pt").toLowerCase());
     expect(en).toContain(formatPrice(service, "en").toLowerCase());
   });
 
   it("emite JSON-LD FAQPage com as mesmas perguntas", () => {
     const { container } = render(<Faq locale="pt" />);
-    const ld = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!);
+    const ld = JSON.parse(
+      container.querySelector('script[type="application/ld+json"]')!
+        .textContent!,
+    );
     expect(ld["@type"]).toBe("FAQPage");
     expect(ld.mainEntity).toHaveLength(5);
   });
@@ -648,19 +835,49 @@ export function getFaq(locale: Locale): FaqItem[] {
   const price = pilot ? formatPrice(pilot, locale) : "";
   if (locale === "en") {
     return [
-      { q: "Does this replace my team?", a: "No. The agent takes over the repetitive part of one bounded workflow; a person stays accountable for the outcome and decides what is sensitive. If the goal is to replace a whole team on day one, this is not the right place to start." },
-      { q: "What if the AI gets it wrong?", a: "The agent only gets the permissions it needs, fails visibly, and asks for a human decision when an action is irreversible or outside its contract. Everything is logged, so you can see what happened and fix it." },
-      { q: "Do I need to change the systems I use?", a: "No. The agent works inside the tools your company already uses, as long as they can be accessed through an API." },
-      { q: "How long does it take and how much does it cost?", a: `A pilot for one workflow takes 21 to 30 days, ${price}. The exact number comes out of the scoping session, which is included. The first 30-minute conversation is free.` },
-      { q: "Is my data safe?", a: "The boundary lives on the server, not in the prompt: the agent only reaches the data allowed for that workflow, and every access and action is logged." },
+      {
+        q: "Does this replace my team?",
+        a: "No. The agent takes over the repetitive part of one bounded workflow; a person stays accountable for the outcome and decides what is sensitive. If the goal is to replace a whole team on day one, this is not the right place to start.",
+      },
+      {
+        q: "What if the AI gets it wrong?",
+        a: "The agent only gets the permissions it needs, fails visibly, and asks for a human decision when an action is irreversible or outside its contract. Everything is logged, so you can see what happened and fix it.",
+      },
+      {
+        q: "Do I need to change the systems I use?",
+        a: "No. The agent works inside the tools your company already uses, as long as they can be accessed through an API.",
+      },
+      {
+        q: "How long does it take and how much does it cost?",
+        a: `A pilot for one workflow takes 21 to 30 days, ${price}. The exact number comes out of the scoping session, which is included. The first 30-minute conversation is free.`,
+      },
+      {
+        q: "Is my data safe?",
+        a: "The boundary lives on the server, not in the prompt: the agent only reaches the data allowed for that workflow, and every access and action is logged.",
+      },
     ];
   }
   return [
-    { q: "Isso substitui minha equipe?", a: "Não. O agente assume a parte repetitiva de um processo delimitado; uma pessoa continua responsável pelo resultado e decide o que é sensível. Se a expectativa é substituir uma equipe inteira no primeiro dia, não é por aqui que se começa." },
-    { q: "E se a IA errar?", a: "O agente recebe só as permissões necessárias, falha de forma visível e pede decisão humana quando a ação é irreversível ou foge do combinado. Tudo fica registrado, então dá para ver o que aconteceu e corrigir." },
-    { q: "Preciso trocar os sistemas que uso?", a: "Não. O agente trabalha dentro das ferramentas que a empresa já usa, desde que elas possam ser acessadas por API." },
-    { q: "Quanto tempo leva e quanto custa?", a: `O piloto de um processo leva de 21 a 30 dias, ${price.charAt(0).toLowerCase() + price.slice(1)}. O número exato sai do diagnóstico de escopo, que já está incluído. A primeira conversa, de 30 minutos, é gratuita.` },
-    { q: "Meus dados ficam seguros?", a: "A fronteira fica no servidor, não no prompt: o agente só acessa os dados permitidos para aquele processo, e cada acesso e ação fica registrado." },
+    {
+      q: "Isso substitui minha equipe?",
+      a: "Não. O agente assume a parte repetitiva de um processo delimitado; uma pessoa continua responsável pelo resultado e decide o que é sensível. Se a expectativa é substituir uma equipe inteira no primeiro dia, não é por aqui que se começa.",
+    },
+    {
+      q: "E se a IA errar?",
+      a: "O agente recebe só as permissões necessárias, falha de forma visível e pede decisão humana quando a ação é irreversível ou foge do combinado. Tudo fica registrado, então dá para ver o que aconteceu e corrigir.",
+    },
+    {
+      q: "Preciso trocar os sistemas que uso?",
+      a: "Não. O agente trabalha dentro das ferramentas que a empresa já usa, desde que elas possam ser acessadas por API.",
+    },
+    {
+      q: "Quanto tempo leva e quanto custa?",
+      a: `O piloto de um processo leva de 21 a 30 dias, ${price.charAt(0).toLowerCase() + price.slice(1)}. O número exato sai do diagnóstico de escopo, que já está incluído. A primeira conversa, de 30 minutos, é gratuita.`,
+    },
+    {
+      q: "Meus dados ficam seguros?",
+      a: "A fronteira fica no servidor, não no prompt: o agente só acessa os dados permitidos para aquele processo, e cada acesso e ação fica registrado.",
+    },
   ];
 }
 ```
@@ -678,6 +895,7 @@ Markup: `<section className="mx-auto max-w-3xl px-6 py-20">`, título "Perguntas
 **Files:** Create `features/blog/lib/cover.ts`, `cover.test.ts`; Modify `CaseStudies.tsx`, `CaseStudies.test.tsx`, `LatestPosts.tsx`, `Specialties.tsx`, `FeaturedProjects.tsx`
 
 **Interfaces:**
+
 - Produces: `export type CoverImage = { src: string; width: number; height: number; blurDataURL?: string }`; `export function coverOf(post: { cover?: unknown } | undefined): CoverImage | null`.
 
 - [ ] **Step 1: `cover.ts` + teste**
@@ -685,11 +903,23 @@ Markup: `<section className="mx-auto max-w-3xl px-6 py-20">`, título "Perguntas
 ```ts
 // O Velite tipa `cover` como opcional e o formato real é um objeto de imagem;
 // três telas repetiam o mesmo cast. Fica num lugar só.
-export type CoverImage = { src: string; width: number; height: number; blurDataURL?: string };
+export type CoverImage = {
+  src: string;
+  width: number;
+  height: number;
+  blurDataURL?: string;
+};
 
-export function coverOf(post: { cover?: unknown } | undefined): CoverImage | null {
+export function coverOf(
+  post: { cover?: unknown } | undefined,
+): CoverImage | null {
   const c = post?.cover;
-  if (c && typeof c === "object" && "src" in c && typeof (c as CoverImage).src === "string") {
+  if (
+    c &&
+    typeof c === "object" &&
+    "src" in c &&
+    typeof (c as CoverImage).src === "string"
+  ) {
     return c as CoverImage;
   }
   return null;
@@ -699,7 +929,7 @@ export function coverOf(post: { cover?: unknown } | undefined): CoverImage | nul
 Teste: objeto válido → retorna; `undefined`, `{}`, `{cover: "x"}` → `null`.
 
 - [ ] **Step 2: `CaseStudies`** — derivar o slug do `href` (`href.split("/").pop()`), buscar `getPostBySlug(locale, slug, { preview: false })` e `coverOf(post)`. Layout: o primeiro caso vira card grande (`md:col-span-2 md:grid md:grid-cols-[1.2fr_1fr]`, capa à esquerda `aspect-video`), os demais em grid de 2 colunas com capa `aspect-[16/9]` no topo. Sem capa → bloco `bg-gradient-to-br from-primary/15 to-transparent` com o `tag` em mono. Cada card: `<Reveal as="article" delay={i * 80} className="card-interactive group overflow-hidden rounded-lg border">`; o link continua no título (o teste existente procura pelo nome do link). `next/image` com `sizes` coerente (`(min-width: 768px) 50vw, 100vw`; destaque `60vw`).
-  Teste novo em `CaseStudies.test.tsx`: `it("cada caso com capa renderiza imagem", ...)` → em PT, `container.querySelectorAll("img").length` ≥ 3 (os 5 posts dos casos têm capa hoje). Teste de fallback: mockar `getPostBySlug` (`vi.mock("@/features/blog/lib/queries", ...)` retornando `undefined`) e conferir que renderiza sem lançar e sem `img`.
+      Teste novo em `CaseStudies.test.tsx`: `it("cada caso com capa renderiza imagem", ...)` → em PT, `container.querySelectorAll("img").length` ≥ 3 (os 5 posts dos casos têm capa hoje). Teste de fallback: mockar `getPostBySlug` (`vi.mock("@/features/blog/lib/queries", ...)` retornando `undefined`) e conferir que renderiza sem lançar e sem `img`.
 
 - [ ] **Step 3: `LatestPosts`** — trocar a lista por grid `sm:grid-cols-2 lg:grid-cols-3` de cards (capa `aspect-[16/9]`, data, título), primeiro post `lg:col-span-2 lg:row-span-2` com capa maior. Usa `coverOf`. `Reveal` com delay escalonado. Fallback igual ao dos casos.
 

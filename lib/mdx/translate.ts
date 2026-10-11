@@ -47,7 +47,10 @@ export type TranslatedPost = {
  *
  * O campo `tabnews` é removido — a sindicação é específica do post PT.
  */
-export function buildEnglishMdx(sourceMdx: string, translated: TranslatedPost): string {
+export function buildEnglishMdx(
+  sourceMdx: string,
+  translated: TranslatedPost,
+): string {
   const parsed = matter(sourceMdx);
   const data: Record<string, unknown> = { ...parsed.data };
   data.title = translated.title;

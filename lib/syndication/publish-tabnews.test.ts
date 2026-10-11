@@ -24,11 +24,31 @@ describe("buildTabNewsPreview", () => {
 
 describe("publishToTabNews", () => {
   it("faz login, publica o body dado e devolve a URL", async () => {
-    const createSession = vi.fn().mockResolvedValue({ token: "t".repeat(96), expiresAt: "z" });
-    const createContent = vi.fn().mockResolvedValue({ url: "https://www.tabnews.com.br/vitor/as-7", ownerUsername: "vitor", slug: "as-7" });
-    const content = { title: "T", body: "corpo editado", sourceUrl: post.canonicalUrl, status: "published" as const };
-    const r = await publishToTabNews(content, "summary", { email: "a@b.com", password: "secret123" }, { createSession, createContent });
+    const createSession = vi
+      .fn()
+      .mockResolvedValue({ token: "t".repeat(96), expiresAt: "z" });
+    const createContent = vi.fn().mockResolvedValue({
+      url: "https://www.tabnews.com.br/vitor/as-7",
+      ownerUsername: "vitor",
+      slug: "as-7",
+    });
+    const content = {
+      title: "T",
+      body: "corpo editado",
+      sourceUrl: post.canonicalUrl,
+      status: "published" as const,
+    };
+    const r = await publishToTabNews(
+      content,
+      "summary",
+      { email: "a@b.com", password: "secret123" },
+      { createSession, createContent },
+    );
     expect(r.url).toBe("https://www.tabnews.com.br/vitor/as-7");
-    expect(createContent.mock.calls[0][1]).toMatchObject({ body: "corpo editado", sourceUrl: post.canonicalUrl, status: "published" });
+    expect(createContent.mock.calls[0][1]).toMatchObject({
+      body: "corpo editado",
+      sourceUrl: post.canonicalUrl,
+      status: "published",
+    });
   });
 });

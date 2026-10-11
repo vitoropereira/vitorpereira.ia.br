@@ -8,6 +8,7 @@
 ## Fluxo operacional (sem CLI)
 
 > **IMPORTANTE**: como nas Ondas 2 e 3, **não usamos Vercel CLI**. Tudo nesta onda é feito via:
+>
 > - **Vercel Dashboard** (adicionar domínio, ver status de validação, emissão de cert TLS)
 > - **Registrar do domínio** (atualizar A/ANAME/CNAME records)
 > - **Terminal local** apenas para `dig`/`curl` (inspeção, não mutação)

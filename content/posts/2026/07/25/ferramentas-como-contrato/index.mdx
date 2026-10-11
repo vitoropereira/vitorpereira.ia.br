@@ -38,14 +38,14 @@ ambígua, o agente vai errar — e vai errar com confiança.
 No texto-âncora eu disse que gosto de pensar em ferramentas como contratos. Um
 contrato de tool responde seis coisas, e todas importam:
 
-| Campo       | A pergunta que ele responde                  |
-| ----------- | -------------------------------------------- |
-| O que faz   | qual ação, em uma frase sem ambiguidade      |
-| Entradas    | quais dados recebe, com que tipo e formato   |
-| Saídas      | o que devolve — e o que aquilo significa     |
-| Erros       | o que pode falhar, e como o agente descobre  |
-| Reversível? | dá para desfazer, ou é definitivo            |
-| Aprovação?  | executa sozinho ou precisa de um humano      |
+| Campo       | A pergunta que ele responde                 |
+| ----------- | ------------------------------------------- |
+| O que faz   | qual ação, em uma frase sem ambiguidade     |
+| Entradas    | quais dados recebe, com que tipo e formato  |
+| Saídas      | o que devolve — e o que aquilo significa    |
+| Erros       | o que pode falhar, e como o agente descobre |
+| Reversível? | dá para desfazer, ou é definitivo           |
+| Aprovação?  | executa sozinho ou precisa de um humano     |
 
 Repare que só os dois primeiros são "de API". Os quatro últimos são de projeto de
 agente — e são justamente os que quase ninguém escreve.
@@ -110,11 +110,11 @@ agente que segue em frente como se tivesse dado certo.
 No âncora e no texto das sete perguntas eu separo ação em três níveis. Na hora de
 desenhar a tool, isso vira uma etiqueta por ferramenta:
 
-| Nível      | Exemplo de tool                          | Regra                     |
-| ---------- | ---------------------------------------- | ------------------------- |
-| Leitura    | `buscar_pedido`, `listar_opções`         | executa direto            |
-| Preparação | `simular_troca`, `montar_proposta`       | prepara, não finaliza     |
-| Escrita    | `cancelar_pedido`, `enviar_mensagem`     | regra forte ou aprovação  |
+| Nível      | Exemplo de tool                      | Regra                    |
+| ---------- | ------------------------------------ | ------------------------ |
+| Leitura    | `buscar_pedido`, `listar_opções`     | executa direto           |
+| Preparação | `simular_troca`, `montar_proposta`   | prepara, não finaliza    |
+| Escrita    | `cancelar_pedido`, `enviar_mensagem` | regra forte ou aprovação |
 
 O ponto prático: você não trata toda tool com o mesmo cuidado. `buscar_pedido`
 errado gera uma resposta ruim. `cancelar_pedido` errado gera um problema real, no
@@ -139,8 +139,9 @@ disso. Não é sofisticação — é o mínimo para deixar um agente perto de um
 que mexe em dinheiro ou em mensagem.
 
 <Callout type="warn">
-  Toda ferramenta que escreve, cobra ou envia deveria ser idempotente antes de um
-  agente chegar perto dela. O agente não é um cliente educado que chama uma vez.
+  Toda ferramenta que escreve, cobra ou envia deveria ser idempotente antes de
+  um agente chegar perto dela. O agente não é um cliente educado que chama uma
+  vez.
 </Callout>
 
 ## Menos tools, melhor definidas

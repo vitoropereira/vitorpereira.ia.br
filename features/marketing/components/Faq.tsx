@@ -107,7 +107,9 @@ export function Faq({
 
   return (
     <section className="mx-auto max-w-3xl px-6 py-20">
-      <h2 className="font-heading mb-8 text-3xl font-bold tracking-tight">{title}</h2>
+      <h2 className="font-heading mb-8 text-3xl font-bold tracking-tight">
+        {title}
+      </h2>
       <div>
         {items.map((item, i) => (
           <Reveal key={item.q} delay={i * 80}>

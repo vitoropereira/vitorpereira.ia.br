@@ -83,11 +83,11 @@ memory is selective and has a purpose.
 If you do not define quality up front, you will define it later, in a panic, when
 a customer complains. I evaluate agents on four axes:
 
-| Axis    | The question                                     |
-| ------- | ------------------------------------------------ |
-| Outcome | was the task completed correctly?                |
-| Path    | did it choose the appropriate tools?             |
-| Safety  | did it respect limits and permissions?           |
+| Axis    | The question                                       |
+| ------- | -------------------------------------------------- |
+| Outcome | was the task completed correctly?                  |
+| Path    | did it choose the appropriate tools?               |
+| Safety  | did it respect limits and permissions?             |
 | Cost    | was it worth the price in tokens, time, and infra? |
 
 Notice that "outcome" is only one of the four. An agent can get the right answer
@@ -102,11 +102,11 @@ one: permission without control.
 
 I split actions into three levels:
 
-| Level       | Example                                     | Behavior                  |
-| ----------- | ------------------------------------------- | ------------------------- |
-| Read        | query, list, fetch history                  | runs directly             |
-| Preparation | generate a proposal, simulate, draft a reply| prepares, does not commit |
-| Write       | change, send, charge, cancel                | hard rule or a human      |
+| Level       | Example                                      | Behavior                  |
+| ----------- | -------------------------------------------- | ------------------------- |
+| Read        | query, list, fetch history                   | runs directly             |
+| Preparation | generate a proposal, simulate, draft a reply | prepares, does not commit |
+| Write       | change, send, charge, cancel                 | hard rule or a human      |
 
 Defining limits means deciding, for each tool, which level it falls into and
 where a confirmation point goes. Full autonomy on day one is not ambition — it is

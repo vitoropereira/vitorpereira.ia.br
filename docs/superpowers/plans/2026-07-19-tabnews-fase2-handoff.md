@@ -12,17 +12,17 @@
 Camada de analytics do cross-post: registra cada syndication no Supabase, puxa
 métricas do TabNews, e mede **cliques de volta pro site** (métrica primária).
 
-| Peça | Arquivo | Estado |
-| --- | --- | --- |
-| Tabelas `vitor_*` + RLS trancado | `supabase/migrations/0001_vitor_syndication.sql` | ✅ **aplicada** no seu Supabase |
-| Cliente Management API (escaping seguro) | `lib/analytics/supabase-admin.ts` | ✅ testado |
-| Gravar/ler syndications + snapshots | `lib/analytics/record.ts` | ✅ testado + validado no DB real |
-| CLI grava a linha no publish | `scripts/crosspost.ts` | ✅ (best-effort) |
-| `pnpm crosspost:stats` (tabela no terminal) | `scripts/crosspost-stats.ts` | ✅ rodou contra DB+TabNews reais |
-| Métricas do TabNews | `lib/tabnews/client.ts` (`getContentMetrics`) | ✅ testado |
-| Clique first-party: helpers + log | `lib/analytics/click.ts` | ✅ testado (anti open-redirect) |
-| Rota redirect de rastreio | `app/api/track/route.ts` | ✅ testado (redirect); log gated |
-| CTA roteado pelo `/api/track` | `lib/mdx/to-tabnews-markdown.ts` | ✅ testado |
+| Peça                                        | Arquivo                                          | Estado                           |
+| ------------------------------------------- | ------------------------------------------------ | -------------------------------- |
+| Tabelas `vitor_*` + RLS trancado            | `supabase/migrations/0001_vitor_syndication.sql` | ✅ **aplicada** no seu Supabase  |
+| Cliente Management API (escaping seguro)    | `lib/analytics/supabase-admin.ts`                | ✅ testado                       |
+| Gravar/ler syndications + snapshots         | `lib/analytics/record.ts`                        | ✅ testado + validado no DB real |
+| CLI grava a linha no publish                | `scripts/crosspost.ts`                           | ✅ (best-effort)                 |
+| `pnpm crosspost:stats` (tabela no terminal) | `scripts/crosspost-stats.ts`                     | ✅ rodou contra DB+TabNews reais |
+| Métricas do TabNews                         | `lib/tabnews/client.ts` (`getContentMetrics`)    | ✅ testado                       |
+| Clique first-party: helpers + log           | `lib/analytics/click.ts`                         | ✅ testado (anti open-redirect)  |
+| Rota redirect de rastreio                   | `app/api/track/route.ts`                         | ✅ testado (redirect); log gated |
+| CTA roteado pelo `/api/track`               | `lib/mdx/to-tabnews-markdown.ts`                 | ✅ testado                       |
 
 **Gates:** velite ✓ · typecheck ✓ · lint ✓ · **79 testes ✓**.
 

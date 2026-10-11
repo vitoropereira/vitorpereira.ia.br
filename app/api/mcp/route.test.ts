@@ -149,7 +149,9 @@ describe("MCP route", () => {
     const payload = await response.text();
     const message = payload.match(/^data: (.+)$/m)?.[1];
 
-    expect(JSON.parse(message ?? "{}")).toMatchObject({ result: { isError: true } });
+    expect(JSON.parse(message ?? "{}")).toMatchObject({
+      result: { isError: true },
+    });
   });
 
   it("rejects invoice amounts that could overflow aggregated cents", async () => {
@@ -180,7 +182,9 @@ describe("MCP route", () => {
     const payload = await response.text();
     const message = payload.match(/^data: (.+)$/m)?.[1];
 
-    expect(JSON.parse(message ?? "{}")).toMatchObject({ result: { isError: true } });
+    expect(JSON.parse(message ?? "{}")).toMatchObject({
+      result: { isError: true },
+    });
   });
 
   it("does not expose a GET endpoint for portfolio data", async () => {

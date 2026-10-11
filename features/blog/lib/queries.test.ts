@@ -164,7 +164,11 @@ describe("getAllTags", () => {
 describe("getRelatedPosts", () => {
   it("não sugere post agendado", () => {
     const base = make({ slug: "base", tags: ["x"], date: "2026-08-01" });
-    const agendado = make({ slug: "agendado", tags: ["x"], date: "2026-08-30" });
+    const agendado = make({
+      slug: "agendado",
+      tags: ["x"],
+      date: "2026-08-30",
+    });
     const publicado = make({ slug: "pub", tags: ["x"], date: "2026-07-01" });
     const rel = getRelatedPosts(base, [base, agendado, publicado], 3, NOW);
     expect(rel.map((p) => p.slug)).toEqual(["pub"]);
