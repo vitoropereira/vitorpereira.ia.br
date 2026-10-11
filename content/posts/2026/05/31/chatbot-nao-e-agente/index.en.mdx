@@ -56,15 +56,15 @@ model as one part of a chain of decision and action.
 
 An agent usually needs a few elements:
 
-| Element | The question it answers                  |
-| ------- | ---------------------------------------- |
-| Goal    | What has to be completed?                |
-| Context | What does the agent know right now?      |
-| Tools   | What can the agent do outside the model? |
-| Memory  | What has to be remembered between steps? |
-| Criteria| How do you know the task was done well?  |
-| Limits  | What can it not do on its own?           |
-| Logs    | How do you audit what happened?          |
+| Element  | The question it answers                  |
+| -------- | ---------------------------------------- |
+| Goal     | What has to be completed?                |
+| Context  | What does the agent know right now?      |
+| Tools    | What can the agent do outside the model? |
+| Memory   | What has to be remembered between steps? |
+| Criteria | How do you know the task was done well?  |
+| Limits   | What can it not do on its own?           |
+| Logs     | How do you audit what happened?          |
 
 Without those elements, we are usually not talking about an agent. We are
 talking about a chatbot, a workflow, an automation, or an integration with AI.
@@ -146,11 +146,11 @@ run actions in real systems.
 
 That is why I split actions into three levels:
 
-| Level       | Example                                                | Expected behavior                |
-| ----------- | ------------------------------------------------------ | -------------------------------- |
-| Read        | look up an order, fetch history, list options          | can run directly                 |
-| Preparation | generate a proposal, draft a reply, simulate a change  | can prepare, but not finalize    |
-| Write       | change a record, send a message, charge, cancel        | requires a hard rule or approval |
+| Level       | Example                                               | Expected behavior                |
+| ----------- | ----------------------------------------------------- | -------------------------------- |
+| Read        | look up an order, fetch history, list options         | can run directly                 |
+| Preparation | generate a proposal, draft a reply, simulate a change | can prepare, but not finalize    |
+| Write       | change a record, send a message, charge, cancel       | requires a hard rule or approval |
 
 This separation keeps you from treating every tool as if it carried the same
 risk.

@@ -3,15 +3,29 @@ import { TabNewsError, RateLimitError, AuthError } from "./errors.ts";
 
 export { TabNewsError, RateLimitError, AuthError };
 
-export interface TabNewsSession { token: string; expiresAt: string }
-export interface CreateContentInput { title: string; body: string; status: "published" | "draft"; sourceUrl: string }
-export interface CreatedContent { url: string; ownerUsername: string; slug: string }
+export interface TabNewsSession {
+  token: string;
+  expiresAt: string;
+}
+export interface CreateContentInput {
+  title: string;
+  body: string;
+  status: "published" | "draft";
+  sourceUrl: string;
+}
+export interface CreatedContent {
+  url: string;
+  ownerUsername: string;
+  slug: string;
+}
 
 type Deps = { fetch?: typeof fetch };
 
 async function readError(res: Response): Promise<string> {
   try {
-    return ((await res.json()) as { message?: string }).message ?? res.statusText;
+    return (
+      ((await res.json()) as { message?: string }).message ?? res.statusText
+    );
   } catch {
     return res.statusText;
   }
@@ -22,7 +36,10 @@ function raise(status: number, message: string): never {
   throw new TabNewsError(message, status);
 }
 
-export async function createSession(creds: { email: string; password: string }, deps: Deps = {}): Promise<TabNewsSession> {
+export async function createSession(
+  creds: { email: string; password: string },
+  deps: Deps = {},
+): Promise<TabNewsSession> {
   const f = deps.fetch ?? fetch;
   const res = await f(`${TABNEWS_API}/sessions`, {
     method: "POST",
@@ -48,18 +65,37 @@ export async function getContentMetrics(
   const f = deps.fetch ?? fetch;
   const res = await f(`${TABNEWS_API}/contents/${owner}/${slug}`);
   if (!res.ok) raise(res.status, await readError(res));
-  const j = (await res.json()) as { tabcoins?: number; children_deep_count?: number };
+  const j = (await res.json()) as {
+    tabcoins?: number;
+    children_deep_count?: number;
+  };
   return { tabcoins: j.tabcoins ?? 0, comments: j.children_deep_count ?? 0 };
 }
 
-export async function createContent(session: TabNewsSession, input: CreateContentInput, deps: Deps = {}): Promise<CreatedContent> {
+export async function createContent(
+  session: TabNewsSession,
+  input: CreateContentInput,
+  deps: Deps = {},
+): Promise<CreatedContent> {
   const f = deps.fetch ?? fetch;
   const res = await f(`${TABNEWS_API}/contents`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Cookie: `session_id=${session.token}` },
-    body: JSON.stringify({ title: input.title, body: input.body, status: input.status, source_url: input.sourceUrl }),
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: `session_id=${session.token}`,
+    },
+    body: JSON.stringify({
+      title: input.title,
+      body: input.body,
+      status: input.status,
+      source_url: input.sourceUrl,
+    }),
   });
   if (!res.ok) raise(res.status, await readError(res));
   const j = (await res.json()) as { owner_username: string; slug: string };
-  return { url: `${TABNEWS_WEB}/${j.owner_username}/${j.slug}`, ownerUsername: j.owner_username, slug: j.slug };
+  return {
+    url: `${TABNEWS_WEB}/${j.owner_username}/${j.slug}`,
+    ownerUsername: j.owner_username,
+    slug: j.slug,
+  };
 }

@@ -84,13 +84,13 @@ original JSON, an arrival timestamp, and a processing state.
 
 What that changes in practice:
 
-| Situation | Traditional queue | Queue with raw payload |
-| --- | --- | --- |
-| Parsing bug found later | data lost, no rebuild | reprocess from the source |
-| Business rule changed | applies going forward only | reapply across history |
-| "Why does this record look like this?" | inference | read what actually arrived |
-| Volume spike | absorbs it | absorbs it |
-| Infra to operate | +1 service | zero — we already had Postgres |
+| Situation                              | Traditional queue          | Queue with raw payload         |
+| -------------------------------------- | -------------------------- | ------------------------------ |
+| Parsing bug found later                | data lost, no rebuild      | reprocess from the source      |
+| Business rule changed                  | applies going forward only | reapply across history         |
+| "Why does this record look like this?" | inference                  | read what actually arrived     |
+| Volume spike                           | absorbs it                 | absorbs it                     |
+| Infra to operate                       | +1 service                 | zero — we already had Postgres |
 
 The right-hand column describes our day to day. The left-hand one describes the
 architecture the book recommends.

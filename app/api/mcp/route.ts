@@ -9,7 +9,9 @@ export const maxDuration = 30;
 
 const MAX_REQUEST_BODY_BYTES = 1_048_576;
 const MAX_PORTFOLIO_ITEMS = 500;
-const MAX_INVOICE_CENTS = Math.floor(Number.MAX_SAFE_INTEGER / MAX_PORTFOLIO_ITEMS);
+const MAX_INVOICE_CENTS = Math.floor(
+  Number.MAX_SAFE_INTEGER / MAX_PORTFOLIO_ITEMS,
+);
 const ALLOWED_BROWSER_ORIGINS = new Set([
   "https://vitorpereira.ia.br",
   "https://www.vitorpereira.ia.br",
@@ -29,7 +31,9 @@ function isValidIsoCalendarDate(value: string): boolean {
 const isoDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
-  .refine(isValidIsoCalendarDate, { message: "Expected a real ISO calendar date" });
+  .refine(isValidIsoCalendarDate, {
+    message: "Expected a real ISO calendar date",
+  });
 
 function rejectUnapprovedOrigin(request: Request): Response | undefined {
   const origin = request.headers.get("origin");
@@ -73,7 +77,10 @@ const analysisSchema = z.object({
 });
 
 function createMcpServer(): McpServer {
-  const server = new McpServer({ name: "cobranca-inteligente", version: "0.1.0" });
+  const server = new McpServer({
+    name: "cobranca-inteligente",
+    version: "0.1.0",
+  });
 
   server.registerTool(
     "collections.analyze_portfolio",

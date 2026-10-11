@@ -19,11 +19,21 @@
  * assim que a branch for mergeada. A revisão humana é o PR, e não existe nenhum
  * gate além dele.
  */
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import matter from "gray-matter";
-import { buildEnglishMdx, englishPathFor, type TranslatedPost } from "../lib/mdx/translate.ts";
+import {
+  buildEnglishMdx,
+  englishPathFor,
+  type TranslatedPost,
+} from "../lib/mdx/translate.ts";
 
 const MODEL = "claude-opus-5";
 const POSTS_ROOT = path.join("content", "posts");
@@ -51,14 +61,24 @@ const SCHEMA = {
   type: "object",
   properties: {
     title: { type: "string", description: "The post title in English." },
-    description: { type: "string", description: "The frontmatter description in English, one sentence, no markdown." },
-    body: { type: "string", description: "The full post body in English MDX, without frontmatter." },
+    description: {
+      type: "string",
+      description:
+        "The frontmatter description in English, one sentence, no markdown.",
+    },
+    body: {
+      type: "string",
+      description: "The full post body in English MDX, without frontmatter.",
+    },
   },
   required: ["title", "description", "body"],
   additionalProperties: false,
 } as const;
 
-async function translate(client: Anthropic, source: { title: string; description: string; body: string }): Promise<TranslatedPost> {
+async function translate(
+  client: Anthropic,
+  source: { title: string; description: string; body: string },
+): Promise<TranslatedPost> {
   const stream = client.messages.stream({
     model: MODEL,
     max_tokens: 64000,
@@ -84,17 +104,26 @@ ${source.body}`,
 
   const message = await stream.finalMessage();
   if (message.stop_reason === "refusal") {
-    throw new Error(`Modelo recusou a tradução (${message.stop_details?.category ?? "sem categoria"}).`);
+    throw new Error(
+      `Modelo recusou a tradução (${message.stop_details?.category ?? "sem categoria"}).`,
+    );
   }
   if (message.stop_reason === "max_tokens") {
-    throw new Error("Resposta truncada em max_tokens — post longo demais pra uma passada.");
+    throw new Error(
+      "Resposta truncada em max_tokens — post longo demais pra uma passada.",
+    );
   }
 
   const text = message.content.find((b) => b.type === "text");
-  if (!text || text.type !== "text") throw new Error("Resposta sem bloco de texto.");
+  if (!text || text.type !== "text")
+    throw new Error("Resposta sem bloco de texto.");
 
   const parsed = JSON.parse(text.text) as TranslatedPost;
-  if (!parsed.title?.trim() || !parsed.description?.trim() || !parsed.body?.trim()) {
+  if (
+    !parsed.title?.trim() ||
+    !parsed.description?.trim() ||
+    !parsed.body?.trim()
+  ) {
     throw new Error("Tradução veio com campo vazio (title/description/body).");
   }
   return parsed;
@@ -114,7 +143,12 @@ export function findPtPosts(root: string = POSTS_ROOT): string[] {
   return out.sort();
 }
 
-async function translateOne(client: Anthropic, mdxPath: string, force: boolean, dryRun: boolean): Promise<boolean> {
+async function translateOne(
+  client: Anthropic,
+  mdxPath: string,
+  force: boolean,
+  dryRun: boolean,
+): Promise<boolean> {
   const enPath = englishPathFor(mdxPath);
   if (existsSync(enPath) && !force) {
     console.log(`· pulando (já tem EN): ${mdxPath}`);
@@ -164,7 +198,10 @@ async function main(): Promise<void> {
     else fail(`Argumento inesperado: ${a}`);
   }
 
-  if (!all && !target) fail("Uso: pnpm translate <caminho-do-post> | pnpm translate --all [--limit n]");
+  if (!all && !target)
+    fail(
+      "Uso: pnpm translate <caminho-do-post> | pnpm translate --all [--limit n]",
+    );
   if (all && target) fail("Use --all OU um caminho, não os dois.");
   if (!Number.isInteger(limit) || limit < 1) fail(`--limit inválido: ${limit}`);
 
@@ -176,11 +213,15 @@ async function main(): Promise<void> {
       return includeDrafts || !data.draft;
     });
     if (queue.length === 0) {
-      console.log("\n✓ Nada pendente — todo post PT publicado já tem versão EN.\n");
+      console.log(
+        "\n✓ Nada pendente — todo post PT publicado já tem versão EN.\n",
+      );
       return;
     }
     if (queue.length > limit) {
-      console.log(`· ${queue.length} pendentes; processando ${limit} nesta rodada (--limit).`);
+      console.log(
+        `· ${queue.length} pendentes; processando ${limit} nesta rodada (--limit).`,
+      );
       queue = queue.slice(0, limit);
     }
   } else {
@@ -202,13 +243,18 @@ async function main(): Promise<void> {
     try {
       if (await translateOne(client, mdxPath, force, dryRun)) written++;
     } catch (e) {
-      console.error(`  ✖ ${mdxPath}: ${e instanceof Error ? e.message : String(e)}`);
+      console.error(
+        `  ✖ ${mdxPath}: ${e instanceof Error ? e.message : String(e)}`,
+      );
       process.exitCode = 1;
     }
   }
 
   console.log(`\n${written} arquivo(s) escrito(s).`);
-  if (written > 0) console.log("Revise antes de publicar — a tradução herda o draft do post PT.\n");
+  if (written > 0)
+    console.log(
+      "Revise antes de publicar — a tradução herda o draft do post PT.\n",
+    );
 }
 
 await main();

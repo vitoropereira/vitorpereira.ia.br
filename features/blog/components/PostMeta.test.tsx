@@ -12,8 +12,7 @@ import { PostMeta } from "./PostMeta";
 vi.mock("next-intl/server", () => ({
   getLocale: async () => "pt",
   getTranslations:
-    async () =>
-    (key: string, values?: Record<string, unknown>) =>
+    async () => (key: string, values?: Record<string, unknown>) =>
       key === "readingTime" ? `${values?.minutes} min` : key,
 }));
 
@@ -32,7 +31,10 @@ async function renderWith(post: Record<string, unknown>) {
 
 describe("PostMeta — link do TabNews", () => {
   it("mostra o link quando post.tabnews existe", async () => {
-    await renderWith({ ...base, tabnews: "https://www.tabnews.com.br/vitor/x" });
+    await renderWith({
+      ...base,
+      tabnews: "https://www.tabnews.com.br/vitor/x",
+    });
     expect(screen.getByRole("link", { name: /tabnews/i })).toHaveAttribute(
       "href",
       "https://www.tabnews.com.br/vitor/x",

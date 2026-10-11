@@ -1,10 +1,16 @@
-import { calloutsToBlockquotes, videosToLinks, absolutizeInternalLinks } from "./transforms.ts";
+import {
+  calloutsToBlockquotes,
+  videosToLinks,
+  absolutizeInternalLinks,
+} from "./transforms.ts";
 import { SITE_URL, MAX_BODY, DIAGNOSTIC_PATH } from "../syndication/config.ts";
 
 export type SyndicationFormat = "summary" | "teaser" | "full";
 
 function transformInline(md: string): string {
-  return unwrapParagraphs(absolutizeInternalLinks(videosToLinks(calloutsToBlockquotes(md)), SITE_URL));
+  return unwrapParagraphs(
+    absolutizeInternalLinks(videosToLinks(calloutsToBlockquotes(md)), SITE_URL),
+  );
 }
 
 /**
@@ -115,9 +121,14 @@ function extractSummary(body: string): string {
     const h = lines[i].match(/^##\s+(.+)$/);
     if (!h) continue;
     const rest: string[] = [];
-    for (let j = i + 1; j < lines.length && !isHeading[j]; j++) rest.push(lines[j]);
+    for (let j = i + 1; j < lines.length && !isHeading[j]; j++)
+      rest.push(lines[j]);
     const para = splitBlocks(rest).find(isProse);
-    items.push(para ? `- **${h[1].trim()}** — ${firstSentence(para)}` : `- **${h[1].trim()}**`);
+    items.push(
+      para
+        ? `- **${h[1].trim()}** — ${firstSentence(para)}`
+        : `- **${h[1].trim()}**`,
+    );
   }
   return items.join("\n");
 }
@@ -138,7 +149,11 @@ function trackUrl(canonicalUrl: string, format: SyndicationFormat): string {
   return `${SITE_URL}/api/track?to=${encodeURIComponent(canonicalUrl)}&f=${format}`;
 }
 
-function cta(title: string, canonicalUrl: string, format: SyndicationFormat): string {
+function cta(
+  title: string,
+  canonicalUrl: string,
+  format: SyndicationFormat,
+): string {
   return `\n\n---\n\nEscrevi o resto no meu site:\n\n**[${title}](${trackUrl(canonicalUrl, format)})**`;
 }
 
@@ -153,16 +168,20 @@ export function toTabNewsMarkdown(input: {
   let out: string;
   if (format === "summary") {
     const summary = extractSummary(transformInline(body));
-    if (summary === "") throw new Error("Post sem seções '## ' — use --format teaser ou full.");
+    if (summary === "")
+      throw new Error("Post sem seções '## ' — use --format teaser ou full.");
     out = summary + cta(title, canonicalUrl, format);
   } else if (format === "teaser") {
-    out = extractTeaser(transformInline(body)) + cta(title, canonicalUrl, format);
+    out =
+      extractTeaser(transformInline(body)) + cta(title, canonicalUrl, format);
   } else {
     // O TabNews já mostra "Fonte" com a canônica, mas esse link não passa pelo
     // /api/track. O link curto no fim mantém a medição sem expor a URL longa.
     out = `${transformInline(body).trimEnd()}\n\n---\n\n[Leia no blog →](${trackUrl(canonicalUrl, format)})`;
   }
   if (out.length > MAX_BODY)
-    throw new Error(`Body de ${out.length} chars excede o limite de ${MAX_BODY.toLocaleString("pt-BR")} do TabNews.`);
+    throw new Error(
+      `Body de ${out.length} chars excede o limite de ${MAX_BODY.toLocaleString("pt-BR")} do TabNews.`,
+    );
   return out;
 }

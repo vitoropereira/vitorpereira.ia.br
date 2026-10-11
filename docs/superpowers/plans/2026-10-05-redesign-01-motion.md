@@ -33,17 +33,17 @@
 
 ## File Structure
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `app/globals.css` (modify) | tokens `--ease-out`, `--dur-*`; regras `[data-reveal]`; `.card-interactive`; keyframe `draw`; bloco reduced-motion |
-| `components/motion/motionBoot.ts` (create) | string do script inline (`.js` + failsafe) — testável fora do layout |
-| `app/layout.tsx` (modify) | injeta o script no `<head>` |
-| `components/motion/reducedMotion.ts` (create) | `prefersReducedMotion()` com guarda de SSR |
-| `components/motion/testUtils.ts` (create) | mocks de IntersectionObserver e matchMedia para os testes |
-| `components/motion/Reveal.tsx` (create) | revela filhos ao entrar na tela |
-| `components/motion/countUp.ts` (create) | `parseStat` / `formatStat` puros |
-| `components/motion/CountUp.tsx` (create) | anima número ao entrar na tela |
-| `features/marketing/components/Proof.tsx` (modify) | primeiro consumidor: `CountUp` + `Reveal` |
+| Arquivo                                            | Responsabilidade                                                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `app/globals.css` (modify)                         | tokens `--ease-out`, `--dur-*`; regras `[data-reveal]`; `.card-interactive`; keyframe `draw`; bloco reduced-motion |
+| `components/motion/motionBoot.ts` (create)         | string do script inline (`.js` + failsafe) — testável fora do layout                                               |
+| `app/layout.tsx` (modify)                          | injeta o script no `<head>`                                                                                        |
+| `components/motion/reducedMotion.ts` (create)      | `prefersReducedMotion()` com guarda de SSR                                                                         |
+| `components/motion/testUtils.ts` (create)          | mocks de IntersectionObserver e matchMedia para os testes                                                          |
+| `components/motion/Reveal.tsx` (create)            | revela filhos ao entrar na tela                                                                                    |
+| `components/motion/countUp.ts` (create)            | `parseStat` / `formatStat` puros                                                                                   |
+| `components/motion/CountUp.tsx` (create)           | anima número ao entrar na tela                                                                                     |
+| `features/marketing/components/Proof.tsx` (modify) | primeiro consumidor: `CountUp` + `Reveal`                                                                          |
 
 ---
 
@@ -68,10 +68,12 @@ Expected: suíte verde. Se não estiver verde na `origin/main`, pare e reporte.
 ### Task 1: Tokens CSS, script de boot e reduced-motion
 
 **Files:**
+
 - Create: `components/motion/motionBoot.ts`, `components/motion/motionBoot.test.ts`, `components/motion/reducedMotion.ts`
 - Modify: `app/globals.css` (fim do arquivo), `app/layout.tsx`
 
 **Interfaces:**
+
 - Produces: `MOTION_BOOT_SCRIPT: string`; `prefersReducedMotion(): boolean`; atributos CSS `data-reveal="fade-up"|"fade"`, `data-revealed`, `--reveal-delay`; classe `.card-interactive`; keyframe `draw`; `<html data-motion="ready">` marcado por `Reveal`.
 
 - [ ] **Step 1: Teste do script de boot**
@@ -139,7 +141,10 @@ export const MOTION_BOOT_SCRIPT = `(function(){var d=document.documentElement;d.
 // Guarda de SSR: no servidor não há preferência, e o HTML do servidor já sai
 // com o estado final visível.
 export function prefersReducedMotion(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
     return false;
   }
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -207,7 +212,8 @@ import { MOTION_BOOT_SCRIPT } from "@/components/motion/motionBoot";
   .card-interactive:focus-within {
     transform: translateY(-2px);
     border-color: color-mix(in oklab, var(--brand) 45%, var(--border));
-    box-shadow: 0 8px 24px -12px color-mix(in oklab, var(--brand) 35%, transparent);
+    box-shadow: 0 8px 24px -12px
+      color-mix(in oklab, var(--brand) 35%, transparent);
   }
 }
 
@@ -251,21 +257,25 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 2: `Reveal`
 
 **Files:**
+
 - Create: `components/motion/testUtils.ts`, `components/motion/Reveal.tsx`, `components/motion/Reveal.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `prefersReducedMotion()` (Task 1), CSS `[data-reveal]` (Task 1).
 - Produces:
+
   ```ts
   type RevealProps = {
     children: React.ReactNode;
     as?: "div" | "section" | "li" | "article" | "span";
-    delay?: number;              // ms, vira --reveal-delay
+    delay?: number; // ms, vira --reveal-delay
     variant?: "fade-up" | "fade";
     className?: string;
   };
   export function Reveal(props: RevealProps): JSX.Element;
   ```
+
   Test utils: `mockIntersectionObserver(): { trigger(isIntersecting?: boolean): void; restore(): void }` e `mockMatchMedia(reduce: boolean): () => void`.
 
 - [ ] **Step 1: Test utils**
@@ -294,10 +304,12 @@ export function mockIntersectionObserver() {
       return [];
     }
   }
-  globalThis.IntersectionObserver = FakeIO as unknown as typeof IntersectionObserver;
+  globalThis.IntersectionObserver =
+    FakeIO as unknown as typeof IntersectionObserver;
   return {
     trigger(isIntersecting = true) {
-      for (const i of instances) if (!i.disconnected) i.cb([{ isIntersecting }]);
+      for (const i of instances)
+        if (!i.disconnected) i.cb([{ isIntersecting }]);
     },
     instances,
     restore() {
@@ -507,16 +519,29 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 3: `parseStat`/`formatStat` + `CountUp`
 
 **Files:**
+
 - Create: `components/motion/countUp.ts`, `components/motion/countUp.test.ts`, `components/motion/CountUp.tsx`, `components/motion/CountUp.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `prefersReducedMotion()`, `mockIntersectionObserver`, `mockMatchMedia`.
 - Produces:
+
   ```ts
-  type ParsedStat = { prefix: string; value: number; decimals: number; separator: "," | "."; suffix: string };
+  type ParsedStat = {
+    prefix: string;
+    value: number;
+    decimals: number;
+    separator: "," | ".";
+    suffix: string;
+  };
   export function parseStat(text: string): ParsedStat | null;
   export function formatStat(n: number, p: ParsedStat): string;
-  export function CountUp(props: { value: string; durationMs?: number; className?: string }): JSX.Element;
+  export function CountUp(props: {
+    value: string;
+    durationMs?: number;
+    className?: string;
+  }): JSX.Element;
   ```
 
 - [ ] **Step 1: Teste das funções puras**
@@ -764,10 +789,12 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 ### Task 4: Primeiro consumidor — `Proof`
 
 **Files:**
+
 - Modify: `features/marketing/components/Proof.tsx`
 - Create: `features/marketing/components/Proof.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Reveal`, `CountUp`.
 
 - [ ] **Step 1: Teste**
@@ -778,7 +805,10 @@ Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Proof } from "./Proof";
-import { mockIntersectionObserver, mockMatchMedia } from "@/components/motion/testUtils";
+import {
+  mockIntersectionObserver,
+  mockMatchMedia,
+} from "@/components/motion/testUtils";
 
 describe("Proof", () => {
   let io: ReturnType<typeof mockIntersectionObserver>;
@@ -797,14 +827,18 @@ describe("Proof", () => {
     for (const v of ["70+", "~700", "3,6M+", "~400"]) {
       expect(screen.getAllByText(v).length).toBeGreaterThan(0);
     }
-    expect(screen.getByText("founders simultâneos", { selector: "span" })).toBeInTheDocument();
+    expect(
+      screen.getByText("founders simultâneos", { selector: "span" }),
+    ).toBeInTheDocument();
   });
 
   it("cada stat entra com Reveal escalonado", () => {
     const { container } = render(<Proof locale="en" />);
     const revealed = container.querySelectorAll("[data-reveal]");
     expect(revealed).toHaveLength(4);
-    expect((revealed[3] as HTMLElement).style.getPropertyValue("--reveal-delay")).toBe("240ms");
+    expect(
+      (revealed[3] as HTMLElement).style.getPropertyValue("--reveal-delay"),
+    ).toBe("240ms");
   });
 });
 ```
@@ -824,23 +858,25 @@ import { Reveal } from "@/components/motion/Reveal";
 ```
 
 ```tsx
-          {stats.map((stat, i) => (
-            <Reveal key={stat.value + stat[lang].label} delay={i * 80}>
-              <dt className="sr-only">{stat[lang].label}</dt>
-              <dd>
-                <CountUp
-                  value={stat.value}
-                  className="text-primary block font-mono text-4xl font-semibold tracking-tight tabular-nums"
-                />
-                <span className="mt-2 block font-sans text-sm font-semibold">
-                  {stat[lang].label}
-                </span>
-                <span className="text-muted-foreground mt-1 block text-sm">
-                  {stat[lang].context}
-                </span>
-              </dd>
-            </Reveal>
-          ))}
+{
+  stats.map((stat, i) => (
+    <Reveal key={stat.value + stat[lang].label} delay={i * 80}>
+      <dt className="sr-only">{stat[lang].label}</dt>
+      <dd>
+        <CountUp
+          value={stat.value}
+          className="text-primary block font-mono text-4xl font-semibold tracking-tight tabular-nums"
+        />
+        <span className="mt-2 block font-sans text-sm font-semibold">
+          {stat[lang].label}
+        </span>
+        <span className="text-muted-foreground mt-1 block text-sm">
+          {stat[lang].context}
+        </span>
+      </dd>
+    </Reveal>
+  ));
+}
 ```
 
 `tabular-nums` evita que a largura do número "dance" durante a contagem.

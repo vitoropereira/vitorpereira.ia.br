@@ -40,7 +40,11 @@ const DEFAULT_SIZE = { width: 1672, height: 941 } as const;
 
 // O gerador histórico thumb-gen usava GOOGLE_GEMINI_API_KEY e o SDK do Google
 // documenta GEMINI_API_KEY. Aceitar os aliases evita duplicar/copiar segredo.
-const API_KEY_ENV_NAMES = ["GOOGLE_API_KEY", "GEMINI_API_KEY", "GOOGLE_GEMINI_API_KEY"] as const;
+const API_KEY_ENV_NAMES = [
+  "GOOGLE_API_KEY",
+  "GEMINI_API_KEY",
+  "GOOGLE_GEMINI_API_KEY",
+] as const;
 type ApiKeyEnvName = (typeof API_KEY_ENV_NAMES)[number];
 
 export function resolveApiKey(): { value?: string; source?: ApiKeyEnvName } {
@@ -182,7 +186,9 @@ export function validateModeCompatibility(o: Options): void {
     o.attachFrontmatter && "--attach-frontmatter",
   ].filter(Boolean);
   if (incompatible.length > 0) {
-    throw new Error(`--list-models é exclusivo; remova ${incompatible.join(", ")}.`);
+    throw new Error(
+      `--list-models é exclusivo; remova ${incompatible.join(", ")}.`,
+    );
   }
 }
 
@@ -194,21 +200,32 @@ export function composeCoverPrompt(style: string, subject: string): string {
   const s = subject.trim();
   if (!s) throw new Error("Prompt da capa vazio.");
   if (/^TODO\b/.test(s)) {
-    throw new Error("cover.prompt.txt ainda está no placeholder TODO — escreva o assunto antes de gerar.");
+    throw new Error(
+      "cover.prompt.txt ainda está no placeholder TODO — escreva o assunto antes de gerar.",
+    );
   }
   return `${style.trim()}\n\nComposition for this post:\n${s}`;
 }
 
 async function resolvePrompt(o: Options): Promise<string> {
   if (o.prompt) return o.prompt;
-  const file = o.promptFile ?? (o.post ? path.join(o.post, "cover.prompt.txt") : undefined);
-  if (!file) fail("Informe --prompt, --prompt-file <arquivo> ou --post <dir> (com cover.prompt.txt).");
+  const file =
+    o.promptFile ??
+    (o.post ? path.join(o.post, "cover.prompt.txt") : undefined);
+  if (!file)
+    fail(
+      "Informe --prompt, --prompt-file <arquivo> ou --post <dir> (com cover.prompt.txt).",
+    );
   if (!existsSync(file)) fail(`Arquivo de prompt não encontrado: ${file}`);
   const text = (await readFile(file, "utf8")).trim();
   if (!text) fail(`Prompt vazio em: ${file}`);
-  const style = existsSync(STYLE_FILE) ? await readFile(STYLE_FILE, "utf8") : "";
+  const style = existsSync(STYLE_FILE)
+    ? await readFile(STYLE_FILE, "utf8")
+    : "";
   try {
-    return style ? composeCoverPrompt(style, text) : composeCoverPrompt("", text).trimStart();
+    return style
+      ? composeCoverPrompt(style, text)
+      : composeCoverPrompt("", text).trimStart();
   } catch (e) {
     return fail(errMsg(e));
   }
@@ -222,7 +239,9 @@ function resolveOut(o: Options): string {
 
 function assertOutputWritable(out: string, force: boolean): void {
   if (existsSync(out) && !force) {
-    fail(`A capa já existe em ${out}. Use --force somente para substituir uma capa revisada.`);
+    fail(
+      `A capa já existe em ${out}. Use --force somente para substituir uma capa revisada.`,
+    );
   }
 }
 
@@ -233,10 +252,15 @@ export interface FrontmatterUpdate {
 }
 
 /** Valida TODO o par de posts antes de gastar uma chamada de geração. */
-export async function planCoverFrontmatter(post: string, out: string): Promise<FrontmatterUpdate[]> {
+export async function planCoverFrontmatter(
+  post: string,
+  out: string,
+): Promise<FrontmatterUpdate[]> {
   const expectedOut = path.resolve(post, "assets", "cover.webp");
   if (path.resolve(out) !== expectedOut) {
-    throw new Error("--attach-frontmatter exige a saída padrão <post>/assets/cover.webp.");
+    throw new Error(
+      "--attach-frontmatter exige a saída padrão <post>/assets/cover.webp.",
+    );
   }
 
   const updates: FrontmatterUpdate[] = [];
@@ -244,14 +268,19 @@ export async function planCoverFrontmatter(post: string, out: string): Promise<F
     const file = path.join(post, name);
     if (!existsSync(file)) continue;
     const original = await readFile(file, "utf8");
-    if (!original.startsWith("---\n")) throw new Error(`Frontmatter ausente em ${file}.`);
+    if (!original.startsWith("---\n"))
+      throw new Error(`Frontmatter ausente em ${file}.`);
     const end = original.indexOf("\n---", 4);
     if (end === -1) throw new Error(`Frontmatter inválido em ${file}.`);
     const frontmatter = original.slice(4, end);
-    const cover = /^cover:\s*(?:"([^"]+)"|'([^']+)'|(\S+))\s*$/m.exec(frontmatter);
+    const cover = /^cover:\s*(?:"([^"]+)"|'([^']+)'|(\S+))\s*$/m.exec(
+      frontmatter,
+    );
     const existingCover = cover?.[1] ?? cover?.[2] ?? cover?.[3];
     if (existingCover && existingCover !== "./assets/cover.webp") {
-      throw new Error(`Já existe cover diferente em ${file}; não vou substituir metadata existente.`);
+      throw new Error(
+        `Já existe cover diferente em ${file}; não vou substituir metadata existente.`,
+      );
     }
     if (!existingCover) {
       updates.push({
@@ -265,7 +294,9 @@ export async function planCoverFrontmatter(post: string, out: string): Promise<F
 }
 
 /** Aplica o plano depois da capa existir; em falha, restaura o que já foi escrito. */
-async function applyCoverFrontmatter(updates: FrontmatterUpdate[]): Promise<void> {
+async function applyCoverFrontmatter(
+  updates: FrontmatterUpdate[],
+): Promise<void> {
   const written: FrontmatterUpdate[] = [];
   try {
     for (const update of updates) {
@@ -274,7 +305,9 @@ async function applyCoverFrontmatter(updates: FrontmatterUpdate[]): Promise<void
       console.log(`· frontmatter atualizado: ${update.file}`);
     }
   } catch (err) {
-    await Promise.all(written.map((update) => writeFile(update.file, update.original)));
+    await Promise.all(
+      written.map((update) => writeFile(update.file, update.original)),
+    );
     throw err;
   }
 }
@@ -284,10 +317,15 @@ function mimeOf(p: string): string {
   if (ext === ".png") return "image/png";
   if (ext === ".webp") return "image/webp";
   if (ext === ".jpg" || ext === ".jpeg") return "image/jpeg";
-  return fail(`Extensão de imagem não suportada em --ref: ${p} (use .png, .webp ou .jpg)`);
+  return fail(
+    `Extensão de imagem não suportada em --ref: ${p} (use .png, .webp ou .jpg)`,
+  );
 }
 
-async function buildContents(prompt: string, refs: string[]): Promise<Content[]> {
+async function buildContents(
+  prompt: string,
+  refs: string[],
+): Promise<Content[]> {
   const parts: Part[] = [{ text: prompt }];
   for (const r of refs) {
     if (!existsSync(r)) fail(`--ref não encontrado: ${r}`);
@@ -310,14 +348,21 @@ async function generateImage(
   let lastErr: unknown = new Error("nenhuma tentativa executada");
   for (const responseModalities of modalityTries) {
     try {
-      const res = await ai.models.generateContent({ model, contents, config: { responseModalities } });
+      const res = await ai.models.generateContent({
+        model,
+        contents,
+        config: { responseModalities },
+      });
       const parts = res.candidates?.[0]?.content?.parts ?? [];
       for (const p of parts) {
         const d = p.inlineData?.data;
         if (d && (p.inlineData?.mimeType ?? "").startsWith("image/")) return d;
       }
       const txt = res.text;
-      if (txt) fail(`O modelo respondeu texto em vez de imagem (recusa ou prompt inviável):\n${txt}`);
+      if (txt)
+        fail(
+          `O modelo respondeu texto em vez de imagem (recusa ou prompt inviável):\n${txt}`,
+        );
       lastErr = new Error("resposta sem parte de imagem");
     } catch (err) {
       lastErr = err;
@@ -336,17 +381,23 @@ async function main(): Promise<void> {
 
   if (o.listModels) {
     if (!apiKey) {
-      fail("Nenhuma credencial Gemini encontrada. Aceita GOOGLE_API_KEY, GEMINI_API_KEY ou GOOGLE_GEMINI_API_KEY.");
+      fail(
+        "Nenhuma credencial Gemini encontrada. Aceita GOOGLE_API_KEY, GEMINI_API_KEY ou GOOGLE_GEMINI_API_KEY.",
+      );
     }
     const ai = new GoogleGenAI({ apiKey });
-    console.log("Modelos disponíveis para sua key (procure os que terminam em -image):\n");
+    console.log(
+      "Modelos disponíveis para sua key (procure os que terminam em -image):\n",
+    );
     try {
       for await (const m of await ai.models.list()) {
         const name = (m.name ?? "").replace(/^models\//, "");
         console.log(`  ${name}${m.displayName ? `  — ${m.displayName}` : ""}`);
       }
     } catch (err) {
-      fail(`Falha ao listar modelos (key inválida ou sem acesso?): ${errMsg(err)}`);
+      fail(
+        `Falha ao listar modelos (key inválida ou sem acesso?): ${errMsg(err)}`,
+      );
     }
     return;
   }
@@ -357,19 +408,35 @@ async function main(): Promise<void> {
   if (o.attachFrontmatter && !o.post) {
     fail("--attach-frontmatter exige --post <dir>.");
   }
-  const frontmatterPlan = o.attachFrontmatter && o.post ? await planCoverFrontmatter(o.post, out) : [];
+  const frontmatterPlan =
+    o.attachFrontmatter && o.post
+      ? await planCoverFrontmatter(o.post, out)
+      : [];
 
   if (o.dryRun) {
     console.log("· dry-run (nenhuma chamada à API ou escrita)");
     console.log("· modelo:", model);
     console.log("· saída :", `${out} (${o.size.width}x${o.size.height} webp)`);
     console.log("· refs  :", o.refs.length ? o.refs.join(", ") : "(nenhuma)");
-    console.log("· key   :", apiKey ? `presente (${apiKeySource})` : "AUSENTE (nenhum alias configurado)");
-    console.log("· overwrite:", o.force ? "permitido por --force" : "não aplicável");
-    console.log("· retry de modalidade:", o.allowModalityRetry ? "permitido" : "bloqueado (uma chamada paga)");
+    console.log(
+      "· key   :",
+      apiKey
+        ? `presente (${apiKeySource})`
+        : "AUSENTE (nenhum alias configurado)",
+    );
+    console.log(
+      "· overwrite:",
+      o.force ? "permitido por --force" : "não aplicável",
+    );
+    console.log(
+      "· retry de modalidade:",
+      o.allowModalityRetry ? "permitido" : "bloqueado (uma chamada paga)",
+    );
     console.log(
       "· frontmatter:",
-      o.attachFrontmatter ? `validado; ${frontmatterPlan.length} arquivo(s) serão atualizados após gerar` : "sem alteração",
+      o.attachFrontmatter
+        ? `validado; ${frontmatterPlan.length} arquivo(s) serão atualizados após gerar`
+        : "sem alteração",
     );
     console.log(`\n--- prompt ---\n${prompt}\n`);
     return;
@@ -397,13 +464,22 @@ async function main(): Promise<void> {
   await writeFile(out, webp);
   await applyCoverFrontmatter(frontmatterPlan);
 
-  console.log(`✓ capa gravada: ${out} (${o.size.width}x${o.size.height}, ${(webp.length / 1024).toFixed(0)} KB)`);
-  console.log("  revise a imagem; se não curtir, ajuste o prompt e rode de novo.");
+  console.log(
+    `✓ capa gravada: ${out} (${o.size.width}x${o.size.height}, ${(webp.length / 1024).toFixed(0)} KB)`,
+  );
+  console.log(
+    "  revise a imagem; se não curtir, ajuste o prompt e rode de novo.",
+  );
 }
 
 // Vitest pode apontar process.argv[1] para o módulo sob teste. Só executa quando
 // o arquivo foi chamado diretamente como a CLI, não quando foi importado.
-const directCliInvocation = /(?:^|[\\/])gen-cover\.ts$/.test(process.argv[1] ?? "");
-if (directCliInvocation && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]!)) {
+const directCliInvocation = /(?:^|[\\/])gen-cover\.ts$/.test(
+  process.argv[1] ?? "",
+);
+if (
+  directCliInvocation &&
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1]!)
+) {
   main().catch((e: unknown) => fail(errMsg(e)));
 }

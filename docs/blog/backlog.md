@@ -18,9 +18,9 @@ Geração é local, sob demanda — não há automação de CI.
 
 Um post some do site por dois motivos **independentes**:
 
-| Estado | Frontmatter | Some porque | Entra sozinho? |
-| --- | --- | --- | --- |
-| **Draft** | `draft: true` | não terminou | não — você troca pra `false` |
+| Estado       | Frontmatter                  | Some porque             | Entra sozinho?                   |
+| ------------ | ---------------------------- | ----------------------- | -------------------------------- |
+| **Draft**    | `draft: true`                | não terminou            | não — você troca pra `false`     |
 | **Agendado** | `draft: false` + data futura | ainda não chegou a hora | **sim**, na data/hora do `date:` |
 
 Ou seja: `draft: false` **não** significa "no ar agora" — significa "pronto,
@@ -34,29 +34,29 @@ Em **dev** você vê tudo (draft e agendado) para revisar; em **produção** os 
 dão 404 e não aparecem em listagem, RSS, sitemap, llms.txt nem busca.
 
 > Latência: as rotas estáticas revalidam a cada 10 min (`export const
-> revalidate = 600`), então um post pode entrar até 10 minutos depois da hora
+revalidate = 600`), então um post pode entrar até 10 minutos depois da hora
 > cravada. A listagem `/posts` é dinâmica e pega na hora.
 
 ---
 
 ## Publicado
 
-| Data | Post | Série |
-| --- | --- | --- |
-| 2026-05-31 | [Chatbot não é agente](/2026/05/31/chatbot-nao-e-agente) | Agentes #1 |
-| 2026-07-18 | [A arquitetura mental de um agente: 7 perguntas](/2026/07/18/arquitetura-mental-do-agente) | Agentes #2 (âncora) |
-| 2026-07-25 | [Ferramentas como contrato](/2026/07/25/ferramentas-como-contrato) | Agentes #3 (pergunta 3) |
-| 2026-08-04 | [Nove números banidos numa noite](/2026/08/04/nove-numeros-banidos) | War story |
-| 2026-08-06 | [A fila que guarda o payload cru](/2026/08/06/fila-que-guarda-o-payload-cru) | War story |
-| 2026-08-08 | [Um pentester leu a conversa de outro cliente](/2026/08/08/idor-a-fronteira-e-o-servidor) | War story |
+| Data       | Post                                                                                       | Série                   |
+| ---------- | ------------------------------------------------------------------------------------------ | ----------------------- |
+| 2026-05-31 | [Chatbot não é agente](/2026/05/31/chatbot-nao-e-agente)                                   | Agentes #1              |
+| 2026-07-18 | [A arquitetura mental de um agente: 7 perguntas](/2026/07/18/arquitetura-mental-do-agente) | Agentes #2 (âncora)     |
+| 2026-07-25 | [Ferramentas como contrato](/2026/07/25/ferramentas-como-contrato)                         | Agentes #3 (pergunta 3) |
+| 2026-08-04 | [Nove números banidos numa noite](/2026/08/04/nove-numeros-banidos)                        | War story               |
+| 2026-08-06 | [A fila que guarda o payload cru](/2026/08/06/fila-que-guarda-o-payload-cru)               | War story               |
+| 2026-08-08 | [Um pentester leu a conversa de outro cliente](/2026/08/08/idor-a-fronteira-e-o-servidor)  | War story               |
 
 ## Agendados — `draft: false`, entram sozinhos na data
 
-| Data | Post | Série | Material-fonte |
-| --- | --- | --- | --- |
-| 2026-08-11 | Memória de agente: guardar tudo não é ter memória | Agentes #4 (pergunta 4) | Post-âncora + operação da frota |
-| 2026-08-13 | Acertou a resposta pelo caminho errado: os 4 eixos | Agentes #5 (pergunta 5) | Post-âncora + pipeline ~700 análises/dia + Scale AI |
-| 2026-08-15 | 70 founders ao mesmo tempo | Agentes #6 (pergunta 6) | Agente Sebrae ao vivo: 2.411 msgs / 123 sessões / 70+ simultâneos |
+| Data       | Post                                               | Série                   | Material-fonte                                                    |
+| ---------- | -------------------------------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| 2026-08-11 | Memória de agente: guardar tudo não é ter memória  | Agentes #4 (pergunta 4) | Post-âncora + operação da frota                                   |
+| 2026-08-13 | Acertou a resposta pelo caminho errado: os 4 eixos | Agentes #5 (pergunta 5) | Post-âncora + pipeline ~700 análises/dia + Scale AI               |
+| 2026-08-15 | 70 founders ao mesmo tempo                         | Agentes #6 (pergunta 6) | Agente Sebrae ao vivo: 2.411 msgs / 123 sessões / 70+ simultâneos |
 
 > Os três entram sozinhos nas respectivas datas, às 10h. Depois do dia 15 a
 > cadência ter/qui/sáb depende de escrever as pautas da semana 34 em diante —
@@ -75,27 +75,27 @@ verdade ou se sai do `content/`.
 
 ### Semana 34 (18–23/08) — fecha a série de agentes
 
-| # | Pauta | Ângulo | Material-fonte |
-| --- | --- | --- | --- |
-| 1 | **Log de agente não é console.log** | Pergunta 7, fecha a série. Registro de decisão: qual tool, com que argumento, o que voltou, onde falhou. Sem isso o cliente te conta o bug. | Post-âncora §7 + lição "alarme, não dashboard" do post 08/04 |
-| 2 | **RLS protege a linha, não a coluna** | Policy `using (auth.uid() = user_id)` deixa o dono escrever *qualquer* coluna — inclusive campos de autoridade do servidor (saldo, score, flags). Fix: `REVOKE UPDATE (coluna)` ou RPC `security definer` com whitelist. | Lição própria, Supabase/Postgres |
-| 3 | **O gate de CI que não cobre o que você acha** | "CI verde" só vale se lint e build estão no pipeline. E teste de segurança tem que **afirmar que a escrita não-autorizada falha**, não só que a autorizada passa. | Lição própria |
+| #   | Pauta                                          | Ângulo                                                                                                                                                                                                                   | Material-fonte                                               |
+| --- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| 1   | **Log de agente não é console.log**            | Pergunta 7, fecha a série. Registro de decisão: qual tool, com que argumento, o que voltou, onde falhou. Sem isso o cliente te conta o bug.                                                                              | Post-âncora §7 + lição "alarme, não dashboard" do post 08/04 |
+| 2   | **RLS protege a linha, não a coluna**          | Policy `using (auth.uid() = user_id)` deixa o dono escrever _qualquer_ coluna — inclusive campos de autoridade do servidor (saldo, score, flags). Fix: `REVOKE UPDATE (coluna)` ou RPC `security definer` com whitelist. | Lição própria, Supabase/Postgres                             |
+| 3   | **O gate de CI que não cobre o que você acha** | "CI verde" só vale se lint e build estão no pipeline. E teste de segurança tem que **afirmar que a escrita não-autorizada falha**, não só que a autorizada passa.                                                        | Lição própria                                                |
 
 ### Semana 35 (25–30/08) — operação e infra
 
-| # | Pauta | Ângulo | Material-fonte |
-| --- | --- | --- | --- |
-| 1 | **Frota de IA como código** | 19 agentes governados + supervisor sobre 9 servidores via Tailscale. O que muda quando agente vira infra versionada em vez de script solto. | Pixel: frota + supervisor + multi-tenant isolado |
-| 2 | **VPS puro, sem PaaS** | systemd, SSH hardening (key-only, fail2ban, UFW), crons, backups automatizados. O que você aprende operando servidor de agentes 24/7 sem plataforma. | Operação própria |
-| 3 | **Copiloto sobre os dados do cliente** | Grounding de contexto em Q&A de linguagem natural — onde resposta plausível-mas-errada é pior que "não sei". | MGM: AI Copilot (autor único), OpenAI + Vercel AI SDK |
+| #   | Pauta                                  | Ângulo                                                                                                                                               | Material-fonte                                        |
+| --- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 1   | **Frota de IA como código**            | 19 agentes governados + supervisor sobre 9 servidores via Tailscale. O que muda quando agente vira infra versionada em vez de script solto.          | Pixel: frota + supervisor + multi-tenant isolado      |
+| 2   | **VPS puro, sem PaaS**                 | systemd, SSH hardening (key-only, fail2ban, UFW), crons, backups automatizados. O que você aprende operando servidor de agentes 24/7 sem plataforma. | Operação própria                                      |
+| 3   | **Copiloto sobre os dados do cliente** | Grounding de contexto em Q&A de linguagem natural — onde resposta plausível-mas-errada é pior que "não sei".                                         | MGM: AI Copilot (autor único), OpenAI + Vercel AI SDK |
 
 ### Semana 36 (01–06/09) — IA aplicada a negócio
 
-| # | Pauta | Ângulo | Material-fonte |
-| --- | --- | --- | --- |
-| 1 | **~700 análises por dia** | Pipeline de sumarização (áudio + LLM, a cada 3 min). Qualidade de output em volume: como se descobre degradação sem ler tudo. | MGM: pipeline + Whisper + loop de revisão |
-| 2 | **Revisar código gerado por IA em escala** | O que muda na revisão quando o autor é um modelo: distinguir o que compila do que é correto, mantenível e seguro. | Scale AI — AI Code Reviewer (2024–2025) |
-| 3 | **Traduzir agente pra quem não é técnico** | Método da mentoria: como explicar agentes/LLM pra público de negócio sem virar hype nem virar aula de ML. | Mentoria "Funcionário de IA", turma beta nota 9,0 |
+| #   | Pauta                                      | Ângulo                                                                                                                        | Material-fonte                                    |
+| --- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 1   | **~700 análises por dia**                  | Pipeline de sumarização (áudio + LLM, a cada 3 min). Qualidade de output em volume: como se descobre degradação sem ler tudo. | MGM: pipeline + Whisper + loop de revisão         |
+| 2   | **Revisar código gerado por IA em escala** | O que muda na revisão quando o autor é um modelo: distinguir o que compila do que é correto, mantenível e seguro.             | Scale AI — AI Code Reviewer (2024–2025)           |
+| 3   | **Traduzir agente pra quem não é técnico** | Método da mentoria: como explicar agentes/LLM pra público de negócio sem virar hype nem virar aula de ML.                     | Mentoria "Funcionário de IA", turma beta nota 9,0 |
 
 ---
 

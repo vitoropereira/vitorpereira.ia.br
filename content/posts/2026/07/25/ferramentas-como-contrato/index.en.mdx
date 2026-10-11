@@ -40,14 +40,14 @@ get it wrong confidently.
 In the anchor post I said I like to think of tools as contracts. A tool contract
 answers six things, and all of them matter:
 
-| Field       | The question it answers                        |
-| ----------- | ---------------------------------------------- |
-| What it does| which action, in one unambiguous sentence      |
-| Inputs      | what data it takes, with what type and format  |
-| Outputs     | what it returns — and what that means          |
-| Errors      | what can fail, and how the agent finds out     |
-| Reversible? | can it be undone, or is it final               |
-| Approval?   | does it run alone or does it need a human      |
+| Field        | The question it answers                       |
+| ------------ | --------------------------------------------- |
+| What it does | which action, in one unambiguous sentence     |
+| Inputs       | what data it takes, with what type and format |
+| Outputs      | what it returns — and what that means         |
+| Errors       | what can fail, and how the agent finds out    |
+| Reversible?  | can it be undone, or is it final              |
+| Approval?    | does it run alone or does it need a human     |
 
 Notice that only the first two are "API" fields. The last four are agent design —
 and they are exactly the ones almost nobody writes down.
@@ -112,11 +112,11 @@ an agent that carries on as if it had worked.
 In the anchor post and in the seven-questions one I split actions into three
 levels. When designing a tool, that becomes a label per tool:
 
-| Level       | Example tool                             | Rule                       |
-| ----------- | ---------------------------------------- | -------------------------- |
-| Read        | `buscar_pedido`, `listar_opções`         | runs directly              |
-| Preparation | `simular_troca`, `montar_proposta`       | prepares, does not commit  |
-| Write       | `cancelar_pedido`, `enviar_mensagem`     | hard rule or approval      |
+| Level       | Example tool                         | Rule                      |
+| ----------- | ------------------------------------ | ------------------------- |
+| Read        | `buscar_pedido`, `listar_opções`     | runs directly             |
+| Preparation | `simular_troca`, `montar_proposta`   | prepares, does not commit |
+| Write       | `cancelar_pedido`, `enviar_mensagem` | hard rule or approval     |
 
 The practical point: you do not treat every tool with the same care. A wrong
 `buscar_pedido` produces a bad answer. A wrong `cancelar_pedido` produces a real

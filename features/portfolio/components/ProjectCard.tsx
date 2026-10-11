@@ -29,7 +29,7 @@ export function ProjectCard({
 }) {
   return (
     <article className="bg-card group card-interactive flex h-full flex-col overflow-hidden rounded-lg border transition-shadow hover:shadow-md">
-      {(
+      {
         <div data-browser-frame className="border-b">
           <div className="bg-muted flex items-center gap-1.5 px-3 py-2">
             <span className="size-2 rounded-full bg-[#FF5F57]" aria-hidden />
@@ -43,14 +43,14 @@ export function ProjectCard({
           </div>
           <div className="overflow-hidden">
             {project.cover ? (
-            <Image
-              src={`/images/projects/${project.cover}`}
-              alt=""
-              width={1280}
-              height={800}
-              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-              className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-            />
+              <Image
+                src={`/images/projects/${project.cover}`}
+                alt=""
+                width={1280}
+                height={800}
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              />
             ) : (
               // Placeholder: mesma moldura e mesma altura de mídia do print, pra
               // todo card da grade ter a mesma estrutura. O título é decorativo
@@ -66,7 +66,7 @@ export function ProjectCard({
             )}
           </div>
         </div>
-      )}
+      }
       <div className="flex flex-1 flex-col p-6">
         <header className="flex items-start justify-between gap-2">
           <h3 className="font-heading text-lg leading-tight font-bold">
@@ -90,7 +90,10 @@ export function ProjectCard({
                 key={result}
                 className="text-muted-foreground flex gap-2 text-sm leading-snug"
               >
-                <span className="text-primary mt-px font-mono" aria-hidden="true">
+                <span
+                  className="text-primary mt-px font-mono"
+                  aria-hidden="true"
+                >
                   ›
                 </span>
                 <span>{result}</span>

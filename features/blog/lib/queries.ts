@@ -91,5 +91,7 @@ export function getPostBySlug(
 }
 
 export function getAllSlugs(locale: Locale): string[] {
-  return all.filter((p) => p.locale === locale && isPublic(p)).map((p) => p.slug);
+  return all
+    .filter((p) => p.locale === locale && isPublic(p))
+    .map((p) => p.slug);
 }

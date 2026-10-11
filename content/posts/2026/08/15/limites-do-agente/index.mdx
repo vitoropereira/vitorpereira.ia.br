@@ -24,11 +24,11 @@ sozinho.
 Todo mundo pensa em alucinação. Em sistema que **age**, o risco mais operacional
 é outro: permissão sem controle. A separação que eu uso:
 
-| Nível | Exemplo | Regra |
-| --- | --- | --- |
-| Leitura | consultar, listar, buscar histórico | executa direto |
+| Nível      | Exemplo                                  | Regra                 |
+| ---------- | ---------------------------------------- | --------------------- |
+| Leitura    | consultar, listar, buscar histórico      | executa direto        |
 | Preparação | gerar proposta, simular, montar resposta | prepara, não finaliza |
-| Escrita | alterar, enviar, cobrar, cancelar | regra forte ou humano |
+| Escrita    | alterar, enviar, cobrar, cancelar        | regra forte ou humano |
 
 O trabalho de projeto é classificar **cada ferramenta** num desses níveis antes
 de existir código. É uma tarde de trabalho e resolve a maior parte da discussão
@@ -80,7 +80,7 @@ Duas camadas, nenhuma delas no prompt.
 
 **Guardrails anti-injection.** O agente lia texto vindo de estranhos e tinha
 ferramentas. O tratamento é o mesmo de qualquer entrada não confiável: conteúdo
-que chega em runtime é *dado*, nunca instrução. Ele pode informar uma decisão;
+que chega em runtime é _dado_, nunca instrução. Ele pode informar uma decisão;
 não pode alterar o que o agente tem permissão de fazer. Na prática isso é
 posicionamento e delimitação clara do que é entrada do usuário, mais o fato de
 que as permissões de verdade estão fora do alcance da conversa.

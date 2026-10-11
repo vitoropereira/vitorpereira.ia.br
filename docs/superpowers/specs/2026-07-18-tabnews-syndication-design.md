@@ -15,12 +15,14 @@ canal de descoberta que **funila** de volta pro site. Além de publicar, **medir
 que funciona** — priorizando o clique de volta pro site.
 
 Escopo em **duas fases**:
+
 - **Fase 1 — cross-post:** biblioteca + comando local que publica no TabNews. Ship
   independente; **não** depende do banco.
 - **Fase 2 — medição:** camada de analytics no Supabase (cliques first-party +
   snapshots do TabNews) + comando de stats.
 
 Não-objetivos:
+
 - Exibir conteúdo do TabNews **no** site.
 - Sindicar posts em **EN** (TabNews é PT-BR; só PT).
 - Backfill dos posts que já existem no TabNews.
@@ -37,10 +39,10 @@ Investigação no repo open-source (`filipedeschamps/tabnews.com.br`) + HTML rea
 **Correção de hipótese inicial errada (n=1):** setar `source_url` **não** faz o
 TabNews marcar `noindex`. Prova:
 
-| Post | `type` | `source_url` | `robots` |
-| --- | --- | --- | --- |
-| copa/palpites | `content` | `null` | `index, follow` |
-| openclaw | `ad` | `youtu.be/...` | `noindex, nofollow` |
+| Post          | `type`    | `source_url`   | `robots`            |
+| ------------- | --------- | -------------- | ------------------- |
+| copa/palpites | `content` | `null`         | `index, follow`     |
+| openclaw      | `ad`      | `youtu.be/...` | `noindex, nofollow` |
 
 O `noindex` era por ser **anúncio** (`type: ad`), não pelo `source_url`. Código:
 `pages/[username]/[slug]/index.jsx` → `canonical` é sempre a URL do TabNews;
@@ -55,6 +57,7 @@ TabNews **não** protege nosso SEO.
 Manda pro TabNews um **resumo de cada item** do post (ex.: uma linha por pergunta,
 no caso do #2) + CTA pro post completo. É um artefato **transformado** (não cópia),
 então:
+
 - ✅ Entrega valor por si só → a comunidade não lê como isca (risco menor de downvote).
 - ✅ Diferente do original → sem duplicata de SEO.
 - ✅ Funil pro domínio próprio (onde vive marca/portfólio).
@@ -66,11 +69,13 @@ então:
 ### 2.3 Modos e como o resumo é gerado
 
 Três modos (flag `--format`):
+
 - **`summary`** (default): resumo item-a-item.
 - **`teaser`**: só a lede + CTA (fallback pra posts em prosa, sem itens claros).
 - **`full`**: conteúdo inteiro + "Publicado originalmente em <canônica>" (escape hatch).
 
 **Geração do resumo (opção escolhida): tool extrai → Vitor edita → publica.**
+
 - O tool monta um rascunho **determinístico**: título de cada `##` + a 1ª frase-chave
   da seção. **Sem IA, sem inventar** (respeita anti-fabricação).
 - O `--dry-run` grava o rascunho em `.syndication/<slug>.preview.md` pra Vitor
@@ -112,12 +117,12 @@ E tem um agravante: o público é **dev**, que **bloqueia GA/analytics** → o G
 **subconta** cliques. Por isso o clique é medido **first-party** (cai no nosso site,
 gravamos no nosso banco), não via GA.
 
-| Prioridade | Métrica | Origem |
-| --- | --- | --- |
-| ⭐ **Primária** | **cliques pro site** por post e por formato | first-party (`vitor_syndication_clicks`) |
-| Secundária | tabcoins, nº de comentários | snapshot da API do TabNews (`vitor_syndication_metrics`) |
-| Contexto | formato, pilar/tema, tamanho do resumo, dia/hora do post, título | `vitor_syndications` |
-| Qualitativa | **anotação livre de Vitor** ("título ficou clickbait", "postei sexta à noite") | `vitor_syndications.note` |
+| Prioridade      | Métrica                                                                        | Origem                                                   |
+| --------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| ⭐ **Primária** | **cliques pro site** por post e por formato                                    | first-party (`vitor_syndication_clicks`)                 |
+| Secundária      | tabcoins, nº de comentários                                                    | snapshot da API do TabNews (`vitor_syndication_metrics`) |
+| Contexto        | formato, pilar/tema, tamanho do resumo, dia/hora do post, título               | `vitor_syndications`                                     |
+| Qualitativa     | **anotação livre de Vitor** ("título ficou clickbait", "postei sexta à noite") | `vitor_syndications.note`                                |
 
 ⚠️ **Rigor honesto:** com ~2 posts/semana, cada um de tema diferente, isto é
 **aprendizado direcional**, não experimento controlado — cada post é um confundidor.
@@ -181,8 +186,9 @@ Flags: `--dry-run` (gera, não publica), `--format teaser|summary|full`, `--upda
 ## 7. Idempotência (anti-duplo-post)
 
 Dois níveis, papéis distintos:
+
 - **Frontmatter `tabnews: "<url>"`** — marcador **offline, versionado em git**. Guard
-  do passo 2; de brinde vira link *"Discuta no TabNews"* no rodapé do post. Custo: 1
+  do passo 2; de brinde vira link _"Discuta no TabNews"_ no rodapé do post. Custo: 1
   campo opcional no schema do Velite.
 - **DB `vitor_syndications`** (fase 2) — `unique (post_permalink, target)` garante no
   banco. É o registro rico do experimento.
@@ -195,6 +201,7 @@ O CLI escreve os dois após 201. `--update` faz `PATCH` em vez de duplicar.
 
 **Projeto:** o Supabase pessoal do Vitor (`qzczyicspbizosjogmlq`), **compartilhado**
 com outras tabelas dele. Regras de convivência:
+
 - **Não** tocamos nas tabelas existentes.
 - Tudo que criamos leva **prefixo `vitor_`**.
 - **RLS trancado** em todas: **nenhuma policy pública** (o site usa a publishable key;
@@ -202,6 +209,7 @@ com outras tabelas dele. Regras de convivência:
   escrita via service_role server-side.
 
 **Segredos:**
+
 - `SUPABASE_TOKEN` (management, `sbp_…`) + `SUPABASE_PROJECT_REF` — **local apenas**,
   escopo travado no ref; usado por mim/CLI pra criar tabelas e ler stats. Não é
   `NEXT_PUBLIC`, não vai pra Vercel.
@@ -211,6 +219,7 @@ com outras tabelas dele. Regras de convivência:
 **Tabelas (`vitor_` prefix):**
 
 `vitor_syndications` — 1 linha por cross-post
+
 ```
 id uuid pk · post_permalink text · canonical_url text · target text default 'tabnews'
 external_url text · external_slug text · format text check(summary|teaser|full)
@@ -220,16 +229,19 @@ unique(post_permalink, target)
 ```
 
 `vitor_syndication_metrics` — snapshots do TabNews (vaidade/contexto)
+
 ```
 id bigint identity pk · syndication_id uuid fk → vitor_syndications(id) on delete cascade
 captured_at timestamptz · tabcoins int · comments_count int
 ```
 
 `vitor_syndication_clicks` — first-party (métrica primária)
+
 ```
 id bigint identity pk · syndication_id uuid fk (nullable) · post_permalink text · format text
 occurred_at timestamptz · referrer text · country text · device text · ua_hash text · is_bot bool
 ```
+
 **Privacidade:** sem IP cru; UA só **hasheado**; geo/device grosseiros (headers Vercel).
 
 ---
@@ -238,15 +250,15 @@ occurred_at timestamptz · referrer text · country text · device text · ua_ha
 
 Função **pura** (`lib/mdx/to-tabnews-markdown.ts`), sem rede — maior valor de teste.
 
-| No `.mdx` | Vira |
-| --- | --- |
-| frontmatter | removido |
-| `<Callout type=note/warn/info>` | citação `> **Nota/Atenção/Info:** …` |
-| `<Video id="XYZ" />` | `[Assista no YouTube](https://youtu.be/XYZ)` |
-| link interno `/2026/…`, `/en/…` | absoluto `https://vitorpereira.ia.br/…` |
-| code fence / tabelas GFM | mantêm |
-| imagens `./assets/…` | absolutas `…/static/…` |
-| CTA final | link canônico **com UTM** (`utm_content=<format>`) |
+| No `.mdx`                       | Vira                                               |
+| ------------------------------- | -------------------------------------------------- |
+| frontmatter                     | removido                                           |
+| `<Callout type=note/warn/info>` | citação `> **Nota/Atenção/Info:** …`               |
+| `<Video id="XYZ" />`            | `[Assista no YouTube](https://youtu.be/XYZ)`       |
+| link interno `/2026/…`, `/en/…` | absoluto `https://vitorpereira.ia.br/…`            |
+| code fence / tabelas GFM        | mantêm                                             |
+| imagens `./assets/…`            | absolutas `…/static/…`                             |
+| CTA final                       | link canônico **com UTM** (`utm_content=<format>`) |
 
 - **summary:** cada `##` → 1ª frase; junta como lista + CTA.
 - **teaser:** lede (até 1º `##`) + CTA. **full:** corpo inteiro + rodapé "original".
@@ -280,6 +292,7 @@ Função **pura** (`lib/mdx/to-tabnews-markdown.ts`), sem rede — maior valor d
 ## 12. Entregáveis
 
 **Fase 1 — cross-post (ship primeiro, sem banco):**
+
 1. `lib/syndication/*`, `lib/tabnews/*`, `lib/mdx/to-tabnews-markdown.ts`.
 2. `scripts/crosspost.ts` + `pnpm crosspost`.
 3. Slots `TABNEWS_EMAIL`/`TABNEWS_PASSWORD` no `.env.example`; `.gitignore` cobrindo `.syndication/`.
@@ -287,22 +300,18 @@ Função **pura** (`lib/mdx/to-tabnews-markdown.ts`), sem rede — maior valor d
 5. Testes do transform + cliente + orquestrador.
 6. Primeiro run é `--dry-run`; publicar de verdade só com OK do Vitor.
 
-**Fase 2 — medição:**
-7. Tabelas `vitor_*` (migration) + RLS trancado + doc dos slots Supabase no `.env.example`.
-8. `lib/analytics/*` (grava syndications, lê metrics) + UTM no CTA.
-9. Rota/middleware de log de clique first-party (server-side, service_role).
-10. `scripts/crosspost-stats.ts` + `pnpm crosspost:stats` (tabela no terminal).
+**Fase 2 — medição:** 7. Tabelas `vitor_*` (migration) + RLS trancado + doc dos slots Supabase no `.env.example`. 8. `lib/analytics/*` (grava syndications, lê metrics) + UTM no CTA. 9. Rota/middleware de log de clique first-party (server-side, service_role). 10. `scripts/crosspost-stats.ts` + `pnpm crosspost:stats` (tabela no terminal).
 
 ---
 
 ## 13. Riscos e mitigações
 
-| Risco | Mitigação |
-| --- | --- |
-| Cultura TabNews penaliza resumo | Resumo com valor real; `--full` disponível |
-| Conclusão errada de amostra pequena | Rótulo "direcional"; peso na anotação qualitativa |
-| GA subconta cliques (dev bloqueia) | Clique medido **first-party** |
+| Risco                                   | Mitigação                                                |
+| --------------------------------------- | -------------------------------------------------------- |
+| Cultura TabNews penaliza resumo         | Resumo com valor real; `--full` disponível               |
+| Conclusão errada de amostra pequena     | Rótulo "direcional"; peso na anotação qualitativa        |
+| GA subconta cliques (dev bloqueia)      | Clique medido **first-party**                            |
 | Supabase compartilhado com dado pessoal | Prefixo `vitor_` + RLS trancado + escopo do token no ref |
-| Rate limit apaga conteúdo | 1 post por vez; sem retry agressivo |
-| Token/sessão expira (30d) | Cache com checagem + re-login |
-| Frontmatter/DB divergem | CLI escreve ambos após 201; guard checa os dois |
+| Rate limit apaga conteúdo               | 1 post por vez; sem retry agressivo                      |
+| Token/sessão expira (30d)               | Cache com checagem + re-login                            |
+| Frontmatter/DB divergem                 | CLI escreve ambos após 201; guard checa os dois          |

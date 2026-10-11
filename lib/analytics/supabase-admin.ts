@@ -11,7 +11,9 @@ export interface AdminConfig {
   ref: string;
 }
 
-export function getAdminConfig(env: NodeJS.ProcessEnv = process.env): AdminConfig {
+export function getAdminConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): AdminConfig {
   const token = env.SUPABASE_TOKEN?.trim();
   const ref = env.SUPABASE_PROJECT_REF?.trim();
   if (!token || !ref) {
@@ -33,11 +35,16 @@ export async function runSql<T = Record<string, unknown>>(
   const f = deps.fetch ?? fetch;
   const res = await f(`${MANAGEMENT_API}/${ref}/database/query`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ query: sql }),
   });
   if (!res.ok) {
-    throw new Error(`Supabase query falhou (${res.status}): ${await res.text()}`);
+    throw new Error(
+      `Supabase query falhou (${res.status}): ${await res.text()}`,
+    );
   }
   return (await res.json()) as T[];
 }
@@ -47,7 +54,9 @@ export async function runSql<T = Record<string, unknown>>(
  * Os inputs aqui são dados controlados (post + resposta do TabNews), mas escapamos
  * de qualquer jeito — um título com apóstrofo quebraria o INSERT.
  */
-export function sqlLiteral(v: string | number | boolean | null | undefined | string[]): string {
+export function sqlLiteral(
+  v: string | number | boolean | null | undefined | string[],
+): string {
   if (v === null || v === undefined) return "null";
   if (typeof v === "number") return Number.isFinite(v) ? String(v) : "null";
   if (typeof v === "boolean") return v ? "true" : "false";

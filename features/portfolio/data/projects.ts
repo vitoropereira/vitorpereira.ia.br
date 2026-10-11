@@ -52,7 +52,10 @@ export const projects: Project[] = [
     year: "2025",
     status: "ongoing",
     featured: true,
-    client: { pt: "Sócio-fundador · Co-lead full-stack", en: "Co-founder · Full-stack co-lead" },
+    client: {
+      pt: "Sócio-fundador · Co-lead full-stack",
+      en: "Co-founder · Full-stack co-lead",
+    },
     url: "https://www.sarcorps.com.br/pt",
     results: {
       pt: [
@@ -80,7 +83,13 @@ export const projects: Project[] = [
       en: "Pixel Educação's platform for putting AI to work in companies: autonomous agents (WhatsApp/Telegram) for go-to-market, onboarding, and diagnosis, on top of an event-driven core platform, with a custom security layer (anti-injection guardrails, abuse gate, data isolation) and an AI fleet governed as code.",
     },
     category: "ai",
-    technologies: ["Node.js", "TypeScript", "PostgreSQL", "n8n", "WhatsApp API"],
+    technologies: [
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "n8n",
+      "WhatsApp API",
+    ],
     year: "2026",
     status: "ongoing",
     featured: true,

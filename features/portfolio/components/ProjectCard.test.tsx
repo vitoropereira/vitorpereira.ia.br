@@ -21,7 +21,7 @@ describe("ProjectCard", () => {
       <ProjectCard
         project={{ ...base, cover: "x.webp", url: "https://clearseg.com.br" }}
         locale="pt"
-      />
+      />,
     );
     expect(screen.getByText("clearseg.com.br")).toBeInTheDocument();
   });
@@ -31,7 +31,7 @@ describe("ProjectCard", () => {
       <ProjectCard
         project={{ ...base, cover: "x.webp", url: null }}
         locale="pt"
-      />
+      />,
     );
     expect(container.querySelector("img")).not.toBeNull();
     expect(screen.queryByText("clearseg.com.br")).toBeNull();
@@ -42,7 +42,7 @@ describe("ProjectCard", () => {
       <ProjectCard
         project={{ ...base, cover: null, url: "https://clearseg.com.br" }}
         locale="pt"
-      />
+      />,
     );
     expect(container.querySelector("[data-browser-frame]")).not.toBeNull();
     expect(container.querySelector("img")).toBeNull();
@@ -50,7 +50,7 @@ describe("ProjectCard", () => {
     // título: heading + decorativo aria-hidden
     expect(screen.getAllByText(base.title)).toHaveLength(2);
     expect(
-      container.querySelector("[data-browser-frame] [aria-hidden='true']")
+      container.querySelector("[data-browser-frame] [aria-hidden='true']"),
     ).not.toBeNull();
     expect(screen.getByRole("heading")).toHaveTextContent(base.title);
   });

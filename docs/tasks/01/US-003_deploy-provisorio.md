@@ -142,6 +142,6 @@ URL `*.vercel.app` alias do production aceita validadores externos; preview URLs
   - GA + Clarity NÃO carregam pré-consent (correto)
   - `/_vercel/insights/script.js` → 200
 - **Lighthouse mobile** (a preencher após Vitor rodar):
-  - `/` — Perf: __ / SEO: __ / A11y: __
-  - `/2026/04/21/hello-world` — Perf: __ / SEO: __ / A11y: __
+  - `/` — Perf: ** / SEO: ** / A11y: \_\_
+  - `/2026/04/21/hello-world` — Perf: ** / SEO: ** / A11y: \_\_
 - **Issues conhecidos remanescentes**: nenhum bloqueador para US-004; validators externos pulados conforme nota acima.

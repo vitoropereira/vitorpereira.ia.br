@@ -23,10 +23,10 @@ O Vitor já conferiu os números do texto A; estão liberados.
 
 O que falta é só publicar, e é manual:
 
-| ~10h | `memoria-de-agente` entra sozinho no site (o `date:` resolve) |
-| --- | --- |
+| ~10h | `memoria-de-agente` entra sozinho no site (o `date:` resolve)                                                                             |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | ~11h | `pnpm crosspost content/posts/2026/08/11/memoria-de-agente --format full --dry-run` → colar o rodapé B no preview → rodar sem `--dry-run` |
-| ~11h | Post patrocinado com o texto A, manual na interface do TabNews |
+| ~11h | Post patrocinado com o texto A, manual na interface do TabNews                                                                            |
 
 ### O que a análise do TabNews ensinou (e mudou aqui)
 
@@ -48,12 +48,12 @@ comentários, apuração de 31/07. A thread de comentários rende mais que o pos
 
 ### O que foi shippado
 
-| PR | O quê |
-| --- | --- |
-| [#27](https://github.com/vitoropereira/vitorpereira.ia.br/pull/27) | Textos da masterclass + plano de execução |
+| PR                                                                 | O quê                                                                               |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [#27](https://github.com/vitoropereira/vitorpereira.ia.br/pull/27) | Textos da masterclass + plano de execução                                           |
 | [#28](https://github.com/vitoropereira/vitorpereira.ia.br/pull/28) | `docs/blog/backlog.md` sincronizado — 4 posts saíram de "Agendados" pra "Publicado" |
-| [#29](https://github.com/vitoropereira/vitorpereira.ia.br/pull/29) | **Os 6 posts publicados traduzidos pra EN** |
-| [#30](https://github.com/vitoropereira/vitorpereira.ia.br/pull/30) | Corrige o docstring do `translate-post.ts`, que descrevia um CI inexistente |
+| [#29](https://github.com/vitoropereira/vitorpereira.ia.br/pull/29) | **Os 6 posts publicados traduzidos pra EN**                                         |
+| [#30](https://github.com/vitoropereira/vitorpereira.ia.br/pull/30) | Corrige o docstring do `translate-post.ts`, que descrevia um CI inexistente         |
 
 O `/en` listava zero posts enquanto hreflang, sitemap e `llms.txt` prometiam
 dois idiomas. Verificado em produção depois do merge: `/en/posts` com os 6,
@@ -156,13 +156,13 @@ do MGM) não aparecia em lugar nenhum do site.
 
 Smoke manual da US-003 revelou bugs; cada um virou PR → merge em `main`:
 
-| PR | Tipo | O quê |
-| --- | --- | --- |
-| [#7](https://github.com/vitoropereira/vitorpereira.ia.br/pull/7) | fix | i18n dos cards de projeto (role/`client` agora bilíngue) |
-| [#8](https://github.com/vitoropereira/vitorpereira.ia.br/pull/8) | fix | ⌘K crashava ao abrir (faltava `<Command>` root do cmdk) |
-| [#9](https://github.com/vitoropereira/vitorpereira.ia.br/pull/9) | fix | **draft vazava via URL direta** → agora 404 em produção (com testes de regressão) |
-| [#10](https://github.com/vitoropereira/vitorpereira.ia.br/pull/10) | feat | app icon, apple-touch icon, web manifest, theme-color |
-| [#11](https://github.com/vitoropereira/vitorpereira.ia.br/pull/11) | fix | removido `favicon.ico` do scaffold (triângulo Vercel) → aba usa o ícone "VP" |
+| PR                                                                 | Tipo | O quê                                                                             |
+| ------------------------------------------------------------------ | ---- | --------------------------------------------------------------------------------- |
+| [#7](https://github.com/vitoropereira/vitorpereira.ia.br/pull/7)   | fix  | i18n dos cards de projeto (role/`client` agora bilíngue)                          |
+| [#8](https://github.com/vitoropereira/vitorpereira.ia.br/pull/8)   | fix  | ⌘K crashava ao abrir (faltava `<Command>` root do cmdk)                           |
+| [#9](https://github.com/vitoropereira/vitorpereira.ia.br/pull/9)   | fix  | **draft vazava via URL direta** → agora 404 em produção (com testes de regressão) |
+| [#10](https://github.com/vitoropereira/vitorpereira.ia.br/pull/10) | feat | app icon, apple-touch icon, web manifest, theme-color                             |
+| [#11](https://github.com/vitoropereira/vitorpereira.ia.br/pull/11) | fix  | removido `favicon.ico` do scaffold (triângulo Vercel) → aba usa o ícone "VP"      |
 
 ---
 

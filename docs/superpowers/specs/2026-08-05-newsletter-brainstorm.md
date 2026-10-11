@@ -24,7 +24,7 @@ A única menção no site é condicional, na política de privacidade:
 
 ## 2. A virada que definiu o desenho
 
-A pergunta inicial era: *"o que faria alguém assinar, em vez de acompanhar o blog?"* —
+A pergunta inicial era: _"o que faria alguém assinar, em vez de acompanhar o blog?"_ —
 partindo do pressuposto de que a newsletter precisa ser exclusiva (ler antes, ou ler
 o que não é publicado).
 
@@ -37,14 +37,14 @@ principal objeção contra fazê-la.
 
 ## 3. Decisões fechadas
 
-| Decisão | Valor | Por quê |
-| --- | --- | --- |
-| Cadência | **1 e-mail/semana** | 3/semana (um por post) cansa; semanal respeita a caixa |
-| Empacotamento | **Principal completo + 2 chamadas** | ~1.300 palavras, 5-6 min de leitura |
-| E-mail carrega | **Texto completo** | e-mail não é indexado → **zero custo de SEO** |
-| LinkedIn carrega | **Resumo + link** | é página indexável e se auto-canonicaliza |
-| Padrão | **POSSE** — lista própria é canônica | mesmo do TabNews (`2026-07-18-tabnews-syndication-design.md`) |
-| Custo alvo | **~10 min/semana** | em cima do que já se escreve; sustentabilidade > qualidade marginal |
+| Decisão          | Valor                                | Por quê                                                             |
+| ---------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| Cadência         | **1 e-mail/semana**                  | 3/semana (um por post) cansa; semanal respeita a caixa              |
+| Empacotamento    | **Principal completo + 2 chamadas**  | ~1.300 palavras, 5-6 min de leitura                                 |
+| E-mail carrega   | **Texto completo**                   | e-mail não é indexado → **zero custo de SEO**                       |
+| LinkedIn carrega | **Resumo + link**                    | é página indexável e se auto-canonicaliza                           |
+| Padrão           | **POSSE** — lista própria é canônica | mesmo do TabNews (`2026-07-18-tabnews-syndication-design.md`)       |
+| Custo alvo       | **~10 min/semana**                   | em cima do que já se escreve; sustentabilidade > qualidade marginal |
 
 ### 3.1 A assimetria de SEO (não é óbvia — não perder)
 
@@ -55,20 +55,20 @@ duplicado — **não se aplica a e-mail**. Newsletter não é indexada pelo Goog
 Mas **continua valendo pro LinkedIn Newsletter**, que é página indexável com autoridade
 altíssima. Daí os dois canais carregarem coisas diferentes:
 
-| Canal | Conteúdo | Indexado? |
-| --- | --- | --- |
-| E-mail (lista própria) | texto completo | não → seguro |
-| LinkedIn Newsletter | resumo + link | sim → mandar completo competiria com o próprio post |
+| Canal                  | Conteúdo       | Indexado?                                           |
+| ---------------------- | -------------- | --------------------------------------------------- |
+| E-mail (lista própria) | texto completo | não → seguro                                        |
+| LinkedIn Newsletter    | resumo + link  | sim → mandar completo competiria com o próprio post |
 
 ### 3.2 A conta que matou a "antologia"
 
 Medido nos posts reais do repo (corpo, sem frontmatter):
 
-| Post | Palavras |
-| --- | --- |
-| Memória de agente | 1.173 |
-| Os 4 eixos | 1.186 |
-| Limites do agente | 1.026 |
+| Post                 | Palavras  |
+| -------------------- | --------- |
+| Memória de agente    | 1.173     |
+| Os 4 eixos           | 1.186     |
+| Limites do agente    | 1.026     |
 | **Semana 33 somada** | **3.385** |
 
 Posts têm 900–1.400 palavras. Três inteiros num e-mail = **~3.400 palavras, ~15 min de
@@ -76,11 +76,11 @@ leitura**. É antologia, não newsletter.
 
 ### 3.3 Os três empacotamentos considerados
 
-| Opção | Tamanho | Trabalho novo/semana | Veredito |
-| --- | --- | --- | --- |
-| Antologia (3 completos) | ~3.400 palavras | zero | ❌ quase ninguém termina |
-| **Principal + chamadas** | ~1.300 palavras | ~10 min | ✅ **escolhida** |
-| Consolidado (3 reescritos como 1) | ~1.300 palavras novas | 1-2 h | ❌ melhor produto, pior sistema |
+| Opção                             | Tamanho               | Trabalho novo/semana | Veredito                        |
+| --------------------------------- | --------------------- | -------------------- | ------------------------------- |
+| Antologia (3 completos)           | ~3.400 palavras       | zero                 | ❌ quase ninguém termina        |
+| **Principal + chamadas**          | ~1.300 palavras       | ~10 min              | ✅ **escolhida**                |
+| Consolidado (3 reescritos como 1) | ~1.300 palavras novas | 1-2 h                | ❌ melhor produto, pior sistema |
 
 Sobre o consolidado — era a ideia original do Vitor e é legitimamente melhor como peça.
 Foi descartado por **sustentabilidade**: na primeira semana corrida ele não sai, e
@@ -91,15 +91,15 @@ de 3 posts/semana se provar folgada.
 
 A parte cara já está feita:
 
-| Peça | Estado | Onde |
-| --- | --- | --- |
-| Supabase em produção | ✅ | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` já na Vercel (o `/api/track` depende deles) |
-| Padrão de migration | ✅ | `supabase/migrations/0001_vitor_syndication.sql` — tabelas `vitor_*`, RLS deny-all + `REVOKE` |
-| Rota server-side que escreve no banco | ✅ | `app/api/track/route.ts` — precedente exato, gated no service_role, com filtro de bot |
-| Medição de clique first-party | ✅ | `/api/track` serve pros links da newsletter sem código novo |
-| Banner de consent LGPD | ✅ | já gata GA4/Clarity |
-| RSS bilíngue | ✅ | 2 feeds válidos |
-| Resend + React Email | ✅ | competência existente (usado na Pixel; newsletter semanal automatizada + broadcast ~26,6k) |
+| Peça                                  | Estado | Onde                                                                                                 |
+| ------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
+| Supabase em produção                  | ✅     | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` já na Vercel (o `/api/track` depende deles) |
+| Padrão de migration                   | ✅     | `supabase/migrations/0001_vitor_syndication.sql` — tabelas `vitor_*`, RLS deny-all + `REVOKE`        |
+| Rota server-side que escreve no banco | ✅     | `app/api/track/route.ts` — precedente exato, gated no service_role, com filtro de bot                |
+| Medição de clique first-party         | ✅     | `/api/track` serve pros links da newsletter sem código novo                                          |
+| Banner de consent LGPD                | ✅     | já gata GA4/Clarity                                                                                  |
+| RSS bilíngue                          | ✅     | 2 feeds válidos                                                                                      |
+| Resend + React Email                  | ✅     | competência existente (usado na Pixel; newsletter semanal automatizada + broadcast ~26,6k)           |
 
 **Falta de fato:** tabela de assinantes, rota de inscrição, double opt-in, comando de envio.
 

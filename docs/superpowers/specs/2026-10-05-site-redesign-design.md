@@ -13,10 +13,10 @@ Deixar o site moderno, bonito e **didático**: quem chega entende o que está ve
 
 ### Público (decisão: C)
 
-| Onde | Fala com | Didática significa |
-|---|---|---|
+| Onde                                | Fala com                           | Didática significa                                                           |
+| ----------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
 | Home + página do Agente Operacional | gestor/dono de empresa (comprador) | o que é um agente, o que ele faz no meu negócio, como funciona, qual o risco |
-| Blog + posts | dev/técnico (audiência do rebrand) | leitura confortável, navegação, bastidor |
+| Blog + posts                        | dev/técnico (audiência do rebrand) | leitura confortável, navegação, bastidor                                     |
 
 ### Diagnóstico do estado atual (produção, 2026-10-05)
 
@@ -31,14 +31,14 @@ A infraestrutura de imagem já existe e está vazia: `ProjectCard` renderiza `co
 
 ## 2. Decisões tomadas
 
-| Tema | Decisão |
-|---|---|
-| Intensidade do motion | **Sóbrio e funcional** — entrada no scroll, hover, contadores, hero animado. Sem parallax, sem transição de página, sem cursor interativo |
-| Técnica do motion | **CSS-first + um componente `<Reveal>`** (IntersectionObserver). Zero dependência nova. Seções continuam Server Components |
-| Didática da home | Diagrama "como funciona" animado + antes/depois **qualitativo** + FAQ |
-| Hero | Log de agente animado, **3 cenários fictícios e neutros alternando** |
+| Tema                       | Decisão                                                                                                                                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intensidade do motion      | **Sóbrio e funcional** — entrada no scroll, hover, contadores, hero animado. Sem parallax, sem transição de página, sem cursor interativo                                                                                    |
+| Técnica do motion          | **CSS-first + um componente `<Reveal>`** (IntersectionObserver). Zero dependência nova. Seções continuam Server Components                                                                                                   |
+| Didática da home           | Diagrama "como funciona" animado + antes/depois **qualitativo** + FAQ                                                                                                                                                        |
+| Hero                       | Log de agente animado, **3 cenários fictícios e neutros alternando**                                                                                                                                                         |
 | Estilo das imagens geradas | **Seguir o 3D render premium das 2 capas existentes** (blocos foscos, gradiente grafite→cinza claro, fios azuis `#24C8FF`). Decisão revista ao descobrir as capas existentes; substitui a escolha inicial "abstrato técnico" |
-| Projetos | **Print real dos sites**, não ilustração |
+| Projetos                   | **Print real dos sites**, não ilustração                                                                                                                                                                                     |
 
 ### Restrições de conteúdo
 
@@ -54,12 +54,12 @@ Consent e analytics (decisão de produto/LGPD), rotas e `routeMap`, conteúdo do
 
 Cada PR sai de `origin/main` atualizado, num worktree próprio, e só abre depois que o anterior foi mergeado (exceto ③, que é independente de ① e ②).
 
-| PR | Escopo | Depende de |
-|---|---|---|
-| ① | Fundação de motion + tokens | — |
-| ② | Home redesenhada e didática | ① |
-| ③ | Imagens: prints dos projetos + capas dos posts | — |
-| ④ | Páginas internas + header/footer | ①, ③ |
+| PR  | Escopo                                         | Depende de |
+| --- | ---------------------------------------------- | ---------- |
+| ①   | Fundação de motion + tokens                    | —          |
+| ②   | Home redesenhada e didática                    | ①          |
+| ③   | Imagens: prints dos projetos + capas dos posts | —          |
+| ④   | Páginas internas + header/footer               | ①, ③       |
 
 ## 4. PR ① — Fundação de motion
 
@@ -89,17 +89,17 @@ Utilitário (ex.: `.card-interactive`): translateY(-2px) + borda indo pra `--bra
 
 Ordem final das seções (PT e EN):
 
-| # | Seção | Componente | Status |
-|---|---|---|---|
-| 1 | Hero | `Hero` | reescrito |
-| 2 | Proof | `Proof` | + CountUp |
-| 3 | Como funciona | `HowItWorks` | **novo** |
-| 4 | Antes / depois | `BeforeAfter` | **novo** |
-| 5 | O que eu faço | `Specialties` | copy sem jargão + Reveal |
-| 6 | Projetos em destaque | `FeaturedProjects` | prints (vem do PR ③; até lá, fallback sem imagem) |
-| 7 | Casos + últimos posts | `CaseStudies`, `LatestPosts` | capas + primeiro item em destaque |
-| 8 | FAQ | `Faq` | **novo** |
-| 9 | CTA final | `ContactCTA` | mantém |
+| #   | Seção                 | Componente                   | Status                                            |
+| --- | --------------------- | ---------------------------- | ------------------------------------------------- |
+| 1   | Hero                  | `Hero`                       | reescrito                                         |
+| 2   | Proof                 | `Proof`                      | + CountUp                                         |
+| 3   | Como funciona         | `HowItWorks`                 | **novo**                                          |
+| 4   | Antes / depois        | `BeforeAfter`                | **novo**                                          |
+| 5   | O que eu faço         | `Specialties`                | copy sem jargão + Reveal                          |
+| 6   | Projetos em destaque  | `FeaturedProjects`           | prints (vem do PR ③; até lá, fallback sem imagem) |
+| 7   | Casos + últimos posts | `CaseStudies`, `LatestPosts` | capas + primeiro item em destaque                 |
+| 8   | FAQ                   | `Faq`                        | **novo**                                          |
+| 9   | CTA final             | `ContactCTA`                 | mantém                                            |
 
 ### 5.1 Hero
 
@@ -182,17 +182,17 @@ Gera JSON-LD `FAQPage`. O mesmo componente é reutilizado na página do serviço
 
 ## 7. PR ④ — Páginas internas + header/footer
 
-| Página | Mudanças |
-|---|---|
-| Post | Coluna de leitura `max-w-[70ch]`; capa no topo; barra de progresso de leitura; TOC com scroll-spy (item ativo destacado); botão copiar em bloco de código; "Posts relacionados" em cards com capa |
-| Blog (`/posts`, `/en/posts`) | Grid de cards com capa; primeiro post da página 1 em destaque; chips de tag no topo |
-| Tags | Mesmo grid do blog |
-| Agente Operacional | Reusa `HowItWorks` e `Faq`; `Map → Evaluate → Deploy → Operate` vira linha do tempo de 4 etapas; "faz / não faz sentido" lado a lado com ✓/✗ |
-| Portfólio | Prints com moldura; Reveal em stagger |
-| Sobre | Foto em destaque + linha do tempo de carreira, só com fatos do `sobre.mdx` |
-| Contato / Agendar | Hierarquia e espaçamento; embed do Cal.com intocado |
-| Header | Translúcido com blur depois de rolar; link ativo marcado; menu mobile revisado |
-| Footer | Navegação, redes, tagline |
+| Página                       | Mudanças                                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Post                         | Coluna de leitura `max-w-[70ch]`; capa no topo; barra de progresso de leitura; TOC com scroll-spy (item ativo destacado); botão copiar em bloco de código; "Posts relacionados" em cards com capa |
+| Blog (`/posts`, `/en/posts`) | Grid de cards com capa; primeiro post da página 1 em destaque; chips de tag no topo                                                                                                               |
+| Tags                         | Mesmo grid do blog                                                                                                                                                                                |
+| Agente Operacional           | Reusa `HowItWorks` e `Faq`; `Map → Evaluate → Deploy → Operate` vira linha do tempo de 4 etapas; "faz / não faz sentido" lado a lado com ✓/✗                                                      |
+| Portfólio                    | Prints com moldura; Reveal em stagger                                                                                                                                                             |
+| Sobre                        | Foto em destaque + linha do tempo de carreira, só com fatos do `sobre.mdx`                                                                                                                        |
+| Contato / Agendar            | Hierarquia e espaçamento; embed do Cal.com intocado                                                                                                                                               |
+| Header                       | Translúcido com blur depois de rolar; link ativo marcado; menu mobile revisado                                                                                                                    |
+| Footer                       | Navegação, redes, tagline                                                                                                                                                                         |
 
 Geral: contraste WCAG AA nos dois temas, `:focus-visible` em todo interativo, nenhuma rolagem horizontal em 375px.
 
@@ -206,10 +206,10 @@ Geral: contraste WCAG AA nos dois temas, `:focus-visible` em todo interativo, ne
 
 ## 9. Riscos
 
-| Risco | Mitigação |
-|---|---|
-| Animação piorar CLS/LCP | Altura fixa no log do hero; animação só de `opacity`/`transform`; conteúdo no HTML do servidor |
-| Capas geradas incoerentes entre si | Preâmbulo fixo + `--ref` da primeira capa + portão de aprovação |
-| Print de site com conteúdo indesejado | Portão de aprovação antes do commit |
-| Copy didática soar genérica | Conteúdo derivado do que o Vitor já publicou na página de serviço; revisão dele no PR ② |
-| Conteúdo sem JS sumir | Estado oculto só com a classe de JS presente |
+| Risco                                 | Mitigação                                                                                      |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Animação piorar CLS/LCP               | Altura fixa no log do hero; animação só de `opacity`/`transform`; conteúdo no HTML do servidor |
+| Capas geradas incoerentes entre si    | Preâmbulo fixo + `--ref` da primeira capa + portão de aprovação                                |
+| Print de site com conteúdo indesejado | Portão de aprovação antes do commit                                                            |
+| Copy didática soar genérica           | Conteúdo derivado do que o Vitor já publicou na página de serviço; revisão dele no PR ②        |
+| Conteúdo sem JS sumir                 | Estado oculto só com a classe de JS presente                                                   |

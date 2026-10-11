@@ -48,6 +48,7 @@ cd ../vitorpereira.ia.br-paginas && pnpm install --frozen-lockfile && pnpm exec 
 ### Task 1: Página do post — coluna de leitura, barra de progresso, TOC
 
 **Files:**
+
 - Create: `features/blog/components/ReadingProgress.tsx`, `ReadingProgress.test.tsx`
 - Modify: `app/(site)/[year]/[month]/[day]/[slug]/page.tsx`, `app/(site)/en/[year]/[month]/[day]/[slug]/page.tsx`, `features/blog/components/PostToc.tsx`, `features/blog/components/PostToc.test.tsx` (create se não existir)
 
@@ -78,6 +79,7 @@ cd ../vitorpereira.ia.br-paginas && pnpm install --frozen-lockfile && pnpm exec 
 **Files:** Modify `features/blog/components/PostCard.tsx`, `RelatedPosts.tsx`, `PostList.tsx`; Create `features/blog/components/PostCard.test.tsx` (se não existir)
 
 **Interfaces:**
+
 - `PostCard({ post, variant = "default" | "featured" })` — `default`: card vertical (capa `aspect-[16/9]` no topo, data · tempo de leitura, título, excerpt 2 linhas `line-clamp-2`, até 3 tags); `featured`: horizontal em `md+` (capa `md:w-3/5`), título maior. Fallback sem capa: bloco `aspect-[16/9] bg-gradient-to-br from-primary/15 to-transparent` com a primeira tag em mono. Card inteiro com `card-interactive`; link principal no título, capa também é link (`tabIndex={-1}`, `aria-hidden`) para não duplicar foco.
 - `PostList({ posts, featuredFirst = false })` — grid `sm:grid-cols-2 lg:grid-cols-3 gap-6`; com `featuredFirst`, o primeiro vira `variant="featured"` ocupando `sm:col-span-2 lg:col-span-3`. Cada card em `<Reveal delay={(i % 3) * 80}>`.
 - `RelatedPosts`: grid de 3 `PostCard` default (sem tags para não poluir).
@@ -106,7 +108,7 @@ cd ../vitorpereira.ia.br-paginas && pnpm install --frozen-lockfile && pnpm exec 
 - [ ] `MethodTimeline({ locale })` com 4 etapas (copy derivado de `methodText` — nada novo):
   - PT: **Mapear** "o processo, a entrada, a saída e os limites" · **Avaliar** "critérios de resultado, trajeto, segurança e custo antes de construir" · **Implantar** "uma fatia pequena em produção, com dados reais" · **Operar** "acompanhar e só então ampliar a autonomia".
   - EN: **Map** "the workflow, its input, output, and boundaries" · **Evaluate** "criteria for outcome, path, security, and cost before building" · **Deploy** "one thin slice in production, with real data" · **Operate** "monitor it, and only then expand autonomy".
-  Layout: `ol` horizontal em `md+` com conector (mesma técnica da linha do `HowItWorks`, classe `how-line`), vertical no mobile; cada etapa em `Reveal delay={i*100}`.
+    Layout: `ol` horizontal em `md+` com conector (mesma técnica da linha do `HowItWorks`, classe `how-line`), vertical no mobile; cada etapa em `Reveal delay={i*100}`.
 - [ ] Na página: a seção do método passa a usar `MethodTimeline` (remove a string `Map → Evaluate → Deploy → Operate` solta, mas mantém `methodText` como parágrafo acima). Inserir `<HowItWorks locale />` logo após o hero do serviço e `<Faq locale={locale} withJsonLd={false} />` (a home já emite o FAQPage; não duplicar) antes do CTA final. "Faz / não faz sentido": dois cards lado a lado — o de "faz" com `border-primary/40` e ícones `CheckCircle2 text-primary`, o de "não faz" com `bg-muted/40` e `XCircle text-muted-foreground`. Entregáveis em `Reveal` escalonado com `card-interactive`.
 - [ ] Testes: os existentes continuam passando (ajustar seletor se a string do método mudar de nó); novo: a página tem 4 etapas do método em PT e EN, contém o FAQ (5 `details`) e o `HowItWorks` (5 passos).
 - [ ] Consistência de títulos (pendência do PR ②): os `h2` de `HowItWorks` e `BeforeAfter` passam a `font-heading text-3xl font-bold tracking-tight`, igual às demais seções da home.
@@ -130,6 +132,7 @@ cd ../vitorpereira.ia.br-paginas && pnpm install --frozen-lockfile && pnpm exec 
 **Files:** Create `components/layout/NavLinks.tsx`, `NavLinks.test.tsx`, `components/layout/MobileNav.tsx`, `MobileNav.test.tsx`, `components/layout/ScrollAwareHeader.tsx`; Modify `components/layout/Header.tsx`
 
 **Interfaces:**
+
 - `NavLinks({ items, orientation?: "row" | "column", onNavigate?: () => void })` (client) — `items: { href: string; label: string }[]`; usa `usePathname()`; ativo quando `pathname === href || pathname.startsWith(href + "/")` (home nunca por prefixo); ativo recebe `aria-current="page"` e `text-foreground` + sublinhado `after:` em `--brand`.
 - `MobileNav({ items, label })` (client) — `Sheet` lateral direita com `SheetTrigger` (ícone `Menu`, `aria-label` "Abrir menu"/"Open menu"), `NavLinks orientation="column" onNavigate={close}`, e os toggles de idioma/tema no rodapé do sheet.
 - `ScrollAwareHeader({ children })` (client) — `<header>` que aplica `data-scrolled` quando `scrollY > 8` (listener passivo); CSS: sem borda e fundo transparente no topo, `border-b bg-background/80 backdrop-blur` quando `data-scrolled`.

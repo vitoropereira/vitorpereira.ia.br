@@ -1,4 +1,7 @@
-import { toTabNewsMarkdown, type SyndicationFormat } from "../mdx/to-tabnews-markdown.ts";
+import {
+  toTabNewsMarkdown,
+  type SyndicationFormat,
+} from "../mdx/to-tabnews-markdown.ts";
 import {
   createSession as defaultCreateSession,
   createContent as defaultCreateContent,
@@ -11,11 +14,19 @@ export function buildTabNewsPreview(
   format: SyndicationFormat,
   status: "published" | "draft",
 ): TabNewsContent {
-  const body = toTabNewsMarkdown({ body: post.body, title: post.title, canonicalUrl: post.canonicalUrl, format });
+  const body = toTabNewsMarkdown({
+    body: post.body,
+    title: post.title,
+    canonicalUrl: post.canonicalUrl,
+    format,
+  });
   return { title: post.title, body, sourceUrl: post.canonicalUrl, status };
 }
 
-type Deps = { createSession?: typeof defaultCreateSession; createContent?: typeof defaultCreateContent };
+type Deps = {
+  createSession?: typeof defaultCreateSession;
+  createContent?: typeof defaultCreateContent;
+};
 
 /** Rede: recebe o conteúdo FINAL (já possivelmente editado à mão) e publica. */
 export async function publishToTabNews(
@@ -28,5 +39,10 @@ export async function publishToTabNews(
   const createContent = deps.createContent ?? defaultCreateContent;
   const session = await createSession(creds);
   const created = await createContent(session, content);
-  return { target: "tabnews", url: created.url, externalSlug: created.slug, format };
+  return {
+    target: "tabnews",
+    url: created.url,
+    externalSlug: created.slug,
+    format,
+  };
 }

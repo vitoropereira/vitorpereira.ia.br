@@ -13,7 +13,8 @@ const stats: Stat[] = [
     value: "70+",
     pt: {
       label: "founders simultâneos",
-      context: "num agente de conversa ao vivo, com regras de proteção próprias",
+      context:
+        "num agente de conversa ao vivo, com regras de proteção próprias",
     },
     en: {
       label: "simultaneous founders",

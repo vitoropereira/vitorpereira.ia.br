@@ -45,12 +45,17 @@ function formatBrl(amountCents: number): string {
 }
 
 /** Agrupa somente faturas abertas e libera uma fila explicável, sem efeitos externos. */
-export function analyzePortfolio(input: AnalyzePortfolioInput): PortfolioAnalysis {
+export function analyzePortfolio(
+  input: AnalyzePortfolioInput,
+): PortfolioAnalysis {
   const blockedCustomerIds = new Set(
-    input.invoices.filter((invoice) => invoice.doNotContact).map((invoice) => invoice.customerId),
+    input.invoices
+      .filter((invoice) => invoice.doNotContact)
+      .map((invoice) => invoice.customerId),
   );
   const openInvoices = input.invoices.filter(
-    (invoice) => invoice.status === "open" && !blockedCustomerIds.has(invoice.customerId),
+    (invoice) =>
+      invoice.status === "open" && !blockedCustomerIds.has(invoice.customerId),
   );
   const byCustomer = new Map<string, Invoice[]>();
 
@@ -62,17 +67,25 @@ export function analyzePortfolio(input: AnalyzePortfolioInput): PortfolioAnalysi
 
   const accounts = [...byCustomer.entries()]
     .map(([customerId, invoices]) => {
-      const overdueInvoices = invoices.filter((invoice) => invoice.dueDate < input.asOf);
+      const overdueInvoices = invoices.filter(
+        (invoice) => invoice.dueDate < input.asOf,
+      );
       if (overdueInvoices.length === 0) return undefined;
 
-      const amountCents = invoices.reduce((total, invoice) => total + invoice.amountCents, 0);
+      const amountCents = invoices.reduce(
+        (total, invoice) => total + invoice.amountCents,
+        0,
+      );
       const oldestDueDate = overdueInvoices.reduce(
-        (oldest, invoice) => (invoice.dueDate < oldest ? invoice.dueDate : oldest),
+        (oldest, invoice) =>
+          invoice.dueDate < oldest ? invoice.dueDate : oldest,
         overdueInvoices[0].dueDate,
       );
       const daysOverdue = daysBetween(oldestDueDate, input.asOf);
-      const priority = daysOverdue >= 14 || amountCents >= 200_000 ? "high" : "medium";
-      const recommendedAction = priority === "high" ? "human_review" : "prepare_reminder";
+      const priority =
+        daysOverdue >= 14 || amountCents >= 200_000 ? "high" : "medium";
+      const recommendedAction =
+        priority === "high" ? "human_review" : "prepare_reminder";
 
       return {
         customerId,
@@ -86,10 +99,17 @@ export function analyzePortfolio(input: AnalyzePortfolioInput): PortfolioAnalysi
       } satisfies PriorityAccount;
     })
     .filter((account): account is PriorityAccount => account !== undefined)
-    .sort((left, right) => right.daysOverdue - left.daysOverdue || right.amountCents - left.amountCents);
+    .sort(
+      (left, right) =>
+        right.daysOverdue - left.daysOverdue ||
+        right.amountCents - left.amountCents,
+    );
 
   return {
-    totalOpenCents: openInvoices.reduce((total, invoice) => total + invoice.amountCents, 0),
+    totalOpenCents: openInvoices.reduce(
+      (total, invoice) => total + invoice.amountCents,
+      0,
+    ),
     accounts,
   };
 }

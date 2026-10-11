@@ -33,7 +33,10 @@ export interface SyndicationRow {
 type Deps = { fetch?: typeof fetch; config?: AdminConfig };
 
 /** Insere (ou atualiza, por post_permalink+target) uma linha de syndication. Devolve o id. */
-export async function recordSyndication(rec: SyndicationRecord, deps: Deps = {}): Promise<string> {
+export async function recordSyndication(
+  rec: SyndicationRecord,
+  deps: Deps = {},
+): Promise<string> {
   const sql = `
     insert into public.vitor_syndications
       (post_permalink, canonical_url, target, external_url, external_slug,
@@ -73,7 +76,9 @@ export async function snapshotMetrics(
  * Lê as syndications com a última métrica e a contagem de cliques (LEFT JOINs).
  * Uma linha por syndication.
  */
-export async function getSyndicationsWithStats(deps: Deps = {}): Promise<SyndicationRow[]> {
+export async function getSyndicationsWithStats(
+  deps: Deps = {},
+): Promise<SyndicationRow[]> {
   const sql = `
     select s.id, s.post_permalink, s.external_url, s.external_slug, s.format, s.title, s.posted_at,
            m.tabcoins, m.comments_count,

@@ -8,17 +8,17 @@
 
 Fonte: `https://masterclass.vitorpereira.ia.br/`, lida em 09/08/2026.
 
-| Campo | Valor |
-| --- | --- |
-| Nome | Masterclass "Seu Funcionário de IA" |
-| Data | terça-feira, 11/08/2026 |
-| Horário | 20h às 21h30 (1h30) |
-| Onde | Ao vivo no Google Meet |
-| Preço | Gratuito — sem cadastro, sem cartão |
-| Entrada | Grupo do WhatsApp; o link do Meet sai no grupo antes do dia |
-| Grupo | https://chat.whatsapp.com/Cn0ZR3VEkYF9cRMNi8PsB3 |
-| Contato direto | https://wa.me/5581996733973 |
-| Vagas | Limitadas pelo tamanho da sala (sem contador regressivo na página) |
+| Campo          | Valor                                                              |
+| -------------- | ------------------------------------------------------------------ |
+| Nome           | Masterclass "Seu Funcionário de IA"                                |
+| Data           | terça-feira, 11/08/2026                                            |
+| Horário        | 20h às 21h30 (1h30)                                                |
+| Onde           | Ao vivo no Google Meet                                             |
+| Preço          | Gratuito — sem cadastro, sem cartão                                |
+| Entrada        | Grupo do WhatsApp; o link do Meet sai no grupo antes do dia        |
+| Grupo          | https://chat.whatsapp.com/Cn0ZR3VEkYF9cRMNi8PsB3                   |
+| Contato direto | https://wa.me/5581996733973                                        |
+| Vagas          | Limitadas pelo tamanho da sala (sem contador regressivo na página) |
 
 Números citados na landing (usados nos textos abaixo): 3,6M+ interações em ~2.900
 grupos; ~700 análises automáticas por dia; 70+ pessoas simultâneas ao vivo; 19+
@@ -117,11 +117,11 @@ Gratuito, sem cadastro, turma pequena.
 
 ## Execução
 
-| Quando | O quê | Comando / ação |
-| --- | --- | --- |
-| 11/08, ~10h | Post "Memória de agente" entra sozinho no site | nada — o `date:` do frontmatter resolve |
+| Quando      | O quê                                           | Comando / ação                                                                                                                              |
+| ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11/08, ~10h | Post "Memória de agente" entra sozinho no site  | nada — o `date:` do frontmatter resolve                                                                                                     |
 | 11/08, ~11h | Crosspost orgânico (pico de tráfego do TabNews) | `pnpm crosspost content/posts/2026/08/11/memoria-de-agente --format full --dry-run`, colar o rodapé **B** no preview, rodar sem `--dry-run` |
-| 11/08, ~11h | Post patrocinado com o texto **A** | manual, pela interface do TabNews (gasta 100 dos 148 TabCash) |
+| 11/08, ~11h | Post patrocinado com o texto **A**              | manual, pela interface do TabNews (gasta 100 dos 148 TabCash)                                                                               |
 
 `--format full`, não `summary`. O crosspost anterior ("Chatbot não é agente") saiu
 com 176 palavras em formato resumo e fechou com 1 tabcoin, zero voto e zero

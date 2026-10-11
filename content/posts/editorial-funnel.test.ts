@@ -40,7 +40,8 @@ describe("trilha editorial de agentes", () => {
   it("publica o complemento operacional do vídeo sobre agentes", () => {
     const article = postBody("09/13", "agente-nao-amadurece-no-prompt");
 
-    expect(article).toContain('<Video id="DjAUEtUpdbM"');
+    // O Prettier quebra o JSX em várias linhas; o teste não pode depender do espaçamento.
+    expect(article).toMatch(/<Video\s+id="DjAUEtUpdbM"/);
     expect(article).toContain("](/2026/07/18/arquitetura-mental-do-agente)");
     expect(article).toContain("](/2026/07/25/ferramentas-como-contrato)");
     expect(article).toContain("](/2026/08/15/limites-do-agente)");

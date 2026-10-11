@@ -7,13 +7,13 @@ Sistema visual: dark tech premium, azul elétrico `#24C8FF`, voz de terminal —
 
 ## Arquivos
 
-| Arquivo | Tamanho | Onde usar |
-|---|---|---|
-| `vitorpereira-youtube-banner-2560x1440.png` | 2560×1440 | Arte do canal (YouTube Studio → Personalização → Banner). Conteúdo-chave dentro da área segura 1546×423. |
-| `vitorpereira-youtube-avatar-800x800.png` | 800×800 | Foto do canal (o YouTube recorta em círculo). |
-| `vitorpereira-thumbnail-exemplo1-agentes.png` | 1280×720 | Exemplo do template — pilar "agentes & automações". |
-| `vitorpereira-thumbnail-exemplo2-sistemas.png` | 1280×720 | Exemplo do template — pilar "sistemas reais / bastidor de CTO". |
-| `foto-vitor-recorte-transparente.png` | PNG alpha | Foto sem fundo (reutilizável em qualquer arte). |
+| Arquivo                                        | Tamanho   | Onde usar                                                                                                |
+| ---------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `vitorpereira-youtube-banner-2560x1440.png`    | 2560×1440 | Arte do canal (YouTube Studio → Personalização → Banner). Conteúdo-chave dentro da área segura 1546×423. |
+| `vitorpereira-youtube-avatar-800x800.png`      | 800×800   | Foto do canal (o YouTube recorta em círculo).                                                            |
+| `vitorpereira-thumbnail-exemplo1-agentes.png`  | 1280×720  | Exemplo do template — pilar "agentes & automações".                                                      |
+| `vitorpereira-thumbnail-exemplo2-sistemas.png` | 1280×720  | Exemplo do template — pilar "sistemas reais / bastidor de CTO".                                          |
+| `foto-vitor-recorte-transparente.png`          | PNG alpha | Foto sem fundo (reutilizável em qualquer arte).                                                          |
 
 ## Template de thumbnail (reutilizável)
 
@@ -23,7 +23,7 @@ Estrutura fixa — a cada vídeo troca-se só o conteúdo:
 - **Fundo:** código / logs / arquitetura reais como **prova** (tela + bastidor).
 - **Direita:** recorte do Vitor.
 - **Canto sup. esq.:** `vp▮`.
-- **Regras:** sem seta amarela, sem cara de choque, sem hype. O sentimento é *"esse cara construiu isso"*.
+- **Regras:** sem seta amarela, sem cara de choque, sem hype. O sentimento é _"esse cara construiu isso"_.
 
 Filtro editorial (o que vira vídeo): ver §4 do documento mestre.
 

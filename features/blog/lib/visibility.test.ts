@@ -20,7 +20,9 @@ describe("isScheduled", () => {
   });
 
   it("trata data ausente ou inválida como não-agendada", () => {
-    expect(isScheduled({ date: undefined as unknown as string }, NOW)).toBe(false);
+    expect(isScheduled({ date: undefined as unknown as string }, NOW)).toBe(
+      false,
+    );
     expect(isScheduled({ date: "não é data" }, NOW)).toBe(false);
   });
 });
@@ -42,12 +44,18 @@ describe("isPublic", () => {
 
 describe("hiddenReason", () => {
   it("distingue draft de agendado", () => {
-    expect(hiddenReason({ draft: true, date: "2020-01-01" }, NOW)).toBe("draft");
-    expect(hiddenReason({ draft: false, date: "2026-12-01" }, NOW)).toBe("scheduled");
+    expect(hiddenReason({ draft: true, date: "2020-01-01" }, NOW)).toBe(
+      "draft",
+    );
+    expect(hiddenReason({ draft: false, date: "2026-12-01" }, NOW)).toBe(
+      "scheduled",
+    );
     expect(hiddenReason({ draft: false, date: "2020-01-01" }, NOW)).toBeNull();
   });
 
   it("draft tem precedência sobre agendado", () => {
-    expect(hiddenReason({ draft: true, date: "2026-12-01" }, NOW)).toBe("draft");
+    expect(hiddenReason({ draft: true, date: "2026-12-01" }, NOW)).toBe(
+      "draft",
+    );
   });
 });
