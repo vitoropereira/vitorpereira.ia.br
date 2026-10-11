@@ -28,7 +28,7 @@ Como Vitor, quero uma decisão explícita e registrada sobre o que fazer com o a
 - [x] Nada mais a fazer. ADR fecha o assunto.
 - [x] Atualizar `docs/prd/INDEX.md` PRD 02 progresso: US concluída.
 
-### Etapa 3 — Se a decisão for **Opção B (scrub via `git filter-repo`)**
+### Etapa 3 — Se a decisão for **Opção B (scrub via `git filter-repo`)** — N/A, opção A escolhida (ADR 001)
 
 - [ ] `git filter-repo` instalado localmente: `brew install git-filter-repo` (confirmar com `git filter-repo --version`)
 - [ ] Backup completo do repo antes do rewrite:

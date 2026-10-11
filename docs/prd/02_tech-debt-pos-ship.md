@@ -61,7 +61,7 @@ Quitar tech-debt identificado durante a Phase 7 que foi conscientemente adiado p
   - Decisão tomada e justificativa
   - Data + signatário (Vitor)
 - [x] Se **opção A**: ADR fecha o assunto. Checklist de acceptance termina aqui.
-- [ ] Se **opção B**:
+- [ ] ~~Se **opção B**~~ (N/A — opção A escolhida, ver ADR 001):
   - [ ] Backup local antes do rewrite: `git clone --mirror . ../vitorpereira.ia.br.backup-YYYYMMDD`
   - [ ] Rodar `git filter-repo --path .vscode/sftp.json --invert-paths` (requer `git filter-repo` instalado — `brew install git-filter-repo`)
   - [ ] `git push --force origin legacy-php main` — **requer aprovação explícita do Vitor no chat antes de executar**

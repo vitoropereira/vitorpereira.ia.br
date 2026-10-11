@@ -25,8 +25,8 @@ ADR não reproduz hostname, usuário nem senha; só referencia o caminho
 - Prós: zero risco operacional; credenciais inertes pós-rotação; preserva o
   histórico intacto para arqueologia futura.
 - Contras: hostname e usuário FTP continuam visíveis (info disclosure menor);
-  um scanner automatizado pode tentar reativar a conta se o hosting expirar
-  o lockout de senha.
+  um scanner automatizado ganha um alvo para brute force ou password
+  spraying contra a conta, caso ela seja reativada.
 
 ### Opção B — Scrub via `git filter-repo`
 
@@ -45,6 +45,11 @@ hostname e usuário de um hosting que não é mais usado.
 ## Consequências
 
 - Nada muda operacionalmente; nenhum histórico é reescrito.
+- `.vscode/sftp.json` continua versionado na ponta de `legacy-php` (junto
+  com `.vscode/sftp.vitor.test.json`, não avaliado aqui) e alcançável pelo
+  histórico da `main` (commits 156cd70, 73a908c e a4c1fc2). A Opção B exigiria
+  force push nas duas branches e, para ser completa, cobrir também o segundo
+  arquivo.
 - Revisitar esta decisão só se o hosting antigo voltar a ser usado ou se a
   conta FTP for reativada.
 - Qualquer discussão futura sobre "por que o `sftp.json` ainda está lá?"
