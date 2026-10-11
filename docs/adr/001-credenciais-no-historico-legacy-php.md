@@ -10,8 +10,9 @@ A branch `legacy-php` preserva o código do site antigo (PHP/Tailwind-CDN).
 Durante o rewrite, `.vscode/sftp.json` foi commitado com credenciais FTP do
 hosting PHP. O arquivo está listado em
 `docs/superpowers/specs/2026-04-21-vitorpereira-blog-portfolio-design.md`
-§13 ("Pendências herdadas do PHP") e a rotação da senha foi o escopo do
-PRD 01 US-004.
+§13 ("Pendências herdadas do PHP"). A rotação da senha é o "Gate de
+segurança" da US-004 do PRD 01 (`docs/prd/01_deploy-e-go-live.md`), confirmada
+pelo Vitor ao tomar esta decisão.
 
 A senha foi rotacionada, então as credenciais no histórico são **inertes**.
 O arquivo continua visível no histórico público do GitHub. Por higiene, esta
@@ -50,6 +51,8 @@ hostname e usuário de um hosting que não é mais usado.
   histórico da `main` (commits 156cd70, 73a908c e a4c1fc2). A Opção B exigiria
   force push nas duas branches e, para ser completa, cobrir também o segundo
   arquivo.
+- Em aberto: `.vscode/sftp.vitor.test.json` não foi avaliado e pode conter
+  credencial diferente; conferir se também foi rotacionada.
 - Revisitar esta decisão só se o hosting antigo voltar a ser usado ou se a
   conta FTP for reativada.
 - Qualquer discussão futura sobre "por que o `sftp.json` ainda está lá?"
