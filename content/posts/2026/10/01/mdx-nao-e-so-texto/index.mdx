@@ -21,9 +21,70 @@ contrato de entrada, build e smoke do artefato final.
 ## O caminho do arquivo já é uma decisão pública
 
 Neste site, o padrão de arquivos em `content/posts` não serve só para organizar
-pastas. A configuração do [Velite](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts#L66-L123)
+pastas. A configuração do Velite
 aceita apenas posts no formato `posts/AAAA/MM/DD/slug/index.mdx` e deriva a URL a
 partir desse caminho.
+
+````ts title="velite.config.ts" showLineNumbers{66}
+    posts: {
+      name: "Post",
+      pattern: "posts/**/index{,.en}.mdx",
+      schema: postsSchema.transform((data, { meta }) => {
+        const filePath = (meta.path ?? "").replace(/\\/g, "/");
+        const isEn = /\.en\.mdx$/.test(filePath);
+        const locale: Locale = isEn ? "en" : "pt";
+
+        const match = filePath.match(
+          /content\/posts\/(\d{4})\/(\d{2})\/(\d{2})\/([^/]+)\/index(?:\.en)?\.mdx$/,
+        );
+        if (!match) {
+          throw new Error(
+            `Post path does not match expected pattern: ${filePath}`,
+          );
+        }
+        const [, year, month, day, slug] = match;
+        const permalink =
+          locale === "pt"
+            ? `/${year}/${month}/${day}/${slug}`
+            : `/en/${year}/${month}/${day}/${slug}`;
+
+        const rawBody = (meta.content ?? "") as string;
+        const rt = readingTime(rawBody);
+
+        const stripped = rawBody
+          .replace(/```[\s\S]*?```/g, "")
+          .replace(/[#*_>`~\-[\]()!]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+        const excerpt =
+          data.description && data.description.length > 0
+            ? data.description
+            : stripped.slice(0, 160) + (stripped.length > 160 ? "…" : "");
+
+        return {
+          ...data,
+          body: rawBody,
+          locale,
+          slug,
+          permalink,
+          readingTime: Math.max(1, Math.round(rt.minutes)),
+          excerpt,
+        };
+      }),
+    },
+  },
+  prepare: ({ posts }) => {
+    const bySlug: Record<string, { pt?: string; en?: string }> = {};
+    for (const p of posts) {
+      bySlug[p.slug] ??= {};
+      bySlug[p.slug][p.locale as Locale] = p.permalink;
+    }
+    for (const p of posts) {
+      const sib = bySlug[p.slug];
+      p.translationSlug = p.locale === "pt" ? sib?.en : sib?.pt;
+    }
+  },
+````
 
 ```text
 content/posts/2026/10/01/mdx-nao-e-so-texto/index.mdx
@@ -42,10 +103,22 @@ links internos e os campos que o build exige.
 
 O estado público deste blog depende de duas condições: o post não pode ser draft e
 a data precisa já ter chegado. A regra está explícita na
-[função de visibilidade](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts#L25-L34).
+função de visibilidade:
 
-```text
-publico = !draft && date <= agora
+```ts title="features/blog/lib/visibility.ts" showLineNumbers{25}
+export function isScheduled(
+  post: Schedulable,
+  now: Date = new Date(),
+): boolean {
+  const at = new Date(post.date).getTime();
+  if (Number.isNaN(at)) return false;
+  return at > now.getTime();
+}
+
+/** Público: publicado (não-draft) e com a data já vencida. */
+export function isPublic(post: Publishable, now: Date = new Date()): boolean {
+  return !post.draft && !isScheduled(post, now);
+}
 ```
 
 Isso evita dois erros de operação diferentes:
@@ -71,9 +144,34 @@ encontrar.
 
 O pipeline deste site só preenche `translationSlug` quando encontra o arquivo irmão
 no mesmo slug. O
-[sitemap](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/app/sitemap.ts#L53-L75)
-só anuncia `hreflang` quando essa contraparte existe. Sem par, o post PT continua
+sitemap só anuncia `hreflang` quando essa contraparte existe. Sem par, o post PT continua
 válido e não ganha uma alternância para uma página inexistente.
+
+```ts title="app/sitemap.ts" showLineNumbers{53}
+  const allPosts = rawPosts as unknown as Post[];
+  for (const p of allPosts.filter((x) => isPublic(x, now))) {
+    const selfUrl = `${siteConfig.url}${p.permalink}`;
+    // Only advertise alternates when a real translation exists — otherwise we'd
+    // emit a self-referential hreflang for the "other" language, which is a
+    // non-reciprocal pair (mirrors the buildMetadata head fix).
+    let alternates: Entry["alternates"];
+    if (p.translationSlug) {
+      // translationSlug is an absolute path (starts with `/`), prepend site URL.
+      const otherUrl = `${siteConfig.url}${p.translationSlug}`;
+      alternates = {
+        languages:
+          p.locale === "pt"
+            ? { "pt-BR": selfUrl, en: otherUrl }
+            : { en: selfUrl, "pt-BR": otherUrl },
+      };
+    }
+
+    entries.push({
+      url: selfUrl,
+      lastModified: p.updated ? new Date(p.updated) : new Date(p.date),
+      ...(alternates ? { alternates } : {}),
+    });
+```
 
 A regra prática é menos elegante em planilha e mais segura no navegador:
 
@@ -88,8 +186,15 @@ Um arquivo pode estar bem escrito e ainda falhar na única condição que import
 renderizado no build que vai para produção.
 
 No repositório deste site, `pnpm build` executa primeiro a geração do Velite e depois
-o build do Next.js, como definido no
-[`package.json`](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/package.json).
+o build do Next.js, como definido no `package.json`:
+
+```json title="package.json" showLineNumbers{6}
+"scripts": {
+  "predev": "velite build",
+  "build": "velite build && next build"
+}
+```
+
 Esse é o ponto de encontro entre frontmatter, MDX, componentes, tipos e rotas.
 
 Depois do build, ainda falta a verificação que o comando não enxerga sozinho:
@@ -129,10 +234,10 @@ elimina a suposição perigosa de que texto não quebra produção.
 
 ## Fontes
 
-- [Velite config do site](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts#L66-L123) — schema, padrão de caminho, URL derivada e pareamento de idiomas.
-- [Regra de visibilidade](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts#L25-L34) — draft e data como condições independentes de publicação.
-- [Sitemap do site](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/app/sitemap.ts#L53-L75) — inclusão de posts públicos e alternates apenas para pares reais.
-- [Scripts de build](https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/package.json) — geração de conteúdo antes do build do Next.js.
+- Velite config do site (`velite.config.ts`, trecho acima) — schema, padrão de caminho, URL derivada e pareamento de idiomas.
+- Regra de visibilidade (`features/blog/lib/visibility.ts`, trecho acima) — draft e data como condições independentes de publicação.
+- Sitemap do site (`app/sitemap.ts`, trecho acima) — inclusão de posts públicos e alternates apenas para pares reais.
+- Scripts de build (`package.json`, trecho acima) — geração de conteúdo antes do build do Next.js.
 
 ## Próximo passo
 
