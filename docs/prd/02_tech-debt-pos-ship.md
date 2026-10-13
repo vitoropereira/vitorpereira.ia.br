@@ -55,13 +55,13 @@ Quitar tech-debt identificado durante a Phase 7 que foi conscientemente adiado p
 
 **Acceptance Criteria:**
 
-- [ ] Decisão registrada em ADR (Architecture Decision Record) em `docs/adr/001-credenciais-no-historico-legacy-php.md` com:
+- [x] Decisão registrada em ADR (Architecture Decision Record) em `docs/adr/001-credenciais-no-historico-legacy-php.md` com:
   - Contexto (spec §13 + esta US)
   - Opções A e B com prós/contras
   - Decisão tomada e justificativa
   - Data + signatário (Vitor)
-- [ ] Se **opção A**: ADR fecha o assunto. Checklist de acceptance termina aqui.
-- [ ] Se **opção B**:
+- [x] Se **opção A**: ADR fecha o assunto. Checklist de acceptance termina aqui.
+- [ ] ~~Se **opção B**~~ (N/A — opção A escolhida, ver ADR 001):
   - [ ] Backup local antes do rewrite: `git clone --mirror . ../vitorpereira.ia.br.backup-YYYYMMDD`
   - [ ] Rodar `git filter-repo --path .vscode/sftp.json --invert-paths` (requer `git filter-repo` instalado — `brew install git-filter-repo`)
   - [ ] `git push --force origin legacy-php main` — **requer aprovação explícita do Vitor no chat antes de executar**
