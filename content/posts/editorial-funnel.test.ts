@@ -86,12 +86,8 @@ describe("trilha editorial de agentes", () => {
     expect(article).toContain("](/2026/09/21/idempotencia-efeito-externo)");
     expect(article).toContain('<DiagnosticCTA locale="pt">');
     expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
-    expect(article).toContain(
-      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/velite.config.ts",
-    );
-    expect(article).toContain(
-      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/c2f088062436e70ebf51c76f8197ce85419a9ddc/features/blog/lib/visibility.ts",
-    );
+    expect(article).toContain('title="velite.config.ts"');
+    expect(article).toContain('title="features/blog/lib/visibility.ts"');
   });
 
   it("publica read-only como contrato, não como promessa de segurança", () => {
@@ -105,9 +101,7 @@ describe("trilha editorial de agentes", () => {
     expect(article).toContain(
       "https://modelcontextprotocol.io/specification/2025-11-25/server/tools",
     );
-    expect(article).toContain(
-      "https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts",
-    );
+    expect(article).toContain('title="app/api/mcp/route.ts"');
   });
 
   it("preserva a passagem para ferramentas e diagnóstico na versão inglesa disponível", () => {

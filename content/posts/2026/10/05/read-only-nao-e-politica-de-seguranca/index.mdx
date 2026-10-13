@@ -18,7 +18,87 @@ A tese prática é simples: _read-only é uma propriedade da operação. Seguran
 
 ## O contrato vem antes do agente
 
-Uma tool pública recente deste site ilustra a separação. Ela expõe uma única operação, `collections.analyze_portfolio`, para receber uma carteira fornecida pelo operador e devolver uma fila de prioridade. O contrato declara o que entra, o que sai e o que a tool não faz. O código está [aberto no commit de publicação](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts#L8-L81).
+Uma tool pública recente deste site ilustra a separação. Ela expõe uma única operação, `collections.analyze_portfolio`, para receber uma carteira fornecida pelo operador e devolver uma fila de prioridade. O contrato declara o que entra, o que sai e o que a tool não faz. O trecho do contrato, no commit de publicação:
+
+```ts title="app/api/mcp/route.ts" showLineNumbers{8}
+const invoiceSchema = z.object({
+  id: z.string().min(1),
+  customerId: z.string().min(1),
+  customerName: z.string().min(1),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  amountCents: z.number().int().positive(),
+  status: z.enum(["open", "paid", "void"]),
+  doNotContact: z.boolean(),
+});
+
+const analysisSchema = z.object({
+  totalOpenCents: z.number().int().nonnegative(),
+  accounts: z.array(
+    z.object({
+      customerId: z.string(),
+      customerName: z.string(),
+      amountCents: z.number().int().positive(),
+      oldestDueDate: z.string(),
+      daysOverdue: z.number().int().nonnegative(),
+      priority: z.enum(["high", "medium"]),
+      recommendedAction: z.enum(["human_review", "prepare_reminder"]),
+      reason: z.string(),
+    }),
+  ),
+});
+
+function createMcpServer(): McpServer {
+  const server = new McpServer({
+    name: "cobranca-inteligente",
+    version: "0.1.0",
+  });
+
+  server.registerTool(
+    "collections.analyze_portfolio",
+    {
+      title: "Analisar carteira de cobrança",
+      description:
+        "Use when a finance operator explicitly provides a small invoice portfolio and wants a read-only, explainable collection priority queue. It only analyzes the supplied invoices; it never sends messages, accesses a CRM, changes records, or makes payment decisions.",
+      inputSchema: {
+        asOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        invoices: z.array(invoiceSchema).min(1).max(500),
+      },
+      outputSchema: analysisSchema.shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      },
+    },
+    async (input) => {
+      const analysis = analyzePortfolio(input);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Carteira analisada: ${analysis.accounts.length} conta(s) prioritária(s), sem ações externas.`,
+          },
+        ],
+        structuredContent: { ...analysis },
+      };
+    },
+  );
+
+  return server;
+}
+
+/** MCP stateless: o processo recebe somente o payload desta request e não o persiste. */
+export async function POST(request: Request): Promise<Response> {
+  const server = createMcpServer();
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
+
+  await server.connect(transport);
+  return transport.handleRequest(request);
+}
+```
 
 A entrada não é “qualquer JSON que o modelo conseguir montar”. Ela define, entre outras coisas:
 
@@ -50,7 +130,79 @@ A especificação do MCP lista as quatro obrigações do servidor juntas por um 
 
 ## A decisão operacional precisa aparecer no resultado
 
-O algoritmo da ferramenta separa fatos da próxima ação. Ele considera apenas faturas abertas, remove da fila clientes marcados com `doNotContact` e recomenda `human_review` ou `prepare_reminder` conforme a prioridade. [A implementação e o teste de contrato estão públicos.](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/lib/collections/portfolio.ts#L31-L74)
+O algoritmo da ferramenta separa fatos da próxima ação. Ele considera apenas faturas abertas, remove da fila clientes marcados com `doNotContact` e recomenda `human_review` ou `prepare_reminder` conforme a prioridade. A implementação:
+
+```ts title="lib/collections/portfolio.ts" showLineNumbers{47}
+/** Agrupa somente faturas abertas e libera uma fila explicável, sem efeitos externos. */
+export function analyzePortfolio(
+  input: AnalyzePortfolioInput,
+): PortfolioAnalysis {
+  const blockedCustomerIds = new Set(
+    input.invoices
+      .filter((invoice) => invoice.doNotContact)
+      .map((invoice) => invoice.customerId),
+  );
+  const openInvoices = input.invoices.filter(
+    (invoice) =>
+      invoice.status === "open" && !blockedCustomerIds.has(invoice.customerId),
+  );
+  const byCustomer = new Map<string, Invoice[]>();
+
+  for (const invoice of openInvoices) {
+    const customerInvoices = byCustomer.get(invoice.customerId) ?? [];
+    customerInvoices.push(invoice);
+    byCustomer.set(invoice.customerId, customerInvoices);
+  }
+
+  const accounts = [...byCustomer.entries()]
+    .map(([customerId, invoices]) => {
+      const overdueInvoices = invoices.filter(
+        (invoice) => invoice.dueDate < input.asOf,
+      );
+      if (overdueInvoices.length === 0) return undefined;
+
+      const amountCents = invoices.reduce(
+        (total, invoice) => total + invoice.amountCents,
+        0,
+      );
+      const oldestDueDate = overdueInvoices.reduce(
+        (oldest, invoice) =>
+          invoice.dueDate < oldest ? invoice.dueDate : oldest,
+        overdueInvoices[0].dueDate,
+      );
+      const daysOverdue = daysBetween(oldestDueDate, input.asOf);
+      const priority =
+        daysOverdue >= 14 || amountCents >= 200_000 ? "high" : "medium";
+      const recommendedAction =
+        priority === "high" ? "human_review" : "prepare_reminder";
+
+      return {
+        customerId,
+        customerName: invoices[0].customerName,
+        amountCents,
+        oldestDueDate,
+        daysOverdue,
+        priority,
+        recommendedAction,
+        reason: `${daysOverdue} days overdue with ${formatBrl(amountCents)} open`,
+      } satisfies PriorityAccount;
+    })
+    .filter((account): account is PriorityAccount => account !== undefined)
+    .sort(
+      (left, right) =>
+        right.daysOverdue - left.daysOverdue ||
+        right.amountCents - left.amountCents,
+    );
+
+  return {
+    totalOpenCents: openInvoices.reduce(
+      (total, invoice) => total + invoice.amountCents,
+      0,
+    ),
+    accounts,
+  };
+}
+```
 
 Esse desenho faz duas coisas certas:
 
@@ -105,9 +257,9 @@ Só depois disso faz sentido dizer que a operação é limitada. Antes, ela é a
 ## Fontes
 
 - [MCP Specification: Tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools): anotações de tool, `outputSchema` e requisitos de segurança para servidores.
-- [Endpoint MCP publicado](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/app/api/mcp/route.ts): schema de entrada e saída, anotações e ausência de ação externa na tool exposta.
-- [Implementação de priorização](https://github.com/vitoropereira/vitorpereira.ia.br/blob/9377f9b3cb74ad044c073dd0d533735e9094b02e/lib/collections/portfolio.ts): filtragem de faturas e retorno de uma recomendação sem efeito externo.
-- [PR #49](https://github.com/vitoropereira/vitorpereira.ia.br/pull/49): publicação do endpoint Streamable HTTP e verificações declaradas no release.
+- Endpoint MCP publicado (`app/api/mcp/route.ts`, trecho acima): schema de entrada e saída, anotações e ausência de ação externa na tool exposta.
+- Implementação de priorização (`lib/collections/portfolio.ts`, trecho acima): filtragem de faturas e retorno de uma recomendação sem efeito externo.
+- PR #49: publicou o endpoint MCP via Streamable HTTP, com as verificações declaradas no release.
 
 ## Próximo passo
 
