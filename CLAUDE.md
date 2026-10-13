@@ -78,7 +78,7 @@ página institucional nova = três passos: a rota PT, a rota EN e a entrada no
 `routeMap`. Esquecer o `routeMap` deixa o botão de idioma levando pra lugar
 errado, sem erro de build.
 
-O `middleware.ts` só decide o idioma **na primeira visita a `/`** (cookie
+O `proxy.ts` só decide o idioma **na primeira visita a `/`** (cookie
 `NEXT_LOCALE`, senão `Accept-Language`). Ele não reescreve prefixo de locale em
 nenhuma outra rota.
 
