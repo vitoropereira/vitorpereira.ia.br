@@ -22,9 +22,6 @@ permissions:
   contents: read
 
 jobs:
-  # Lugar do futuro `sync-pecas`: liga post a peça editorial e os `collect-*`
-  # vão depender dele (`needs: sync-pecas`).
-
   collect-youtube:
     if: github.event_name == 'schedule' || inputs.rede == 'all' || inputs.rede == 'youtube'
     runs-on: ubuntu-latest
@@ -61,3 +58,30 @@ jobs:
 
   # Lugar do futuro `collect-instagram`: independente do YouTube (falha de um
   # não bloqueia o outro), mesmo esqueleto, `concurrency: social-metrics-instagram`.
+  # Ao entrar, também vai no `needs` do `sync-pecas`.
+
+  # Liga post coletado à peça do content-os e grava as metas. Roda depois das
+  # coletas, mas mesmo que falhem ou sejam puladas no dispatch: casar os posts
+  # que já estão no banco continua útil.
+  sync-pecas:
+    needs: [collect-youtube]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: social-metrics-sync-pecas
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Sincronizar peças do content-os
+        env:
+          CONTENT_OS_READ_TOKEN: ${{ secrets.CONTENT_OS_READ_TOKEN }}
+          SOCIAL_COLLECTOR_DATABASE_URL: ${{ secrets.SOCIAL_COLLECTOR_DATABASE_URL }}
+          SOCIAL_COLLECTOR_DATABASE_CA: ${{ secrets.SOCIAL_COLLECTOR_DATABASE_CA }}
+        run: pnpm social:sync-pecas
