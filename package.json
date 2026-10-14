@@ -29,6 +29,8 @@
     "@calcom/embed-react": "^1.5.3",
     "@giscus/react": "^3.1.0",
     "@modelcontextprotocol/sdk": "1.31.0",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

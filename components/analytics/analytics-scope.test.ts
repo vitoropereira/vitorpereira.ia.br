@@ -55,6 +55,33 @@ describe("escopo do analytics", () => {
     }
   });
 
+  it("/admin não carrega GA, Clarity nem banner de consent", () => {
+    const files = walk(join(root, "app", "admin")).filter(isSource);
+    expect(files.length).toBeGreaterThan(0);
+
+    for (const f of files) {
+      const src = readFileSync(f, "utf8");
+      expect(src, rel(f)).not.toMatch(
+        /GAScript|ClarityScript|ConsentBannerMount/,
+      );
+      expect(src, rel(f)).not.toContain("googletagmanager");
+      expect(src, rel(f)).not.toContain("clarity.ms");
+      expect(src, rel(f)).not.toMatch(/@\/components\/(analytics|layout)\//);
+    }
+  });
+
+  it("o layout do /admin renderiza sem nenhum <script>", async () => {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { createElement } = await import("react");
+    const { default: AdminLayout } = await import("@/app/admin/layout");
+    const html = renderToStaticMarkup(
+      createElement(AdminLayout, null, createElement("p", null, "x")),
+    );
+    expect(html).not.toMatch(/<script/i);
+    expect(html).not.toContain("googletagmanager");
+    expect(html).not.toContain("clarity.ms");
+  });
+
   it("nenhum import de @vercel/analytics ou @vercel/speed-insights", () => {
     // o padrão é só GA4 + Clarity sob consentimento; Vercel Analytics e
     // Speed Insights coletam sem passar pelo banner e não voltam.

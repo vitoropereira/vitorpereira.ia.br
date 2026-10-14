@@ -10,4 +10,9 @@ describe("resolveLocale", () => {
     expect(resolveLocale("/en")).toBe("en");
     expect(resolveLocale("/en/posts/tools-as-contracts")).toBe("en");
   });
+
+  it("/admin fica em pt, fora do i18n", () => {
+    expect(resolveLocale("/admin")).toBe("pt");
+    expect(resolveLocale("/admin/redes")).toBe("pt");
+  });
 });

@@ -1,18 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { defaultLocale, locales } from "@/lib/i18n/config";
+import { updateSession } from "@/lib/supabase/proxy";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
 // O header precisa ir na REQUEST: o `headers()` de i18n/request.ts lê a
 // request, e um header setado na response nunca chega lá (locale caía em PT).
-function nextWithPathname(request: NextRequest) {
+function headersWithPathname(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return requestHeaders;
 }
 
-export function proxy(request: NextRequest) {
+function nextWithPathname(request: NextRequest) {
+  return NextResponse.next({
+    request: { headers: headersWithPathname(request) },
+  });
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // /admin não tem idioma: só renova a sessão do Supabase. O x-pathname segue
+  // para o root layout resolver `pt` no <html lang>.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return updateSession(request, headersWithPathname(request));
+  }
 
   if (
     pathname.startsWith("/_next") ||
