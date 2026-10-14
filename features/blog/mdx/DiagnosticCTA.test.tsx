@@ -3,7 +3,7 @@ import { vi } from "vitest";
 
 const { track } = vi.hoisted(() => ({ track: vi.fn() }));
 
-vi.mock("@vercel/analytics", () => ({ track }));
+vi.mock("@/lib/analytics/gtag", () => ({ trackEvent: track }));
 vi.mock("next/navigation", () => ({
   usePathname: () => "/2026/07/25/ferramentas-como-contrato",
 }));

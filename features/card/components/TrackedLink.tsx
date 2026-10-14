@@ -1,10 +1,10 @@
 "use client";
 
-import { track } from "@vercel/analytics";
+import { trackEvent } from "@/lib/analytics/gtag";
 
 interface TrackedLinkProps {
   href: string;
-  /** Nome do evento no Vercel Analytics — sem cookie, sem banner de consentimento. */
+  /** Alvo do clique, enviado como parâmetro `target` do evento `card_click`. */
   event: string;
   external?: boolean;
   className?: string;
@@ -14,10 +14,9 @@ interface TrackedLinkProps {
 /**
  * Âncora que registra o clique antes de navegar.
  *
- * Existe para responder, depois do evento, "quantas pessoas escanearam e o que
- * elas clicaram". Usa Vercel Analytics (já no root layout) em vez do GA porque
- * é cookieless — a página /card fica fora do grupo (site) e portanto sem o
- * banner de consentimento.
+ * Envia `card_click` ao GA4 via `trackEvent`. A página /card fica fora do
+ * grupo (site): sem GA e sem banner de consentimento, então lá o evento é
+ * no-op e o clique não é medido. Só mede se o GA estiver carregado.
  */
 export function TrackedLink({
   href,
@@ -30,7 +29,7 @@ export function TrackedLink({
     <a
       href={href}
       className={className}
-      onClick={() => track("card_click", { target: event })}
+      onClick={() => trackEvent("card_click", { target: event })}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {children}
