@@ -6,7 +6,38 @@ export type Rede = "youtube" | "instagram";
 
 export type Job = "collect" | "backfill";
 
+/** Job gravado em `vitor_social_collect_runs`; `sync_pecas` não tem rede. */
+export type JobRun = Job | "sync_pecas";
+
 export type TipoPost = "longo" | "short" | "reel" | "carrossel" | "imagem";
+
+export type Plataforma = "youtube" | "instagram" | "linkedin";
+
+/** Peça editorial do content-os (`content/producao/AAAA-MM/<slug>.md`). */
+export interface Peca {
+  /** Nome do arquivo sem `.md`. */
+  slug: string;
+  plataforma: Plataforma | null;
+  formato: string | null;
+  pauta: string | null;
+  hook: string | null;
+  template: string | null;
+  testa: string | null;
+  /** `AAAA-MM-DD`. */
+  created: string | null;
+  publicado: string | null;
+  youtube_id: string | null;
+  instagram_id: string | null;
+}
+
+/** Meta de publicação por semana (`vitor_social_goals`). */
+export interface Meta {
+  rede: Rede;
+  tipo: TipoPost | "estatico";
+  por_semana: number;
+  /** `AAAA-MM-DD`. */
+  vigente_desde: string;
+}
 
 /** `fetch` injetável: o teste passa um fake, a CLI passa o global. */
 export type Fetch = (

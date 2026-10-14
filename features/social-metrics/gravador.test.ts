@@ -167,4 +167,93 @@ describe("criarGravador", () => {
       /novoAAAAAA1/,
     );
   });
+
+  it("grava run sem rede para o job sync_pecas", async () => {
+    const db = criarFakeDb();
+    const g = criarGravador(db);
+    const id = await g.iniciarRun(null, "sync_pecas");
+    await g.finalizarRun(id, { ok: true, erro: null, linhas: 1 });
+    expect(db.tabelas.get("vitor_social_collect_runs")![0]).toMatchObject({
+      rede: null,
+      job: "sync_pecas",
+      ok: true,
+      linhas: 1,
+    });
+  });
+
+  describe("sync de peças", () => {
+    const CAMPOS = {
+      peca_slug: "2026-10-11-meu-video",
+      pauta: "pauta",
+      formato: "talking-head",
+      hook: "um hook",
+      template: "T1",
+      testa: "gancho",
+    };
+
+    it("atualiza só o post (rede, external_id) e devolve true", async () => {
+      const db = criarFakeDb();
+      const g = criarGravador(db);
+      await g.upsertPosts([
+        POST,
+        { ...POST, external_id: "outroAAAAA22" },
+        { ...POST, rede: "instagram" },
+      ]);
+      expect(
+        await g.atualizarPecaDoPost("youtube", "novoAAAAAA1", CAMPOS),
+      ).toBe(true);
+      const posts = db.tabelas.get("vitor_social_posts")!;
+      expect(posts[0]).toMatchObject(CAMPOS);
+      expect(posts[1].peca_slug).toBeUndefined();
+      expect(posts[2].peca_slug).toBeUndefined();
+    });
+
+    it("post não coletado: devolve false e não insere", async () => {
+      const db = criarFakeDb();
+      const g = criarGravador(db);
+      expect(
+        await g.atualizarPecaDoPost("youtube", "naoExiste01", CAMPOS),
+      ).toBe(false);
+      expect(db.tabelas.get("vitor_social_posts") ?? []).toHaveLength(0);
+      expect(db.queries.every((q) => !/insert/i.test(q.text))).toBe(true);
+    });
+
+    it("upsertMeta atualiza por_semana na mesma chave", async () => {
+      const db = criarFakeDb();
+      const g = criarGravador(db);
+      const m = {
+        rede: "youtube" as const,
+        tipo: "short" as const,
+        por_semana: 3,
+        vigente_desde: "2026-10-01",
+      };
+      await g.upsertMeta(m);
+      await g.upsertMeta({ ...m, por_semana: 5 });
+      const gs = db.tabelas.get("vitor_social_goals")!;
+      expect(gs).toHaveLength(1);
+      expect(gs[0].por_semana).toBe(5);
+      expect(db.queries[0].text).toContain(
+        "on conflict (rede, tipo, vigente_desde) do update",
+      );
+    });
+
+    it("listarPostsSemPeca devolve só posts com peca_slug nulo", async () => {
+      const db = criarFakeDb();
+      const g = criarGravador(db);
+      await g.upsertPosts([POST, { ...POST, external_id: "outroAAAAA22" }]);
+      await g.atualizarPecaDoPost("youtube", "novoAAAAAA1", CAMPOS);
+      const sem = await g.listarPostsSemPeca();
+      expect(sem.map((p) => p.external_id)).toEqual(["outroAAAAA22"]);
+    });
+
+    it("não há operação de DELETE e o fake recusa o SQL", async () => {
+      const g = criarGravador(criarFakeDb());
+      expect(Object.keys(g).some((k) => /delet|remov|apag/i.test(k))).toBe(
+        false,
+      );
+      await expect(criarFakeDb().query("delete from public.x")).rejects.toThrow(
+        /DELETE/,
+      );
+    });
+  });
 });

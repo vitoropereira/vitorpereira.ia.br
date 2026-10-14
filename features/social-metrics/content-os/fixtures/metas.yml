@@ -1,0 +1,8 @@
+- rede: youtube
+  tipo: short
+  por_semana: 3
+  vigente_desde: 2026-10-01
+- rede: instagram
+  tipo: reel
+  por_semana: 2
+  vigente_desde: 2026-10-01

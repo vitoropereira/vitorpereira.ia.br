@@ -49,6 +49,50 @@ export function criarFakeDb(
     const erro = opcoes.erroEm?.(text);
     if (erro) throw erro;
 
+    if (/^\s*(delete|truncate)\b/i.test(text)) {
+      throw new Error(
+        `fakeDb: o papel social_collector não tem DELETE:\n${text}`,
+      );
+    }
+
+    const sel = text.match(
+      /^select (.+?) from public\.(\w+)\s+where (\w+) is null$/s,
+    );
+    if (sel) {
+      const cols = sel[1].split(",").map((c) => c.trim());
+      const rows = tabela(sel[2])
+        .filter((l) => (l[sel[3]] ?? null) === null)
+        .map((l) => Object.fromEntries(cols.map((c) => [c, l[c] ?? null])));
+      return { rows: rows as T[] };
+    }
+
+    // update ... where a = $n and b = $m [returning cols]
+    const updW = text.match(
+      /^update public\.(\w+)\s+set (.+?)\s+where (\w+ = \$\d+(?: and \w+ = \$\d+)*)(?:\s+returning (.+))?$/s,
+    );
+    if (updW) {
+      const [, nome, sets, conds, retTxt] = updW;
+      const filtros = conds.split(/ and /).map((c) => {
+        const m = c.match(/^(\w+) = \$(\d+)$/)!;
+        return [m[1], params[Number(m[2]) - 1]] as const;
+      });
+      const alvos = tabela(nome).filter((l) =>
+        filtros.every(([col, v]) => l[col] === v),
+      );
+      for (const alvo of alvos) {
+        for (const a of sets.split(/,\s*/)) {
+          const [col, expr] = a.split(/\s*=\s*/);
+          const p = expr.match(/^\$(\d+)$/);
+          alvo[col] = p ? params[Number(p[1]) - 1] : avaliar(expr, {}, alvo);
+        }
+      }
+      const ret = retTxt?.split(",").map((c) => c.trim()) ?? [];
+      const rows = alvos.map((l) =>
+        Object.fromEntries(ret.map((c) => [c, l[c]])),
+      );
+      return { rows: rows as T[] };
+    }
+
     const upd = text.match(
       /^update public\.(\w+)\s+set (.+?)\s+where id = \$(\d+)$/s,
     );

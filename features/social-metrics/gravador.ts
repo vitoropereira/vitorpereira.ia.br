@@ -1,6 +1,7 @@
 import type {
   ContaDiaria,
-  Job,
+  JobRun,
+  Meta,
   MetricaDiaria,
   PostNormalizado,
   Rede,
@@ -64,6 +65,39 @@ returning id`;
 const SQL_FINALIZAR_RUN = `update public.vitor_social_collect_runs
 set finished_at = now(), ok = $2, erro = $3, linhas = $4
 where id = $1`;
+
+// `where rede/external_id` e `returning id`: zero linhas quer dizer "post ainda
+// não coletado", e o sync nunca insere post (quem cria post é o coletor).
+const SQL_ATUALIZAR_PECA = `update public.vitor_social_posts
+set peca_slug = $3, pauta = $4, formato = $5, hook = $6, template = $7, testa = $8
+where rede = $1 and external_id = $2
+returning id`;
+
+const SQL_META = `insert into public.vitor_social_goals
+  (rede, tipo, por_semana, vigente_desde)
+values ($1, $2, $3, $4)
+on conflict (rede, tipo, vigente_desde) do update set
+  por_semana = excluded.por_semana`;
+
+const SQL_POSTS_SEM_PECA = `select rede, external_id, titulo, published_at from public.vitor_social_posts
+where peca_slug is null`;
+
+export interface CamposPeca {
+  peca_slug: string;
+  pauta: string | null;
+  formato: string | null;
+  hook: string | null;
+  template: string | null;
+  testa: string | null;
+}
+
+export interface PostSemPeca {
+  rede: Rede;
+  external_id: string;
+  titulo: string | null;
+  /** ISO 8601 (UTC). */
+  published_at: string | null;
+}
 
 export interface FimRun {
   ok: boolean;
@@ -132,7 +166,46 @@ export function criarGravador(db: Db) {
     return contas.length;
   }
 
-  async function iniciarRun(rede: Rede, job: Job): Promise<string> {
+  /** `true` se o post existia e foi atualizado; `false` = não coletado. */
+  async function atualizarPecaDoPost(
+    rede: Rede,
+    externalId: string,
+    c: CamposPeca,
+  ): Promise<boolean> {
+    const { rows } = await db.query<{ id: string }>(SQL_ATUALIZAR_PECA, [
+      rede,
+      externalId,
+      c.peca_slug,
+      c.pauta,
+      c.formato,
+      c.hook,
+      c.template,
+      c.testa,
+    ]);
+    return rows.length > 0;
+  }
+
+  async function upsertMeta(m: Meta): Promise<void> {
+    await db.query(SQL_META, [m.rede, m.tipo, m.por_semana, m.vigente_desde]);
+  }
+
+  async function listarPostsSemPeca(): Promise<PostSemPeca[]> {
+    const { rows } = await db.query<
+      Omit<PostSemPeca, "published_at"> & { published_at: unknown }
+    >(SQL_POSTS_SEM_PECA);
+    return rows.map((r) => ({
+      rede: r.rede,
+      external_id: r.external_id,
+      titulo: r.titulo,
+      // O driver devolve `Date` para timestamptz.
+      published_at:
+        r.published_at instanceof Date
+          ? r.published_at.toISOString()
+          : ((r.published_at as string | null) ?? null),
+    }));
+  }
+
+  async function iniciarRun(rede: Rede | null, job: JobRun): Promise<string> {
     const { rows } = await db.query<{ id: string }>(SQL_INICIAR_RUN, [
       rede,
       job,
@@ -144,7 +217,16 @@ export function criarGravador(db: Db) {
     await db.query(SQL_FINALIZAR_RUN, [id, fim.ok, fim.erro, fim.linhas]);
   }
 
-  return { upsertPosts, upsertMetricas, upsertConta, iniciarRun, finalizarRun };
+  return {
+    upsertPosts,
+    upsertMetricas,
+    upsertConta,
+    atualizarPecaDoPost,
+    upsertMeta,
+    listarPostsSemPeca,
+    iniciarRun,
+    finalizarRun,
+  };
 }
 
 export type Gravador = ReturnType<typeof criarGravador>;
