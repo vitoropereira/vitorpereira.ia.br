@@ -16,17 +16,21 @@ export function writeConsent(value: ConsentValue): void {
   document.cookie = `${COOKIE_NAME}=${value}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
 }
 
-const ANALYTICS_COOKIE = /^(_ga|_ga_.*|_gid|_clck|_clsk)$/;
+const ANALYTICS_COOKIE = /^(_ga|_ga_.*|_gid|_gat.*|_gac_.*|_clck|_clsk)$/;
 
 // Retirar o consentimento tem que parar a coleta, não só impedir a próxima
 // carga: apagamos os cookies que GA e Clarity já gravaram. O GA grava no
 // domínio-pai (.dominio), então expiramos com e sem `domain`.
 export function clearAnalyticsCookies(): void {
   if (typeof document === "undefined") return;
+  // Todos os sufixos do host: o GA escolhe o domínio-pai mais curto que o
+  // navegador aceita (em vitorpereira.ia.br, ".ia.br" é rejeitado), então
+  // não dá para presumir "últimos dois rótulos".
   const parts = location.hostname.split(".");
-  const domains = [undefined, location.hostname];
-  if (parts.length > 1) domains.push(`.${parts.slice(-2).join(".")}`);
-  domains.push(`.${location.hostname}`);
+  const domains: (string | undefined)[] = [undefined, location.hostname];
+  for (let i = 0; i < parts.length - 1; i++) {
+    domains.push(`.${parts.slice(i).join(".")}`);
+  }
 
   for (const entry of document.cookie.split(";")) {
     const name = entry.trim().split("=")[0];
