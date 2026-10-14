@@ -15,9 +15,11 @@
 --     `alter role ... password` ao aplicar):
 --       - social_collector: SELECT/INSERT/UPDATE nas cinco. SEM DELETE.
 --       - social_reader:    SELECT nas cinco.
---   * Acesso por GRANT + policy por papel, não BYPASSRLS: BYPASSRLS vale pro banco
---     inteiro (inclusive vitor_syndication_* e tabelas das outras apps, se um
---     grant escapar); com policy, a RLS também prende o papel às cinco tabelas.
+--   * Acesso por GRANT + policy por papel, não BYPASSRLS: BYPASSRLS desliga a RLS
+--     do papel no banco inteiro (inclusive vitor_syndication_* e tabelas das
+--     outras apps, se um grant escapar). Com policy, toda tabela com RLS ligado e
+--     sem policy pra estes papéis continua fechada pra eles. Tabela de outra app
+--     com RLS desligado e grant pra PUBLIC não é protegida por nada daqui.
 --     O DELETE do collector segue barrado pelo GRANT mesmo com policy `for all`.
 --
 -- Aplicada via SQL Editor / Management API (não via Supabase CLI). Idempotente:
@@ -48,6 +50,23 @@ create index if not exists vitor_social_posts_rede_published_idx
   on public.vitor_social_posts (rede, published_at desc);
 create index if not exists vitor_social_posts_peca_idx
   on public.vitor_social_posts (peca_slug);
+
+-- O default de `updated_at` só vale no INSERT; sem trigger, o upsert do coletor
+-- deixaria a coluna parada na data de criação.
+create or replace function public.vitor_social_touch_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end
+$$;
+drop trigger if exists vitor_social_posts_touch_updated_at on public.vitor_social_posts;
+create trigger vitor_social_posts_touch_updated_at
+  before update on public.vitor_social_posts
+  for each row execute function public.vitor_social_touch_updated_at();
 
 -- Série diária por post. `dia` é a data de Brasília, não UTC.
 create table if not exists public.vitor_social_post_metrics (

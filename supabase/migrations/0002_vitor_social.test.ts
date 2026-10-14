@@ -65,6 +65,15 @@ describe("migration 0002_vitor_social", () => {
     expect(sql).toMatch(/on public\.vitor_social_post_metrics \(dia\)/);
   });
 
+  it("atualiza updated_at de vitor_social_posts em todo update", () => {
+    expect(sql).toMatch(
+      /create trigger vitor_social_posts_touch_updated_at before update on public\.vitor_social_posts/,
+    );
+    expect(sql).toContain(
+      "drop trigger if exists vitor_social_posts_touch_updated_at",
+    );
+  });
+
   it("nenhum grant libera delete, all ou outra tabela", () => {
     const grants = sql.match(/grant [^;]*;/g) ?? [];
     expect(grants.length).toBeGreaterThan(0);
