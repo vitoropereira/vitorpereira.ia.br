@@ -1,0 +1,17 @@
+{
+  "kind": "youtubeAnalytics#resultTable",
+  "columnHeaders": [
+    { "name": "day", "columnType": "DIMENSION", "dataType": "STRING" },
+    {
+      "name": "insightTrafficSourceType",
+      "columnType": "DIMENSION",
+      "dataType": "STRING"
+    },
+    { "name": "views", "columnType": "METRIC", "dataType": "INTEGER" }
+  ],
+  "rows": [
+    ["2026-10-11", "YT_SEARCH", 25],
+    ["2026-10-11", "SHORTS", 15],
+    ["2026-10-12", "YT_SEARCH", 30]
+  ]
+}

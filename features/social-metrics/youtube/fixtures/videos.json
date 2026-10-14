@@ -1,0 +1,34 @@
+{
+  "kind": "youtube#videoListResponse",
+  "items": [
+    {
+      "kind": "youtube#video",
+      "id": "novoAAAAAA1",
+      "snippet": {
+        "publishedAt": "2026-10-01T15:00:00Z",
+        "title": "Vídeo novo de teste"
+      },
+      "contentDetails": { "duration": "PT2M30S" },
+      "statistics": {
+        "viewCount": "300",
+        "likeCount": "5",
+        "favoriteCount": "0",
+        "commentCount": "0"
+      }
+    },
+    {
+      "kind": "youtube#video",
+      "id": "velhoBBBBB2",
+      "snippet": {
+        "publishedAt": "2026-01-10T15:00:00Z",
+        "title": "Vídeo antigo de teste"
+      },
+      "contentDetails": { "duration": "PT10M4S" },
+      "statistics": {
+        "viewCount": "9000",
+        "favoriteCount": "0",
+        "commentCount": "12"
+      }
+    }
+  ]
+}

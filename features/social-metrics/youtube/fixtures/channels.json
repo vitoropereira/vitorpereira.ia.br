@@ -1,0 +1,18 @@
+{
+  "kind": "youtube#channelListResponse",
+  "items": [
+    {
+      "kind": "youtube#channel",
+      "id": "UCcanalDeTesteXXXXXXXXXX",
+      "contentDetails": {
+        "relatedPlaylists": { "uploads": "UUcanalDeTesteXXXXXXXXXX" }
+      },
+      "statistics": {
+        "viewCount": "12345",
+        "subscriberCount": "321",
+        "hiddenSubscriberCount": false,
+        "videoCount": "2"
+      }
+    }
+  ]
+}

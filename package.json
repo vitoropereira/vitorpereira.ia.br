@@ -22,7 +22,10 @@
     "crosspost": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost.ts",
     "crosspost:stats": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/crosspost-stats.ts",
     "gen:card-assets": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-card-assets.ts",
-    "cal:setup": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/setup-cal-event-types.ts"
+    "cal:setup": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/setup-cal-event-types.ts",
+    "social:collect": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/social-collect.ts",
+    "social:backfill": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/social-collect.ts --job backfill",
+    "social:auth:youtube": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --env-file-if-exists=.env --env-file-if-exists=.env.development.local scripts/social-auth-youtube.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -40,6 +43,7 @@
     "next-intl": "^4.9.1",
     "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.6",
+    "pg": "8.23.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-tweet": "^3.3.0",
@@ -62,6 +66,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
+    "@types/pg": "8.23.1",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",

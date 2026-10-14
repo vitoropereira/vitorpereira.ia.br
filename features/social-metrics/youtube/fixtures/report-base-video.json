@@ -1,0 +1,26 @@
+{
+  "kind": "youtubeAnalytics#resultTable",
+  "columnHeaders": [
+    { "name": "day", "columnType": "DIMENSION", "dataType": "STRING" },
+    { "name": "views", "columnType": "METRIC", "dataType": "INTEGER" },
+    {
+      "name": "estimatedMinutesWatched",
+      "columnType": "METRIC",
+      "dataType": "INTEGER"
+    },
+    {
+      "name": "averageViewPercentage",
+      "columnType": "METRIC",
+      "dataType": "FLOAT"
+    },
+    {
+      "name": "subscribersGained",
+      "columnType": "METRIC",
+      "dataType": "INTEGER"
+    }
+  ],
+  "rows": [
+    ["2026-10-11", 40, 80, 55.5, 1],
+    ["2026-10-12", 30, 60, 50.1, 0]
+  ]
+}

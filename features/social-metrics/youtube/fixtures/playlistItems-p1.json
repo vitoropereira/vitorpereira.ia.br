@@ -1,0 +1,10 @@
+{
+  "kind": "youtube#playlistItemListResponse",
+  "nextPageToken": "PAGINA2",
+  "items": [
+    {
+      "kind": "youtube#playlistItem",
+      "contentDetails": { "videoId": "novoAAAAAA1" }
+    }
+  ]
+}

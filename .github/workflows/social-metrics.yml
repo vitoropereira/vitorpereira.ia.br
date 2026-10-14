@@ -1,0 +1,63 @@
+name: Social metrics
+
+# Coleta diária das métricas das redes para o painel do /admin. 9h UTC = 6h
+# de Brasília: o dia anterior já fechou no fuso do Vitor.
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      rede:
+        description: Rede a coletar
+        type: choice
+        options: [all, youtube, instagram]
+        default: all
+      job:
+        description: collect (últimos 4 dias) ou backfill (histórico inteiro)
+        type: choice
+        options: [collect, backfill]
+        default: collect
+
+permissions:
+  contents: read
+
+jobs:
+  # Lugar do futuro `sync-pecas`: liga post a peça editorial e os `collect-*`
+  # vão depender dele (`needs: sync-pecas`).
+
+  collect-youtube:
+    if: github.event_name == 'schedule' || inputs.rede == 'all' || inputs.rede == 'youtube'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Dois runs da mesma rede gravando ao mesmo tempo só gastam cota.
+    concurrency:
+      group: social-metrics-youtube
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      # Sem `version:`: a action lê o `packageManager` do package.json.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Coletar YouTube
+        # O input vai por env, não interpolado no shell; o case barra valor
+        # fora da lista mesmo que alguém dispare pela API.
+        env:
+          JOB: ${{ inputs.job || 'collect' }}
+          SOCIAL_COLLECTOR_DATABASE_URL: ${{ secrets.SOCIAL_COLLECTOR_DATABASE_URL }}
+          SOCIAL_COLLECTOR_DATABASE_CA: ${{ secrets.SOCIAL_COLLECTOR_DATABASE_CA }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          case "$JOB" in
+            collect|backfill) ;;
+            *) echo "job inválido: $JOB" >&2; exit 1 ;;
+          esac
+          pnpm "social:$JOB" --rede youtube
+
+  # Lugar do futuro `collect-instagram`: independente do YouTube (falha de um
+  # não bloqueia o outro), mesmo esqueleto, `concurrency: social-metrics-instagram`.
