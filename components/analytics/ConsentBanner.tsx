@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { writeConsent } from "@/lib/consent";
+import {
+  clearAnalyticsCookies,
+  readConsent,
+  writeConsent,
+} from "@/lib/consent";
 import { institutionalRoutes } from "@/lib/i18n/routeMap";
 
 const copyByLocale = {
@@ -43,8 +47,15 @@ export function ConsentBanner({ initiallyVisible, locale }: Props) {
   };
 
   const reject = () => {
+    // Quem já tinha aceito está com GA/Clarity ativos na página; sem recarregar
+    // eles seguiriam coletando nas navegações client-side.
+    const hadAccepted = readConsent() === "accepted";
     writeConsent("rejected");
     setVisible(false);
+    if (hadAccepted) {
+      clearAnalyticsCookies();
+      window.location.reload();
+    }
   };
 
   const copy = copyByLocale[locale];

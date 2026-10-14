@@ -23,7 +23,17 @@ describe("ClarityScript", () => {
 
   it("não carrega nada sem consentimento aceito", async () => {
     mockedConsent.mockResolvedValue("rejected");
-    expect(await render()).toBe("");
+    expect(await render()).not.toContain("clarity.ms");
+  });
+
+  it("não carrega nada sem resposta de consentimento", async () => {
+    mockedConsent.mockResolvedValue(null);
+    expect(await render()).not.toContain("clarity.ms");
+  });
+
+  it("não renderiza nada sem a env", async () => {
+    mockedConsent.mockResolvedValue("accepted");
+    expect(await render("")).toBe("");
   });
 
   it("define a fila window.clarity antes de carregar a tag", async () => {
