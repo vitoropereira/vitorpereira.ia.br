@@ -10,12 +10,18 @@ type Check =
   | { ok: false; reason: "unauthenticated" | "forbidden" };
 
 async function check(section?: AdminSection): Promise<Check> {
-  const supabase = await createClient();
   // getUser valida o token no Auth; getSession só decodifica o cookie, que o
-  // cliente pode forjar.
-  const { data, error } = await supabase.auth.getUser();
-  const email = data?.user?.email;
-  if (error || !email) return { ok: false, reason: "unauthenticated" };
+  // cliente pode forjar. Sem env ou Auth fora do ar conta como sem sessão:
+  // manda pro login (que também tolera isso) em vez de estourar 500.
+  let email: string | undefined;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+    if (!error) email = data?.user?.email;
+  } catch {
+    email = undefined;
+  }
+  if (!email) return { ok: false, reason: "unauthenticated" };
 
   const env = process.env.ADMIN_ACCESS;
   const allowed = section

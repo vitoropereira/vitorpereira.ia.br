@@ -55,6 +55,13 @@ describe("requireAdmin — o que precisa barrar", () => {
     await expect(requireAdmin()).rejects.toThrow("REDIRECT:/admin/login");
   });
 
+  it("Auth que lança (sem env, rede) conta como sem sessão", async () => {
+    getUser.mockRejectedValue(new Error("fetch failed"));
+    await expect(requireAdmin()).rejects.toThrow("REDIRECT:/admin/login");
+    const res = await requireAdminApi();
+    expect((res as Response).status).toBe(401);
+  });
+
   it("e-mail fora do ADMIN_ACCESS: 403", async () => {
     comUsuario("intruso@y.com");
     await expect(requireAdmin()).rejects.toThrow("FORBIDDEN");

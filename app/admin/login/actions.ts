@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 import { isListed, normalizeEmail } from "@/lib/admin/access";
 import { createClient } from "@/lib/supabase/server";
@@ -28,18 +29,22 @@ export async function requestCode(
   if (!parsed.success) return { step: "email", error: "E-mail inválido." };
   const email = parsed.data;
 
-  // Fora da lista não chega ao Supabase: nem gasta envio, nem expõe timing do
-  // Auth. shouldCreateUser: false impede que o login vire cadastro aberto.
+  // Fora da lista não chega ao Supabase. Para quem está na lista, o envio roda
+  // depois da resposta (after): se esperasse o Auth, o tempo de resposta
+  // denunciaria quem tem acesso. shouldCreateUser: false impede que o login
+  // vire cadastro aberto.
   if (isListed(email, process.env.ADMIN_ACCESS)) {
-    try {
-      const supabase = await createClient();
-      await supabase.auth.signInWithOtp({
-        email,
-        options: { shouldCreateUser: false },
-      });
-    } catch {
-      // Erro do Auth também fica neutro; a mensagem real não sai daqui.
-    }
+    const supabase = await createClient().catch(() => null);
+    after(async () => {
+      try {
+        await supabase?.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: false },
+        });
+      } catch {
+        // Erro do Auth também fica neutro; a mensagem real não sai daqui.
+      }
+    });
   }
 
   return { step: "code", email, message: NEUTRAL_MESSAGE };

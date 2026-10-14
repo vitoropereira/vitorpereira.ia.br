@@ -72,6 +72,15 @@ export function LoginForm() {
       <Button type="submit" disabled={pending}>
         {pending ? "Verificando…" : "Entrar"}
       </Button>
+      {/* Recarregar zera o estado do formulário: volta ao passo do e-mail
+          para corrigir o endereço ou pedir outro código. */}
+      <Button
+        type="button"
+        variant="link"
+        onClick={() => window.location.reload()}
+      >
+        Usar outro e-mail ou pedir novo código
+      </Button>
     </form>
   );
 }

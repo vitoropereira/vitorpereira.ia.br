@@ -15,7 +15,29 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-import { logout, requestCode, verifyCode } from "./actions";
+// after() só existe dentro de uma request do Next; aqui as tarefas vão para
+// uma fila que o teste esvazia, imitando o "depois da resposta".
+const { afterQueue } = vi.hoisted(() => ({
+  afterQueue: [] as Array<() => unknown>,
+}));
+vi.mock("next/server", () => ({
+  after: (fn: () => unknown) => {
+    afterQueue.push(fn);
+  },
+}));
+
+import { logout, requestCode as requestCodeRaw, verifyCode } from "./actions";
+
+async function flushAfter() {
+  for (const fn of afterQueue.splice(0)) await fn();
+}
+
+// Responde primeiro, roda o after depois: o mesmo que acontece em produção.
+async function requestCode(...args: Parameters<typeof requestCodeRaw>) {
+  const res = await requestCodeRaw(...args);
+  await flushAfter();
+  return res;
+}
 
 function form(fields: Record<string, string>) {
   const fd = new FormData();
@@ -48,6 +70,14 @@ describe("requestCode", () => {
     const dentro = await requestCode(idle, form({ email: "vitor@y.com" }));
     expect({ ...fora, email: "" }).toEqual({ ...dentro, email: "" });
     expect(fora.step).toBe("code");
+  });
+
+  it("a resposta não espera o Supabase (sem vazamento por timing)", async () => {
+    signInWithOtp.mockReturnValue(new Promise(() => {}));
+    const res = await requestCodeRaw(idle, form({ email: "vitor@y.com" }));
+    expect(res.step).toBe("code");
+    expect(signInWithOtp).not.toHaveBeenCalled();
+    afterQueue.splice(0);
   });
 
   it("e-mail permitido pede OTP sem criar usuário", async () => {

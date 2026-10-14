@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { hardenCookie } from "./env";
+import { hardenCookie, supabaseAuthEnv } from "./env";
 
 // Renova o access token (dura ~1h) antes de a página rodar, para a sessão não
 // cair no meio do uso. É conforto, não trava: quem decide acesso é o
@@ -11,9 +11,13 @@ export async function updateSession(
 ) {
   let response = NextResponse.next({ request: { headers: requestHeaders } });
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return response;
+  let env: ReturnType<typeof supabaseAuthEnv>;
+  try {
+    env = supabaseAuthEnv();
+  } catch {
+    return response;
+  }
+  const { url, key } = env;
 
   const supabase = createServerClient(url, key, {
     cookies: {
