@@ -80,6 +80,9 @@
   --chart-3: #38bdf8;
   --chart-4: #60a5fa;
   --chart-5: #93c5fd;
+  /* Painel /admin/redes: uma cor por rede, distinta da paleta azul do site. */
+  --rede-youtube: #c8102e;
+  --rede-instagram: #7e22ce;
   --radius: 0.625rem;
   --sidebar: #ffffff;
   --sidebar-foreground: #0b1220;
@@ -118,6 +121,8 @@
   --chart-3: #3b82f6;
   --chart-4: #60a5fa;
   --chart-5: #93c5fd;
+  --rede-youtube: #ff6b6b;
+  --rede-instagram: #c084fc;
   --sidebar: #0c121d;
   --sidebar-foreground: #e9eef7;
   --sidebar-primary: #24c8ff;
