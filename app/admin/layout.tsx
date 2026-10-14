@@ -11,8 +11,10 @@ export const metadata: Metadata = {
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Página com gráfico marca `data-largura="ampla"` e ganha mais largura; as
+  // telas de formulário seguem estreitas.
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-6 py-16">
+    <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-6 py-16 has-[[data-largura=ampla]]:max-w-5xl">
       {children}
     </main>
   );
