@@ -139,7 +139,8 @@ export function criarAdapterYouTube(
     const out: [string, string][] = [];
     let ini = de;
     while (ini <= ate) {
-      const fim = somarDias(ini, 364) < ate ? somarDias(ini, 364) : ate;
+      const teto = somarDias(ini, 364);
+      const fim = teto < ate ? teto : ate;
       out.push([ini, fim]);
       ini = somarDias(fim, 1);
     }
@@ -184,40 +185,20 @@ export function criarAdapterYouTube(
       return diaPub > desde ? diaPub : desde;
     };
 
-    // Base. No collect tenta `day,video` numa consulta só; a documentação não
-    // garante essa combinação, então o 400 cai para uma consulta por vídeo.
-    let baseFeita = false;
-    if (job === "collect" && serie.length > 0) {
-      try {
+    // Base, uma consulta por vídeo. `day,video` numa consulta só não é
+    // combinação documentada, e o relatório por `video` é um top-N: com 200 ele
+    // pode cortar vídeos sem avisar, e a série perderia linha em silêncio.
+    for (const v of serie) {
+      for (const [ini, fim] of janelas(inicioDe(v), hoje)) {
         const r = await relatorio({
-          startDate: desde,
-          endDate: hoje,
+          startDate: ini,
+          endDate: fim,
           metrics: METRICAS_BASE,
-          dimensions: "day,video",
+          dimensions: "day",
+          filters: `video==${v.id}`,
           sort: "day",
         });
-        const ids = new Set(serie.map((v) => v.id));
-        for (const l of linhasPorNome(r)) {
-          if (ids.has(String(l.video))) aplicar(String(l.video), l);
-        }
-        baseFeita = true;
-      } catch (e) {
-        if (!(e instanceof ErroApi && e.status === 400)) throw e;
-      }
-    }
-    if (!baseFeita) {
-      for (const v of serie) {
-        for (const [ini, fim] of janelas(inicioDe(v), hoje)) {
-          const r = await relatorio({
-            startDate: ini,
-            endDate: fim,
-            metrics: METRICAS_BASE,
-            dimensions: "day",
-            filters: `video==${v.id}`,
-            sort: "day",
-          });
-          for (const l of linhasPorNome(r)) aplicar(v.id, l);
-        }
+        for (const l of linhasPorNome(r)) aplicar(v.id, l);
       }
     }
 
@@ -317,7 +298,7 @@ export function criarAdapterYouTube(
         dia: d,
         // subscriberCount é o total de agora: gravá-lo nos dias passados
         // sobrescreveria o número real daquele dia.
-        seguidores: d === hoje ? seguidoresHoje : null,
+        seguidores: d === dia ? seguidoresHoje : null,
         views_dia: numOuNull(l?.views),
         alcance_dia: null,
         extra,

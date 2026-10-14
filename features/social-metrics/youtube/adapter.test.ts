@@ -5,9 +5,7 @@ import channels from "./fixtures/channels.json";
 import erro500 from "./fixtures/erro-500.json";
 import playlistP1 from "./fixtures/playlistItems-p1.json";
 import playlistP2 from "./fixtures/playlistItems-p2.json";
-import erroDimensao from "./fixtures/report-400-dimensao.json";
 import erroMetrica from "./fixtures/report-400-metrica.json";
-import baseDayVideo from "./fixtures/report-base-day-video.json";
 import baseVideo from "./fixtures/report-base-video.json";
 import conta from "./fixtures/report-conta.json";
 import impressoes from "./fixtures/report-impressoes.json";
@@ -30,7 +28,6 @@ function criarFetch(...extra: Rota[]) {
     if (u.pathname.endsWith("/reports")) {
       const dims = u.searchParams.get("dimensions");
       const metrics = u.searchParams.get("metrics") ?? "";
-      if (dims === "day,video") return ok(baseDayVideo);
       if (dims === "day,insightTrafficSourceType") return ok(trafego);
       if (metrics.startsWith("videoThumbnailImpressions")) {
         return ok(impressoes);
@@ -121,11 +118,16 @@ describe("coletarPosts", () => {
       extra: { trafego: { YT_SEARCH: 25, SHORTS: 15 } },
     });
 
-    const base = urls(fetch).find(
-      (u) => u.searchParams.get("dimensions") === "day,video",
-    )!;
-    expect(base.searchParams.get("startDate")).toBe("2026-10-11");
-    expect(base.searchParams.get("endDate")).toBe(QUARTA);
+    // Uma consulta base por vídeo da série, cobrindo a janela reprocessada.
+    const base = urls(fetch).filter((u) =>
+      u.searchParams.get("metrics")?.startsWith("views,"),
+    );
+    expect(base.map((u) => u.searchParams.get("filters"))).toEqual([
+      "video==novoAAAAAA1",
+    ]);
+    expect(base[0].searchParams.get("dimensions")).toBe("day");
+    expect(base[0].searchParams.get("startDate")).toBe("2026-10-11");
+    expect(base[0].searchParams.get("endDate")).toBe(QUARTA);
   });
 
   it("likes e comments acumulados entram só na linha de hoje", async () => {
@@ -174,30 +176,6 @@ describe("coletarPosts", () => {
     expect(tentativas).toHaveLength(1);
   });
 
-  it("day,video recusado cai para uma consulta por vídeo", async () => {
-    const fetch = criarFetch((u) =>
-      u.searchParams.get("dimensions") === "day,video"
-        ? { status: 400, json: erroDimensao }
-        : undefined,
-    );
-    const a = criarAdapterYouTube({ fetch, accessToken: "tok", hoje: QUARTA });
-    const { metricas } = await a.coletarPosts("2026-10-11");
-
-    const porVideo = urls(fetch).filter(
-      (u) =>
-        u.searchParams.get("dimensions") === "day" &&
-        u.searchParams.get("metrics")?.startsWith("views,"),
-    );
-    expect(porVideo.map((u) => u.searchParams.get("filters"))).toEqual([
-      "video==novoAAAAAA1",
-    ]);
-    expect(
-      metricas.find(
-        (m) => m.external_id === "novoAAAAAA1" && m.dia === "2026-10-12",
-      )?.views,
-    ).toBe(30);
-  });
-
   it("vídeo com mais de 90 dias fica fora da série fora da segunda", async () => {
     const fetch = criarFetch();
     const a = criarAdapterYouTube({ fetch, accessToken: "tok", hoje: QUARTA });
@@ -221,7 +199,7 @@ describe("coletarPosts", () => {
 
     const velho = metricas.filter((m) => m.external_id === "velhoBBBBB2");
     expect(velho.find((m) => m.dia === SEGUNDA)).toMatchObject({
-      views: 9,
+      views: 30,
       // likeCount oculto no statistics → null, não 0.
       likes: null,
       comments: 12,
@@ -238,10 +216,6 @@ describe("coletarPosts", () => {
         u.searchParams.get("metrics")?.startsWith("views,") &&
         u.searchParams.get("filters") === "video==velhoBBBBB2",
     );
-    // Sem tentar day,video: no backfill o relatório ficaria grande demais.
-    expect(
-      urls(fetch).some((u) => u.searchParams.get("dimensions") === "day,video"),
-    ).toBe(false);
     expect(
       base.map((u) => [
         u.searchParams.get("startDate"),

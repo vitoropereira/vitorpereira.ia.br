@@ -32,14 +32,16 @@ const AJUDA = `uso: pnpm social:collect [--rede youtube|all] [--job collect|back
 
 // Rede nova entra aqui e no workflow; o resto do pipeline é comum.
 const ADAPTERS: Partial<
-  Record<Rede, (fetch: Fetch) => Promise<SocialAdapter>>
+  Record<Rede, (fetch: Fetch, dia: string) => Promise<SocialAdapter>>
 > = {
-  youtube: async (fetch) => {
+  // O `dia` vem de quem chama: um relógio só por run, senão um run que vira a
+  // meia-noite coleta posts num dia e conta noutro.
+  youtube: async (fetch, dia) => {
     const accessToken = await obterAccessToken(
       fetch,
       credenciaisDoAmbiente(process.env),
     );
-    return criarAdapterYouTube({ fetch, accessToken });
+    return criarAdapterYouTube({ fetch, accessToken, hoje: dia });
   },
 };
 
@@ -81,7 +83,7 @@ async function main(): Promise<number> {
     for (const rede of redes) {
       let r: ResultadoRun;
       try {
-        const adapter = await ADAPTERS[rede]!(fetch);
+        const adapter = await ADAPTERS[rede]!(fetch, dia);
         r = await executarColeta({ rede, job, adapter, gravador, dia });
       } catch (e) {
         // Falha antes do run abrir (credencial, token): registra mesmo assim,
