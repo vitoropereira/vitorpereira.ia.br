@@ -55,6 +55,44 @@ describe("escopo do analytics", () => {
     }
   });
 
+  it("nenhum import de @vercel/analytics ou @vercel/speed-insights", () => {
+    // o padrão é só GA4 + Clarity sob consentimento; Vercel Analytics e
+    // Speed Insights coletam sem passar pelo banner e não voltam.
+    const proibido = /@vercel\/(analytics|speed-insights)/;
+    const alvos = [
+      ...["app", "components", "features", "lib", "scripts"].flatMap((d) =>
+        walk(join(root, d)),
+      ),
+      join(root, "proxy.ts"),
+      join(root, "velite.config.ts"),
+    ]
+      .filter((f) => /\.tsx?$/.test(f))
+      // este arquivo cita os nomes proibidos por definição
+      .filter(
+        (f) =>
+          rel(f) !== join("components", "analytics", "analytics-scope.test.ts"),
+      );
+
+    const offenders = alvos
+      .filter((f) => {
+        try {
+          return proibido.test(readFileSync(f, "utf8"));
+        } catch {
+          return false;
+        }
+      })
+      .map(rel);
+
+    expect(offenders).toEqual([]);
+
+    const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+    const deps = Object.keys({
+      ...pkg.dependencies,
+      ...pkg.devDependencies,
+    });
+    expect(deps.filter((d) => proibido.test(d))).toEqual([]);
+  });
+
   it("nenhum ID literal do GA no código", () => {
     const offenders = ["app", "components", "features", "lib"]
       .flatMap((d) => walk(join(root, d)))

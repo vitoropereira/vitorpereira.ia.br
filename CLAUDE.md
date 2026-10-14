@@ -121,8 +121,9 @@ duração ou event type oculto, que ele não corrige sozinho.
 ### Analytics tem duas travas, não uma
 
 Clarity e GA4 só carregam com a env var preenchida **e** o cookie de consent
-aceito. Qualquer uma das duas desligada = script nenhum. Vercel Analytics e
-Speed Insights são sempre-ligados. O consent é LGPD, mexer aí é decisão de
+aceito. Qualquer uma das duas desligada = script nenhum. Não há analytics
+sempre-ligado: `trackEvent` (`lib/analytics/gtag.ts`) manda evento ao GA4 e vira
+no-op quando o GA não carregou. O consent é LGPD, mexer aí é decisão de
 produto, não de código.
 
 `/api/track` registra clique first-party no Supabase; sem as chaves ele ainda

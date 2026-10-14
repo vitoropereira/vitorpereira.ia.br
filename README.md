@@ -15,7 +15,7 @@ Personal blog and portfolio of Vitor Pereira, built with Next.js 16.
 - next-themes (dark mode with system preference)
 - Shiki + rehype-pretty-code (syntax highlighting)
 - Giscus (comments, opt-in per post)
-- Vercel Analytics + Speed Insights (always on) + Microsoft Clarity + Google Analytics 4 (gated by LGPD consent)
+- Microsoft Clarity + Google Analytics 4 (gated by LGPD consent)
 - Deployed on Vercel
 
 ## Content

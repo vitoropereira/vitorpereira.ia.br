@@ -83,15 +83,12 @@ funcionando, e a falha aqui é silenciosa: o endereço engole mensagem sem avisa
 ## 4. Medição
 
 `/card` fica fora do grupo `(site)`, então não tem GA, Clarity nem banner de
-consentimento. A medição vem do Vercel Analytics, que já está no root layout e
-é cookieless:
+consentimento. Por isso **`/card` não mede cliques nem visitas**: o
+`card_click` do `TrackedLink` passa por `trackEvent` (GA4), que vira no-op sem
+o GA carregado. Medir o cartão exigiria um beacon first-party (estilo
+`/api/track`) ou banner em `/card`, em issue à parte.
 
-- **pageview** de `/card` — quantas pessoas escanearam
-- evento **`card_click`** com `target` (`vcard`, `whatsapp`, `email`,
-  `linkedin`, …) — o que elas clicaram
-
-O QR aponta para `/card?ref=qr`, então dá para separar quem veio do QR de quem
-chegou pelo link.
+O QR aponta para `/card?ref=qr`, o que ainda marca a origem na URL.
 
 ## 5. Checklist do dia
 
