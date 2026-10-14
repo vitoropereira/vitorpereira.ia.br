@@ -56,14 +56,15 @@ describe("proxy", () => {
     expect(reqHeader(proxy(req("/sobre")), "x-pathname")).toBe("/sobre");
   });
 
-  it("/ com cookie pt → x-pathname na request e cookie preservado", () => {
+  it("/ com cookie pt → x-pathname na request", () => {
     const res = proxy(req("/", { cookie: "NEXT_LOCALE=pt" }));
     expect(reqHeader(res, "x-pathname")).toBe("/");
   });
 
-  it("/ sem cookie e pt → x-pathname na request", () => {
+  it("/ sem cookie e pt → x-pathname na request e cookie pt gravado", () => {
     const res = proxy(req("/", { "accept-language": "pt-BR,pt;q=0.9" }));
     expect(reqHeader(res, "x-pathname")).toBe("/");
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("pt");
   });
 
   it.each([
