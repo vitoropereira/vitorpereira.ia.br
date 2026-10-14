@@ -3,6 +3,14 @@ import { defaultLocale, locales } from "@/lib/i18n/config";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
+// O header precisa ir na REQUEST: o `headers()` de i18n/request.ts lê a
+// request, e um header setado na response nunca chega lá (locale caía em PT).
+function nextWithPathname(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -36,7 +44,7 @@ export function proxy(request: NextRequest) {
         });
         return res;
       }
-      const res = NextResponse.next();
+      const res = nextWithPathname(request);
       res.cookies.set("NEXT_LOCALE", defaultLocale, {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
@@ -45,10 +53,7 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  // Attach pathname for getRequestConfig (next-intl helper)
-  const response = NextResponse.next();
-  response.headers.set("x-pathname", pathname);
-  return response;
+  return nextWithPathname(request);
 }
 
 export const config = {

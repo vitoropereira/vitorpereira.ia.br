@@ -28,16 +28,43 @@ describe("proxy", () => {
     expect(new URL(res.headers.get("location")!).pathname).toBe("/en");
   });
 
-  it("/posts com cookie pt → sem redirect e com x-pathname", () => {
+  // O Next codifica `next({ request: { headers } })` como
+  // `x-middleware-request-<nome>` na response; é isso que o `headers()` de
+  // i18n/request.ts enxerga. Header na response não chega lá.
+  const reqHeader = (res: Response, name: string) =>
+    res.headers.get(`x-middleware-request-${name}`);
+
+  it("/posts com cookie pt → sem redirect e x-pathname na request", () => {
     const res = proxy(req("/posts", { cookie: "NEXT_LOCALE=pt" }));
     expect(res.headers.get("location")).toBeNull();
-    expect(res.headers.get("x-pathname")).toBe("/posts");
+    expect(reqHeader(res, "x-pathname")).toBe("/posts");
+    expect(res.headers.get("x-pathname")).toBeNull();
   });
 
-  it("/en/posts → sem redirect e com x-pathname", () => {
+  it("/en/posts → sem redirect e x-pathname na request", () => {
     const res = proxy(req("/en/posts"));
     expect(res.headers.get("location")).toBeNull();
-    expect(res.headers.get("x-pathname")).toBe("/en/posts");
+    expect(reqHeader(res, "x-pathname")).toBe("/en/posts");
+    expect(res.headers.get("x-pathname")).toBeNull();
+  });
+
+  it("/en exato → x-pathname na request", () => {
+    expect(reqHeader(proxy(req("/en")), "x-pathname")).toBe("/en");
+  });
+
+  it("/sobre → x-pathname na request", () => {
+    expect(reqHeader(proxy(req("/sobre")), "x-pathname")).toBe("/sobre");
+  });
+
+  it("/ com cookie pt → x-pathname na request", () => {
+    const res = proxy(req("/", { cookie: "NEXT_LOCALE=pt" }));
+    expect(reqHeader(res, "x-pathname")).toBe("/");
+  });
+
+  it("/ sem cookie e pt → x-pathname na request e cookie pt gravado", () => {
+    const res = proxy(req("/", { "accept-language": "pt-BR,pt;q=0.9" }));
+    expect(reqHeader(res, "x-pathname")).toBe("/");
+    expect(res.cookies.get("NEXT_LOCALE")?.value).toBe("pt");
   });
 
   it.each([
@@ -50,6 +77,7 @@ describe("proxy", () => {
     const res = proxy(req(path));
     expect(res.headers.get("location")).toBeNull();
     expect(res.headers.get("x-pathname")).toBeNull();
+    expect(reqHeader(res, "x-pathname")).toBeNull();
   });
 
   it("matcher preservado", () => {
