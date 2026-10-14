@@ -15,7 +15,8 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    // /admin também leva noindex no layout; o disallow evita até o rastreio.
+    rules: [{ userAgent: "*", allow: "/", disallow: "/admin" }],
     sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }
