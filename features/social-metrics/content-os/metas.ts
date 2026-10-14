@@ -74,10 +74,19 @@ export function parsearMetas(conteudo: string): ResultadoMetas {
 
   const metas: Meta[] = [];
   const avisos: string[] = [];
+  const vistas = new Set<string>();
   raiz.forEach((item, i) => {
     const r = validar(item, i);
-    if (typeof r === "string") avisos.push(r);
-    else metas.push(r);
+    if (typeof r === "string") {
+      avisos.push(r);
+      return;
+    }
+    const chave = `${r.rede}/${r.tipo}/${r.vigente_desde}`;
+    if (vistas.has(chave)) {
+      avisos.push(`metas.yml[${i}]: ${chave} repetida, a última vence`);
+    }
+    vistas.add(chave);
+    metas.push(r);
   });
   return { metas, avisos };
 }

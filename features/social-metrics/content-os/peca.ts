@@ -79,7 +79,11 @@ export function parsearPeca(caminho: string, conteudo: string): ResultadoPeca {
     const v = data[campo];
     if (v === undefined || v === null) ids[campo] = null;
     else if (typeof v === "string") ids[campo] = v.trim() || null;
-    else return invalido(campo);
+    // Id numérico sem aspas perde precisão acima de 2^53: pede aspas.
+    else
+      return {
+        aviso: `${slug}: campo ${campo} fora do contrato (precisa ser texto, entre aspas)`,
+      };
   }
 
   const p = data.plataforma;
