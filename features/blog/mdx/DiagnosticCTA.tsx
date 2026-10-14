@@ -12,8 +12,8 @@ type DiagnosticCTAProps = {
 
 /**
  * CTA editorial: navega sem JavaScript e mede a intenção de diagnóstico no GA4,
- * só quando ele está carregado (ou seja, com consentimento). Não usa o redirect de syndication porque esta
- * origem é o próprio site, não TabNews.
+ * só quando ele está carregado (ou seja, com consentimento). Não usa o
+ * redirect de syndication porque esta origem é o próprio site, não TabNews.
  */
 export function DiagnosticCTA({ locale, children }: DiagnosticCTAProps) {
   const source = usePathname();
