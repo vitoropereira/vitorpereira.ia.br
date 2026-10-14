@@ -1,6 +1,6 @@
 import { diaSaoPaulo, somarDias, ultimosDias } from "../dia";
 import type { Db } from "../gravador";
-import type { Rede, TipoPost } from "../types";
+import type { Meta, Rede, TipoPost } from "../types";
 import { inicioSemana, semanaDe, ultimasSemanas } from "./semana";
 
 // Camada de consulta do /admin/redes. As funções puras recebem as linhas já
@@ -13,7 +13,7 @@ export const DIAS_SEGUIDORES = 90;
 export const SEMANAS_CADENCIA = 9;
 export const HORAS_SEM_SUCESSO = 36;
 
-export type TipoMeta = TipoPost | "estatico";
+export type TipoMeta = Meta["tipo"];
 type Job = "collect" | "backfill" | "sync_pecas" | "refresh_token";
 type Instante = Date | string;
 
@@ -31,12 +31,7 @@ export interface ContaLinha {
   alcance_dia: number | null;
 }
 
-export interface MetaLinha {
-  rede: Rede;
-  tipo: TipoMeta;
-  por_semana: number;
-  vigente_desde: string;
-}
+export type MetaLinha = Meta;
 
 export interface RunLinha {
   /** `sync_pecas` não tem rede. */
@@ -148,11 +143,16 @@ export function cadencia(
 
   const contagem = new Map<string, number>();
   const chaves = new Set(comMeta);
+  const janela = new Set(semanas);
   for (const p of posts) {
     if (!p.published_at || !p.tipo) continue;
+    // O SQL traz um dia de folga antes da janela: post fora das semanas
+    // exibidas não pode criar linha zerada na tabela.
+    const semana = semanaDe(p.published_at);
+    if (!janela.has(semana)) continue;
     const tipo = linhaDe(p.rede, p.tipo);
     chaves.add(`${p.rede}:${tipo}`);
-    const k = `${p.rede}:${tipo}:${semanaDe(p.published_at)}`;
+    const k = `${p.rede}:${tipo}:${semana}`;
     contagem.set(k, (contagem.get(k) ?? 0) + 1);
   }
 
@@ -309,10 +309,9 @@ group by rede, job`;
 export async function carregarPainel(db: Db, agora: Date): Promise<Painel> {
   const hoje = diaSaoPaulo(agora);
   const semanas = ultimasSemanas(hoje, SEMANAS_CADENCIA);
-  const desdeDia = [
-    ultimosDias(hoje, DIAS_SEGUIDORES)[0],
-    semanas[0],
-  ].sort()[0];
+  const inicioSeguidores = somarDias(hoje, 1 - DIAS_SEGUIDORES);
+  const desdeDia =
+    inicioSeguidores < semanas[0] ? inicioSeguidores : semanas[0];
   // Um dia de folga antes da primeira segunda: o corte exato por semana de
   // Brasília é feito em `cadencia`, não no SQL.
   const desdePost = `${somarDias(semanas[0], -1)}T00:00:00Z`;

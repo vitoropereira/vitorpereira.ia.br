@@ -38,11 +38,6 @@ export default async function RedesPage() {
           ← Admin
         </Link>
         <h1 className="text-2xl font-semibold">Redes sociais</h1>
-        {painel && (
-          <p className="text-muted-foreground text-sm">
-            Dados até {painel.hoje.split("-").reverse().join("/")}.
-          </p>
-        )}
       </header>
 
       {erro && <Aviso>{erro}</Aviso>}

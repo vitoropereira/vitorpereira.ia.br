@@ -13,8 +13,8 @@ const ESTE = relative(root, __filename);
 type Arquivo = { caminho: string; conteudo: string };
 
 const ENV = /\bSOCIAL_READER_DATABASE_(URL|CA)\b/;
-const MODULO_SERVIDOR =
-  /social-metrics\/queries\/(readerDb|painel)\b|\.\/(readerDb|painel)\b/;
+// `queries/` cobre também o import relativo `../queries/readerDb`.
+const MODULO_SERVIDOR = /(?:queries|\.)\/(readerDb|painel)\b/;
 const PUBLICA = /NEXT_PUBLIC_SOCIAL_READER|NEXT_PUBLIC_\w*SOCIAL\w*DATABASE/;
 
 const ehClient = (src: string) =>
@@ -79,6 +79,17 @@ describe("violacoes (o detector funciona)", () => {
         {
           caminho: "x.tsx",
           conteudo: `// c\n'use client'\nimport { getReaderDb } from "@/features/social-metrics/queries/readerDb";`,
+        },
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it("use client que importa ../queries/readerDb é violação", () => {
+    expect(
+      violacoes([
+        {
+          caminho: "x.tsx",
+          conteudo: `"use client";\nimport { getReaderDb } from "../queries/readerDb";`,
         },
       ]),
     ).toHaveLength(1);
