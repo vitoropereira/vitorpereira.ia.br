@@ -48,6 +48,11 @@ describe("TabelaPecas", () => {
     expect(html).not.toContain("/admin/redes/pecas/");
   });
 
+  it("coluna vazia mostra sempre —, inclusive CTR e retenção", () => {
+    const html = renderToStaticMarkup(<TabelaPecas linhas={[linha()]} />);
+    expect(html).not.toContain("sem dado");
+  });
+
   it("URL que não é http(s) não vira link", () => {
     const html = renderToStaticMarkup(
       <TabelaPecas linhas={[linha({ url: "javascript:alert(1)" })]} />,

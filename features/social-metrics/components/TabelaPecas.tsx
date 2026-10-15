@@ -77,9 +77,10 @@ function valor(l: LinhaRanking, ordem: Ordem): string {
   switch (ordem) {
     case "publicado":
       return data(l.publicadoEm);
+    // "—" em toda coluna vazia: é o que a legenda da página explica.
     case "ctr":
     case "retencao":
-      return percentual(l[ordem]);
+      return l[ordem] === null ? "—" : percentual(l[ordem]);
     default:
       return l[ordem] === null ? "—" : numero(l[ordem]);
   }
