@@ -145,6 +145,12 @@ redireciona certo, só não loga.
 - **Chave de CLI não vai pra Vercel.** `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`,
   `TABNEWS_*` e `SUPABASE_TOKEN` são de uso local. Só as `NEXT_PUBLIC_*` e a
   `SUPABASE_SERVICE_ROLE_KEY` existem no deploy.
+- **Exceção deliberada: `CONTENT_OS_READ_TOKEN` vai pra Vercel**, server-only.
+  O `/admin/redes/casamentos` precisa das peças livres, e elas só existem no
+  repo content-os (não há tabela de peças no banco). O token é fine-grained,
+  Contents read-only, um repo só, e o leitor só faz GET. Sem ele a tela mostra
+  um aviso em vez de 500. Se o `sync_pecas` passar a gravar as peças numa
+  tabela, o token sai do deploy.
 - **Squash merge faz branch mergeada parecer pendente** no `git branch --merged`.
   Confira pelo PR, não pelo git local.
 

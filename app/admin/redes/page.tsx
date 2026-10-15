@@ -38,6 +38,20 @@ export default async function RedesPage() {
           ← Admin
         </Link>
         <h1 className="text-2xl font-semibold">Redes sociais</h1>
+        <nav className="flex gap-4 text-sm">
+          <Link
+            href="/admin/redes/pecas"
+            className="underline underline-offset-4"
+          >
+            Peças por idade
+          </Link>
+          <Link
+            href="/admin/redes/casamentos"
+            className="underline underline-offset-4"
+          >
+            Casamentos
+          </Link>
+        </nav>
       </header>
 
       {erro && <Aviso>{erro}</Aviso>}

@@ -39,3 +39,24 @@ const DATA_HORA = new Intl.DateTimeFormat("pt-BR", {
 });
 
 export const dataHora = (iso: string) => DATA_HORA.format(new Date(iso));
+
+const DATA = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+export const data = (iso: string | null) =>
+  iso ? DATA.format(new Date(iso)) : "sem data";
+
+/** CTR e retenção chegam em pontos percentuais (5.2 = 5,2%). */
+export const percentual = (n: number | null) =>
+  n === null
+    ? "sem dado"
+    : `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+
+export const rotuloPost = (
+  rede: keyof typeof NOME_REDE,
+  titulo: string | null,
+) => `${NOME_REDE[rede]} · ${titulo ?? "sem título"}`;
