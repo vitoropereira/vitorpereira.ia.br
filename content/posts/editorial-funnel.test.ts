@@ -118,4 +118,22 @@ describe("trilha editorial de agentes", () => {
     expect(tools).toContain('<DiagnosticCTA locale="en">');
     expect(tools).not.toContain("what the logs have to show");
   });
+
+  it("publica que robots.txt não substitui o controle de acesso", () => {
+    const article = postBody("10/15", "robots-nao-e-controle-de-acesso");
+
+    expect(article).toContain("date: 2026-10-15T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://www.rfc-editor.org/rfc/rfc9309.html#section-2.5",
+    );
+    expect(article).toContain(
+      "https://developers.google.com/search/docs/crawling-indexing/robots/intro?hl=pt-br",
+    );
+    expect(article).toContain(
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/403",
+    );
+  });
 });
