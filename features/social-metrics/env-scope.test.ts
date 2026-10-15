@@ -12,10 +12,13 @@ const ESTE = relative(root, __filename);
 
 type Arquivo = { caminho: string; conteudo: string };
 
-const ENV = /\bSOCIAL_READER_DATABASE_(URL|CA)\b/;
-// `queries/` cobre também o import relativo `../queries/readerDb`.
-const MODULO_SERVIDOR = /(?:queries|\.)\/(readerDb|painel)\b/;
-const PUBLICA = /NEXT_PUBLIC_SOCIAL_READER|NEXT_PUBLIC_\w*SOCIAL\w*DATABASE/;
+const ENV = /\bSOCIAL_READER_DATABASE_(URL|CA)\b|\bCONTENT_OS_READ_TOKEN\b/;
+// `queries/` cobre também o import relativo `../queries/readerDb`. O leitor do
+// content-os carrega o token do GitHub, que também é segredo de servidor.
+const MODULO_SERVIDOR =
+  /(?:queries|content-os|\.)\/(readerDb|painel|pecas|casamentos|leitor)\b/;
+const PUBLICA =
+  /NEXT_PUBLIC_SOCIAL_READER|NEXT_PUBLIC_\w*SOCIAL\w*DATABASE|NEXT_PUBLIC_CONTENT_OS/;
 
 const ehClient = (src: string) =>
   /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*["']use client["']/.test(src);
@@ -90,6 +93,17 @@ describe("violacoes (o detector funciona)", () => {
         {
           caminho: "x.tsx",
           conteudo: `"use client";\nimport { getReaderDb } from "../queries/readerDb";`,
+        },
+      ]),
+    ).toHaveLength(1);
+  });
+
+  it("use client que importa o leitor do content-os é violação", () => {
+    expect(
+      violacoes([
+        {
+          caminho: "x.tsx",
+          conteudo: `"use client";\nimport { criarLeitor } from "../content-os/leitor";`,
         },
       ]),
     ).toHaveLength(1);
