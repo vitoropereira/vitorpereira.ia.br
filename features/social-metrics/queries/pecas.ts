@@ -158,7 +158,13 @@ function entre<T extends string>(
 export function parseFiltros(sp: SearchParams): Filtros {
   const data = (k: string) => {
     const v = primeiro(sp[k]);
-    return v && DATA.test(v) ? v : null;
+    // `2026-02-31` passa no regex mas quebra o `::date` do Postgres, e a tela
+    // inteira viraria aviso de conexão: só data que existe no calendário.
+    if (!v || !DATA.test(v)) return null;
+    const d = new Date(`${v}T12:00:00Z`);
+    return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v)
+      ? v
+      : null;
   };
   return {
     rede: entre(primeiro(sp.rede), REDES),
@@ -191,8 +197,11 @@ function serieViews(serie: MetricaLinha[]): PontoViews[] {
 
 function seriesPorPost(metricas: MetricaLinha[]): Map<string, MetricaLinha[]> {
   const por = new Map<string, MetricaLinha[]>();
-  for (const m of metricas)
-    por.set(m.post_id, [...(por.get(m.post_id) ?? []), m]);
+  for (const m of metricas) {
+    const serie = por.get(m.post_id);
+    if (serie) serie.push(m);
+    else por.set(m.post_id, [m]);
+  }
   for (const s of por.values()) s.sort((a, b) => a.dia.localeCompare(b.dia));
   return por;
 }

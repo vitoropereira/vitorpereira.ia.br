@@ -98,6 +98,11 @@ describe("parseFiltros", () => {
     });
   });
 
+  it("data no formato certo mas fora do calendário é ignorada", () => {
+    const f = parseFiltros({ de: "2026-02-31", ate: "2026-13-01" });
+    expect(f).toMatchObject({ de: null, ate: null });
+  });
+
   it("lê valores válidos e ignora array repetido", () => {
     expect(
       parseFiltros({
