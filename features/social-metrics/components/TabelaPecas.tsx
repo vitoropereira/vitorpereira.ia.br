@@ -45,6 +45,34 @@ export function hrefOrdem(f: Filtros, ordem: Ordem): string {
   return `${BASE}?${q.toString()}`;
 }
 
+// A URL vem do coletor, não de digitação, mas vira href: só http(s) passa,
+// para um valor estranho no banco não virar `javascript:` na tela do admin.
+export function urlExterna(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function TituloPost({ linha }: { linha: LinhaRanking }) {
+  const href = urlExterna(linha.url);
+  const titulo = linha.titulo ?? linha.external_id;
+  if (!href) return <span className="truncate font-medium">{titulo}</span>;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="truncate font-medium underline-offset-4 hover:underline"
+    >
+      {titulo}
+    </a>
+  );
+}
+
 function valor(l: LinhaRanking, ordem: Ordem): string {
   switch (ordem) {
     case "publicado":
@@ -67,10 +95,11 @@ export function TabelaPecas({
 }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[56rem] text-sm">
+      <table className="w-full min-w-[64rem] text-sm">
         <thead>
           <tr className="text-muted-foreground border-b text-left">
             <th className="py-2 pr-4 font-medium">Post</th>
+            <th className="py-2 pr-4 font-medium">Peça</th>
             <th className="py-2 pr-4 font-medium">Idade</th>
             {COLUNAS.map((c) => {
               const ativa = filtros?.ordem === c.ordem;
@@ -112,24 +141,27 @@ export function TabelaPecas({
             <tr key={l.id} className="border-b last:border-0">
               <td className="max-w-[22rem] py-2 pr-4">
                 <div className="flex flex-col">
-                  {l.peca_slug ? (
-                    <Link
-                      href={`${BASE}/${encodeURIComponent(l.peca_slug)}`}
-                      className="truncate font-medium underline-offset-4 hover:underline"
-                    >
-                      {l.titulo ?? l.peca_slug}
-                    </Link>
-                  ) : (
-                    <span className="truncate font-medium">
-                      {l.titulo ?? l.external_id}
-                    </span>
-                  )}
+                  {/* O título leva ao post na rede; a análise da peça fica na
+                      coluna "Peça", para não esconder o link externo. */}
+                  <TituloPost linha={l} />
                   <span className="text-muted-foreground truncate text-xs">
                     {NOME_REDE[l.rede]}
                     {l.tipo && ` · ${NOME_TIPO[l.tipo] ?? l.tipo}`}
-                    {l.pauta ? ` · ${l.pauta}` : " · sem peça"}
+                    {l.pauta && ` · ${l.pauta}`}
                   </span>
                 </div>
+              </td>
+              <td className="max-w-[14rem] py-2 pr-4">
+                {l.peca_slug ? (
+                  <Link
+                    href={`${BASE}/${encodeURIComponent(l.peca_slug)}`}
+                    className="block truncate underline-offset-4 hover:underline"
+                  >
+                    {l.peca_slug}
+                  </Link>
+                ) : (
+                  <span className="text-muted-foreground">sem peça</span>
+                )}
               </td>
               <td className="py-2 pr-4 whitespace-nowrap tabular-nums">
                 {l.idade === null ? "—" : `${l.idade} d`}

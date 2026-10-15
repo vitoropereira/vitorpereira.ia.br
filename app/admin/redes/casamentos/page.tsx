@@ -17,7 +17,8 @@ export default async function CasamentosPage() {
   await requireAdmin("redes");
 
   // Token fine-grained, só leitura do content-os. Sem ele a tela avisa em vez
-  // de quebrar; o leitor só faz GET.
+  // de quebrar; o leitor só faz GET. É a única chave de CLI que vai pra Vercel
+  // (ver o gotcha no CLAUDE.md).
   const token = process.env.CONTENT_OS_READ_TOKEN;
   const leitor = token
     ? criarLeitor({ fetch: fetch as unknown as Fetch, token })
