@@ -1,0 +1,146 @@
+---
+title: "robots.txt não tranca um painel interno"
+description: "Excluir uma rota do rastreamento não decide quem pode receber seus dados. Painéis, relatórios e APIs internas precisam responder com autenticação e autorização no servidor antes de qualquer consulta."
+date: 2026-10-15T11:00:00-03:00
+draft: false
+tags: [segurança, arquitetura, operação, dados]
+comments: true
+---
+
+Uma rota interna costuma ganhar três cuidados rápidos: sai do menu, entra no
+`robots.txt` e recebe `noindex`.
+
+Eles têm utilidade. Nenhum decide quem pode ler a resposta.
+
+O ponto é explícito no padrão que define o Robots Exclusion Protocol: o arquivo
+não é substituto para medidas de segurança. O `robots.txt` comunica regras para
+crawlers que optam por segui-las; ele não autentica uma requisição, não verifica
+permissão e não impede alguém de pedir a URL diretamente.
+
+A tese prática é curta: **descoberta e acesso são controles diferentes**.
+
+## O que cada camada realmente resolve
+
+Separar as responsabilidades evita uma falsa sensação de proteção:
+
+```text
+navegação e links: reduzem a descoberta dentro da interface
+robots.txt: comunica preferências de rastreamento para crawlers
+noindex: pede que mecanismos não indexem uma resposta acessível
+autenticação: verifica quem está fazendo a requisição
+autorização: decide se aquela identidade pode receber aquele recurso
+```
+
+As três primeiras linhas ajudam a manter uma área administrativa fora de
+superfícies públicas. As duas últimas formam a fronteira de acesso.
+
+A [RFC 9309, seção 2.5](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.5)
+diz que o protocolo não deve ser usado como substituto de controles de segurança.
+A documentação do [Google sobre `robots.txt`](https://developers.google.com/search/docs/crawling-indexing/robots/intro?hl=pt-br)
+também trata o arquivo como uma forma de controlar o comportamento de crawlers.
+Nenhuma dessas fontes descreve o arquivo como autorização de usuário porque ele
+não é.
+
+## A pergunta que precisa acontecer antes da query
+
+Quando uma rota serve relatório, dashboard ou endpoint operacional, a sequência
+correta não começa na consulta. Começa em duas perguntas no servidor:
+
+1. há uma identidade válida nesta requisição?
+2. essa identidade pode acessar este recurso específico?
+
+Só depois vem a leitura de banco, fila, API de métricas ou qualquer outro dado.
+
+```ts title="ordem mínima para uma rota interna"
+export async function GET(request: Request) {
+  const identity = await authenticate(request);
+  if (!identity)
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+
+  if (!canAccess(identity, "metrics")) {
+    return Response.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const report = await loadMetrics();
+  return Response.json(report);
+}
+```
+
+O exemplo não depende de framework. A propriedade importante é a ordem:
+`loadMetrics()` não roda para uma requisição que não passou por identidade e
+escopo.
+
+Os status também registram falhas diferentes. A referência do
+[MDN para `401`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401)
+descreve a resposta quando faltam credenciais de autenticação válidas. A
+referência para [`403`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/403)
+descreve o caso em que o servidor entendeu a requisição, mas se recusa a atendê-la.
+Na operação, essa distinção separa “entre novamente” de “você não tem este
+escopo”.
+
+## O erro comum é autorizar tarde demais
+
+Este é o formato que parece funcionar em uma tela vazia, mas já errou a
+fronteira:
+
+```ts
+const report = await loadMetrics();
+
+if (!canAccess(identity, "metrics")) {
+  return Response.json({ error: "forbidden" }, { status: 403 });
+}
+```
+
+A resposta pode terminar em `403`. Ainda assim, a consulta aconteceu antes da
+decisão. Isso cria problemas concretos:
+
+- uma identidade sem acesso já consumiu banco, API ou quota;
+- logs e traces podem registrar uma leitura que não deveria existir;
+- um erro de consulta pode revelar que o recurso existe ou expor detalhe técnico;
+- uma refatoração futura pode reutilizar o resultado carregado antes da barreira.
+
+“Não renderizou na tela” não é a mesma coisa que “não leu o dado”.
+
+## Crawler bem-comportado não é modelo de ameaça
+
+O `robots.txt` é útil justamente porque crawlers bem-comportados o consultam.
+Mas segurança não pode depender de todo consumidor se comportar assim.
+
+Uma URL pode chegar por histórico de navegador, logs, e-mail, favorito, link
+compartilhado, integração, tentativa manual ou um crawler que ignora a regra.
+A rota precisa manter o mesmo comportamento em todos esses caminhos: sem
+identidade válida, não entrega o recurso; com identidade sem escopo, também não.
+
+Isso vale para páginas e para APIs. Proteger só a página e deixar o endpoint de
+dados acessível desloca o problema para um endereço menos visível, não o resolve.
+
+## Checklist para área administrativa
+
+Antes de considerar uma rota interna pronta, valide o comportamento observável:
+
+```text
+sem credencial: 401 ou redirecionamento para login; nenhuma consulta
+credencial válida, sem escopo: 403; nenhuma consulta
+credencial e escopo válidos: consulta limitada ao recurso autorizado
+falha de dependência após autorização: erro genérico para a interface; detalhe só no log seguro
+robots.txt e noindex: complemento de descoberta, nunca condição de acesso
+```
+
+Os dois primeiros casos merecem teste específico. Não basta conferir que o menu
+não mostra o link. O teste precisa provar que o leitor de banco, client de API ou
+função de domínio não foi chamado.
+
+A proteção real de um painel interno não aparece no sitemap. Aparece na resposta
+que o servidor dá _antes_ de tocar no dado.
+
+## Fontes
+
+- [RFC 9309, seção 2.5](https://www.rfc-editor.org/rfc/rfc9309.html#section-2.5): o protocolo de robots não substitui controles de segurança.
+- [Google Search Central: introdução ao `robots.txt`](https://developers.google.com/search/docs/crawling-indexing/robots/intro?hl=pt-br): função do arquivo no comportamento de crawlers.
+- [MDN: `401 Unauthorized`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/401) e [MDN: `403 Forbidden`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/403): semântica das respostas HTTP para autenticação e permissão.
+
+## Próximo passo
+
+Se seu backoffice, dashboard ou API interna usa descoberta como se fosse
+segurança, <DiagnosticCTA locale="pt">traga esse fluxo para um diagnóstico
+técnico de 30 minutos</DiagnosticCTA>.
