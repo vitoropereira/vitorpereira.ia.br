@@ -102,12 +102,18 @@ export function criarClienteReporting({ fetch, accessToken }: OpcoesReporting) {
       "reports",
       { startTimeAtOrAfter: inicio },
     );
-    const porInicio = new Map<string, RelatorioReporting>();
+    // Compara por instante, não por string: o Timestamp do Google varia a
+    // fração de segundo (0, 3, 6 ou 9 dígitos), e "…00Z" > "…00.5Z" na ordem
+    // lexical, o que elegeria o relatório velho.
+    const instante = (t?: string) =>
+      t ? Date.parse(t) : Number.NEGATIVE_INFINITY;
+    const porInicio = new Map<number, RelatorioReporting>();
     for (const r of todos) {
-      if (Date.parse(r.startTime) < Date.parse(inicio)) continue;
-      const atual = porInicio.get(r.startTime);
-      if (!atual || (r.createTime ?? "") > (atual.createTime ?? "")) {
-        porInicio.set(r.startTime, r);
+      const ini = instante(r.startTime);
+      if (!(ini >= Date.parse(inicio))) continue;
+      const atual = porInicio.get(ini);
+      if (!atual || instante(r.createTime) > instante(atual.createTime)) {
+        porInicio.set(ini, r);
       }
     }
     return [...porInicio.values()];

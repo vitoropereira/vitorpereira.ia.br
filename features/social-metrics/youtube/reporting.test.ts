@@ -141,6 +141,29 @@ describe("relatoriosDaJanela", () => {
     expect(rels.map((r) => r.id)).toEqual(["r-1012"]);
   });
 
+  it("compara createTime e startTime por instante, não por string", async () => {
+    // Mesmo dia com fração de segundo diferente: lexicalmente "…00Z" ganharia
+    // de "…00.500Z", e o relatório velho seria o escolhido.
+    const velho = {
+      ...reports.reports[0],
+      id: "velho",
+      createTime: "2026-10-12T15:00:00Z",
+    };
+    const novo = {
+      ...reports.reports[0],
+      id: "novo",
+      startTime: "2026-10-11T07:00:00.000Z",
+      createTime: "2026-10-12T15:00:00.500Z",
+    };
+    const fetch = fakeFetch(() => ({
+      status: 200,
+      json: { reports: [novo, velho] },
+    }));
+    const c = criarClienteReporting({ fetch, accessToken: "tok" });
+    const rels = await c.relatoriosDaJanela("job-alcance", "2026-10-11");
+    expect(rels.map((r) => r.id)).toEqual(["novo"]);
+  });
+
   it("job sem relatório devolve lista vazia", async () => {
     const fetch = fakeFetch(() => ({ status: 200, json: {} }));
     const c = criarClienteReporting({ fetch, accessToken: "tok" });
