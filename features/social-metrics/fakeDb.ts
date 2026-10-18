@@ -28,8 +28,27 @@ export function criarFakeDb(
     return t;
   };
 
-  function avaliar(expr: string, nova: Linha, antiga: Linha): unknown {
-    let m = expr.match(/^excluded\.(\w+)$/);
+  function avaliar(
+    expr: string,
+    nova: Linha,
+    antiga: Linha,
+    params: unknown[] = [],
+  ): unknown {
+    // jsonb: `col || $n::jsonb` (merge) e `col - 'chave'` (tira a chave).
+    let m = expr.match(/^(\w+) \|\| \$(\d+)::jsonb$/);
+    if (m) {
+      return {
+        ...(antiga[m[1]] as object),
+        ...JSON.parse(String(params[Number(m[2]) - 1])),
+      };
+    }
+    m = expr.match(/^(\w+) - '(\w+)'$/);
+    if (m) {
+      const copia = { ...(antiga[m[1]] as Record<string, unknown>) };
+      delete copia[m[2]];
+      return copia;
+    }
+    m = expr.match(/^excluded\.(\w+)$/);
     if (m) return nova[m[1]];
     m = expr.match(/^coalesce\(excluded\.(\w+), \w+\.(\w+)\)$/);
     if (m) return nova[m[1]] ?? antiga[m[2]];
@@ -66,6 +85,25 @@ export function criarFakeDb(
       return { rows: rows as T[] };
     }
 
+    // select col[::tipo] [as alias], ... from t where a = $n
+    const selW = text.match(
+      /^select (.+?) from public\.(\w+)\s+where (\w+) = \$(\d+)$/s,
+    );
+    if (selW) {
+      const cols = selW[1].split(",").map((c) => {
+        const m = c.trim().match(/^(\w+)(?:::\w+)?(?: as (\w+))?$/);
+        if (!m) throw new Error(`fakeDb: coluna não suportada: ${c}`);
+        return [m[1], m[2] ?? m[1]] as const;
+      });
+      const v = params[Number(selW[4]) - 1];
+      const rows = tabela(selW[2])
+        .filter((l) => l[selW[3]] === v)
+        .map((l) =>
+          Object.fromEntries(cols.map(([c, alias]) => [alias, l[c] ?? null])),
+        );
+      return { rows: rows as T[] };
+    }
+
     // update ... where a = $n and b = $m [returning cols]
     const updW = text.match(
       /^update public\.(\w+)\s+set (.+?)\s+where (\w+ = \$\d+(?: and \w+ = \$\d+)*)(?:\s+returning (.+))?$/s,
@@ -83,7 +121,9 @@ export function criarFakeDb(
         for (const a of sets.split(/,\s*/)) {
           const [col, expr] = a.split(/\s*=\s*/);
           const p = expr.match(/^\$(\d+)$/);
-          alvo[col] = p ? params[Number(p[1]) - 1] : avaliar(expr, {}, alvo);
+          alvo[col] = p
+            ? params[Number(p[1]) - 1]
+            : avaliar(expr, {}, alvo, params);
         }
       }
       const ret = retTxt?.split(",").map((c) => c.trim()) ?? [];

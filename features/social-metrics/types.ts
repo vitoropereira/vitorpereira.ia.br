@@ -109,8 +109,11 @@ export interface ColetaConta {
 
 export interface SocialAdapter {
   rede: Rede;
-  /** Série da conta nos dias reprocessados até `dia` (inclusive). */
-  coletarConta(dia: string): Promise<ColetaConta>;
+  /**
+   * Série da conta nos dias reprocessados até `dia` (inclusive). No
+   * `backfill`, desde a criação da conta.
+   */
+  coletarConta(dia: string, job?: Job): Promise<ColetaConta>;
   /**
    * Posts e série diária por post a partir de `desde` (inclusive). No
    * `backfill` a regra de idade não vale e cada post parte da própria

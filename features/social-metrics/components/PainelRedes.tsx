@@ -3,7 +3,7 @@ import { Cadencia } from "./Cadencia";
 import { GraficoSemanal } from "./GraficoSemanal";
 import { GraficoSeguidores } from "./GraficoSeguidores";
 import { SaudeColeta } from "./SaudeColeta";
-import { NOME_REDE } from "./formato";
+import { NOME_REDE, pontosSeguidores } from "./formato";
 
 // Os quatro blocos do /admin/redes. Recebe o painel já calculado: a página
 // cuida de autenticação e leitura, este componente só desenha.
@@ -43,18 +43,17 @@ export function PainelRedes({ painel }: { painel: Painel }) {
 
       <Bloco
         titulo="Seguidores"
-        descricao="Últimos 90 dias. Dia sem dado aparece como lacuna."
+        descricao="Últimos 90 dias. Linha sólida é o total da API; tracejada, reconstruída. Dia sem dado aparece como lacuna."
       >
         <div className="grid gap-6 md:grid-cols-2">
           {REDES.map((rede) => {
-            const dados = painel.seguidores.map((p) => ({
-              dia: p.dia,
-              valor: p[rede],
-            }));
+            const dados = pontosSeguidores(painel.seguidores, rede);
             return (
               <div key={rede} className="flex flex-col gap-1">
                 <h3 className="text-sm font-medium">{NOME_REDE[rede]}</h3>
-                {dados.some((d) => d.valor !== null) ? (
+                {dados.some(
+                  (d) => d.valor !== null || d.reconstruido !== null,
+                ) ? (
                   <GraficoSeguidores rede={rede} dados={dados} />
                 ) : (
                   <SemDado />

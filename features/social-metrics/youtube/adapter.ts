@@ -40,6 +40,7 @@ const METRICAS_BASE =
 
 interface CanalApi {
   id: string;
+  snippet?: { publishedAt?: string };
   contentDetails?: { relatedPlaylists?: { uploads?: string } };
   statistics?: { subscriberCount?: string; hiddenSubscriberCount?: boolean };
 }
@@ -73,7 +74,7 @@ export function criarAdapterYouTube(
   let canal: Promise<CanalApi> | null = null;
   function obterCanal(): Promise<CanalApi> {
     canal ??= get<{ items?: CanalApi[] }>(
-      `${DATA_API}/channels?part=contentDetails,statistics&mine=true`,
+      `${DATA_API}/channels?part=snippet,contentDetails,statistics&mine=true`,
     ).then((r) => {
       const c = r.items?.[0];
       if (!c) throw new Error("YouTube: nenhum canal ligado a esta conta.");
@@ -278,22 +279,49 @@ export function criarAdapterYouTube(
     }
   }
 
-  async function coletarConta(dia: string): Promise<ColetaConta> {
+  async function coletarConta(
+    dia: string,
+    job: Job = "collect",
+  ): Promise<ColetaConta> {
     const c = await obterCanal();
     const oculto = c.statistics?.hiddenSubscriberCount === true;
     const seguidoresHoje = oculto
       ? null
       : numOuNull(c.statistics?.subscriberCount);
 
-    const dias = ultimosDias(dia, DIAS_REPROCESSADOS);
-    const r = await relatorio({
-      startDate: dias[0],
-      endDate: dia,
-      metrics: "views,subscribersGained,subscribersLost",
-      dimensions: "day",
-      sort: "day",
-    });
-    const porDia = new Map(linhasPorNome(r).map((l) => [String(l.day), l]));
+    const reprocessados = ultimosDias(dia, DIAS_REPROCESSADOS);
+    const avisos: string[] = [];
+    let inicio = reprocessados[0];
+    if (job === "backfill") {
+      const pub = c.snippet?.publishedAt;
+      if (pub) {
+        const diaPub = diaSaoPaulo(new Date(pub));
+        if (diaPub < inicio) inicio = diaPub;
+      } else {
+        avisos.push(
+          "conta: canal sem snippet.publishedAt; backfill só dos últimos dias",
+        );
+      }
+    }
+
+    const porDia = new Map<string, Record<string, unknown>>();
+    for (const [ini, fim] of janelas(inicio, dia)) {
+      const r = await relatorio({
+        startDate: ini,
+        endDate: fim,
+        metrics: "views,subscribersGained,subscribersLost",
+        dimensions: "day",
+        sort: "day",
+      });
+      for (const l of linhasPorNome(r)) porDia.set(String(l.day), l);
+    }
+
+    // No backfill só entram os dias que o relatório devolveu: o gravador
+    // grava `views_dia` sem coalesce, e milhares de linhas null apagariam o
+    // que já está lá. Os reprocessados entram sempre, como no collect.
+    const dias = [...new Set([...porDia.keys(), ...reprocessados])]
+      .filter((d) => d <= dia)
+      .sort();
 
     const contas: ContaDiaria[] = dias.map((d) => {
       const l = porDia.get(d);
@@ -313,7 +341,7 @@ export function criarAdapterYouTube(
         extra,
       };
     });
-    return { contas, avisos: [] };
+    return { contas, avisos };
   }
 
   return { rede: "youtube", coletarConta, coletarPosts };

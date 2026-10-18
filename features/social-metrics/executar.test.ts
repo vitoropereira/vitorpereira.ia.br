@@ -188,6 +188,53 @@ describe("executarColeta", () => {
       "backfill",
     );
     expect(runs(db)[0].job).toBe("backfill");
+    expect(adapter.coletarConta).toHaveBeenCalledWith(DIA, "backfill");
+  });
+
+  it.each(["collect", "backfill"] as const)(
+    "%s recalcula a série de seguidores depois de gravar a conta",
+    async (job) => {
+      const db = criarFakeDb();
+      const adapter = adapterFixo();
+      await executarColeta({
+        rede: "youtube",
+        job,
+        adapter,
+        gravador: criarGravador(db),
+        dia: DIA,
+      });
+      expect(adapter.coletarConta).toHaveBeenCalledWith(DIA, job);
+
+      const textos = db.queries.map((q) => q.text);
+      const conta = textos.findIndex((t) =>
+        t.startsWith("insert into public.vitor_social_account_daily"),
+      );
+      const serie = textos.findIndex((t) =>
+        /^select .* from public\.vitor_social_account_daily/s.test(t),
+      );
+      expect(conta).toBeGreaterThanOrEqual(0);
+      expect(serie).toBeGreaterThan(conta);
+      expect(db.queries[serie].params).toEqual(["youtube"]);
+    },
+  );
+
+  it("falha no recálculo de seguidores fecha o run com ok = false", async () => {
+    const db = criarFakeDb({
+      erroEm: (text) =>
+        /^select .* from public\.vitor_social_account_daily/s.test(text)
+          ? new Error("statement timeout")
+          : undefined,
+    });
+    const r = await executarColeta({
+      rede: "youtube",
+      job: "collect",
+      adapter: adapterFixo(),
+      gravador: criarGravador(db),
+      dia: DIA,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.erro).toContain("statement timeout");
+    expect(runs(db)[0]).toMatchObject({ ok: false });
   });
 });
 

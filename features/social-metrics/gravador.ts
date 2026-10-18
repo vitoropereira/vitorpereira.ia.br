@@ -1,3 +1,4 @@
+import { reconstruirSeguidores } from "./seguidores.ts";
 import type {
   ContaDiaria,
   JobRun,
@@ -57,6 +58,20 @@ on conflict (rede, dia) do update set
   views_dia = excluded.views_dia,
   alcance_dia = coalesce(excluded.alcance_dia, vitor_social_account_daily.alcance_dia),
   extra = vitor_social_account_daily.extra || excluded.extra`;
+
+// A série reconstruída mora em `extra.seguidores_calc`, nunca em
+// `seguidores`: essa coluna guarda só o que a API devolveu. Nenhum dos dois
+// updates abaixo tem `seguidores` no `set`.
+const SQL_SERIE_CONTA = `select dia::text as dia, seguidores::float8 as seguidores, extra from public.vitor_social_account_daily
+where rede = $1`;
+
+const SQL_GRAVAR_CALC = `update public.vitor_social_account_daily
+set extra = extra || $3::jsonb
+where rede = $1 and dia = $2`;
+
+const SQL_LIMPAR_CALC = `update public.vitor_social_account_daily
+set extra = extra - 'seguidores_calc'
+where rede = $1 and dia = $2`;
 
 const SQL_INICIAR_RUN = `insert into public.vitor_social_collect_runs (rede, job)
 values ($1, $2)
@@ -166,6 +181,48 @@ export function criarGravador(db: Db) {
     return contas.length;
   }
 
+  /**
+   * Reconstrói a série inteira da rede a partir do que está gravado e acerta
+   * `extra.seguidores_calc`. Só emite update onde o valor mudou: a série tem
+   * anos de dias e quase todos ficam iguais de uma coleta para outra.
+   * Devolve quantas linhas mudaram.
+   */
+  async function recalcularSeguidores(rede: Rede): Promise<number> {
+    const { rows } = await db.query<{
+      dia: string;
+      seguidores: number | null;
+      extra: Record<string, unknown> | null;
+    }>(SQL_SERIE_CONTA, [rede]);
+    const num = (v: unknown) =>
+      typeof v === "number" && Number.isFinite(v) ? v : null;
+    const calc = reconstruirSeguidores(
+      rows.map((r) => ({
+        dia: r.dia,
+        seguidores: num(r.seguidores),
+        subs_gained: num(r.extra?.subs_gained),
+        subs_lost: num(r.extra?.subs_lost),
+      })),
+    );
+
+    let n = 0;
+    for (const r of rows) {
+      const atual = r.extra?.seguidores_calc;
+      const novo = calc.get(r.dia);
+      if (novo != null && atual !== novo) {
+        await db.query(SQL_GRAVAR_CALC, [
+          rede,
+          r.dia,
+          JSON.stringify({ seguidores_calc: novo }),
+        ]);
+        n++;
+      } else if (novo == null && atual !== undefined) {
+        await db.query(SQL_LIMPAR_CALC, [rede, r.dia]);
+        n++;
+      }
+    }
+    return n;
+  }
+
   /** `true` se o post existia e foi atualizado; `false` = não coletado. */
   async function atualizarPecaDoPost(
     rede: Rede,
@@ -221,6 +278,7 @@ export function criarGravador(db: Db) {
     upsertPosts,
     upsertMetricas,
     upsertConta,
+    recalcularSeguidores,
     atualizarPecaDoPost,
     upsertMeta,
     listarPostsSemPeca,

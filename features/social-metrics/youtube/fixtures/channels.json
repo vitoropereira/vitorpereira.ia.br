@@ -4,6 +4,10 @@
     {
       "kind": "youtube#channel",
       "id": "UCcanalDeTesteXXXXXXXXXX",
+      "snippet": {
+        "title": "Canal de teste",
+        "publishedAt": "2025-03-10T15:00:00Z"
+      },
       "contentDetails": {
         "relatedPlaylists": { "uploads": "UUcanalDeTesteXXXXXXXXXX" }
       },

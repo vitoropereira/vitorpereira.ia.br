@@ -181,6 +181,109 @@ describe("criarGravador", () => {
     });
   });
 
+  describe("recalcularSeguidores", () => {
+    const dia = (
+      d: string,
+      extra: Record<string, unknown>,
+      seguidores: number | null = null,
+      views_dia: number | null = 7,
+    ): ContaDiaria => ({
+      rede: "youtube",
+      dia: d,
+      seguidores,
+      views_dia,
+      alcance_dia: null,
+      extra,
+    });
+
+    async function semear() {
+      const db = criarFakeDb();
+      const g = criarGravador(db);
+      await g.upsertConta([
+        dia("2026-10-09", { subs_gained: 2, subs_lost: 0 }),
+        dia("2026-10-10", { subs_gained: 1, subs_lost: 1 }),
+        dia("2026-10-11", { subs_gained: 3, subs_lost: 0 }),
+        dia("2026-10-14", {}, 100),
+        // Outra rede não entra na série do YouTube.
+        { ...dia("2026-10-11", {}, 5), rede: "instagram" },
+      ]);
+      return { db, g };
+    }
+
+    const linhaDe = (db: ReturnType<typeof criarFakeDb>, d: string) =>
+      db.tabelas
+        .get("vitor_social_account_daily")!
+        .find((l) => l.rede === "youtube" && l.dia === d)!;
+
+    it("grava extra.seguidores_calc nos dias reconstruídos", async () => {
+      const { db, g } = await semear();
+      expect(await g.recalcularSeguidores("youtube")).toBe(3);
+
+      expect(linhaDe(db, "2026-10-11").extra).toEqual({
+        subs_gained: 3,
+        subs_lost: 0,
+        seguidores_calc: 100,
+      });
+      expect(linhaDe(db, "2026-10-10").extra).toMatchObject({
+        seguidores_calc: 97,
+      });
+      expect(linhaDe(db, "2026-10-09").extra).toMatchObject({
+        seguidores_calc: 97,
+      });
+      // Dia da âncora: depois do último Analytics, sem calc.
+      expect(linhaDe(db, "2026-10-14").extra).toEqual({});
+    });
+
+    it("não toca em seguidores nem em views_dia", async () => {
+      const { db, g } = await semear();
+      const antes = structuredClone(
+        db.tabelas.get("vitor_social_account_daily")!,
+      );
+      db.queries.length = 0;
+      await g.recalcularSeguidores("youtube");
+
+      const depois = db.tabelas.get("vitor_social_account_daily")!;
+      expect(depois.map((l) => [l.seguidores, l.views_dia])).toEqual(
+        antes.map((l) => [l.seguidores, l.views_dia]),
+      );
+      // A coluna real nunca recebe valor calculado: nenhum `set seguidores`.
+      const updates = db.queries.filter((q) => /^\s*update/i.test(q.text));
+      expect(updates.length).toBeGreaterThan(0);
+      for (const { text } of updates) {
+        expect(text).toMatch(/set extra = /);
+        expect(text).not.toMatch(/\bseguidores\s*=/);
+        expect(text).not.toMatch(/views_dia/);
+      }
+    });
+
+    it("tira a chave dos dias que saíram da série", async () => {
+      const { db, g } = await semear();
+      await g.recalcularSeguidores("youtube");
+      // O dia 10 perde o Analytics e fica com o calc velho: a série para no 11.
+      linhaDe(db, "2026-10-10").extra = {
+        seguidores_calc: 97,
+      };
+      await g.recalcularSeguidores("youtube");
+
+      expect(linhaDe(db, "2026-10-11").extra).toMatchObject({
+        seguidores_calc: 100,
+      });
+      expect(linhaDe(db, "2026-10-10").extra).toEqual({});
+      expect(linhaDe(db, "2026-10-09").extra).toEqual({
+        subs_gained: 2,
+        subs_lost: 0,
+      });
+    });
+
+    it("segunda passada sem mudança não emite update", async () => {
+      const { db, g } = await semear();
+      await g.recalcularSeguidores("youtube");
+      db.queries.length = 0;
+      expect(await g.recalcularSeguidores("youtube")).toBe(0);
+      expect(db.queries.every((q) => /^\s*select/i.test(q.text))).toBe(true);
+    });
+  });
+
   describe("sync de peças", () => {
     const CAMPOS = {
       peca_slug: "2026-10-11-meu-video",
