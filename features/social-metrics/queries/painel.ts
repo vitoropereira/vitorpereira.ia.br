@@ -27,6 +27,8 @@ export interface ContaLinha {
   rede: Rede;
   dia: string;
   seguidores: number | null;
+  /** Reconstruído a partir de ganhos/perdas (`extra.seguidores_calc`). */
+  seguidores_calc: number | null;
   views_dia: number | null;
   alcance_dia: number | null;
 }
@@ -59,6 +61,9 @@ export interface PontoSeguidores {
   dia: string;
   youtube: number | null;
   instagram: number | null;
+  /** Só onde o real é null: o real sempre vence. */
+  youtube_calc: number | null;
+  instagram_calc: number | null;
 }
 
 export interface PontoSemanal {
@@ -176,16 +181,28 @@ export function cadencia(
     );
 }
 
-/** Dia sem linha ou com `seguidores` null fica null: lacuna, não zero. */
+/**
+ * Dia sem linha ou com `seguidores` null fica null: lacuna, não zero. O
+ * reconstruído só preenche onde não há real, e vai em campo próprio para a
+ * tela distinguir os dois.
+ */
 export function seriesSeguidores(
   contas: ContaLinha[],
   hoje: string,
 ): PontoSeguidores[] {
-  const por = new Map(contas.map((c) => [`${c.rede}:${c.dia}`, c.seguidores]));
+  const por = new Map(contas.map((c) => [`${c.rede}:${c.dia}`, c]));
+  const real = (rede: Rede, dia: string) =>
+    por.get(`${rede}:${dia}`)?.seguidores ?? null;
+  const calc = (rede: Rede, dia: string) =>
+    real(rede, dia) === null
+      ? (por.get(`${rede}:${dia}`)?.seguidores_calc ?? null)
+      : null;
   return ultimosDias(hoje, DIAS_SEGUIDORES).map((dia) => ({
     dia,
-    youtube: por.get(`youtube:${dia}`) ?? null,
-    instagram: por.get(`instagram:${dia}`) ?? null,
+    youtube: real("youtube", dia),
+    instagram: real("instagram", dia),
+    youtube_calc: calc("youtube", dia),
+    instagram_calc: calc("instagram", dia),
   }));
 }
 
@@ -287,7 +304,7 @@ const SQL_POSTS = `select rede, tipo, published_at
 from public.vitor_social_posts
 where published_at >= $1`;
 
-const SQL_CONTAS = `select rede, dia::text as dia, seguidores::float8 as seguidores, views_dia::float8 as views_dia, alcance_dia::float8 as alcance_dia
+const SQL_CONTAS = `select rede, dia::text as dia, seguidores::float8 as seguidores, (extra->>'seguidores_calc')::float8 as seguidores_calc, views_dia::float8 as views_dia, alcance_dia::float8 as alcance_dia
 from public.vitor_social_account_daily
 where dia >= $1`;
 

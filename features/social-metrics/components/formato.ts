@@ -1,5 +1,7 @@
 // Formatação compartilhada entre os blocos do painel (server e client).
 
+import type { PontoSeguidores } from "../queries/painel";
+
 export const NOME_REDE = {
   youtube: "YouTube",
   instagram: "Instagram",
@@ -60,3 +62,25 @@ export const rotuloPost = (
   rede: keyof typeof NOME_REDE,
   titulo: string | null,
 ) => `${NOME_REDE[rede]} · ${titulo ?? "sem título"}`;
+
+export interface PontoGraficoSeguidores {
+  dia: string;
+  valor: number | null;
+  reconstruido: number | null;
+}
+
+/**
+ * Série de uma rede para o gráfico. Fica aqui, e não no componente client,
+ * porque quem chama é o PainelRedes, que roda no servidor. O reconstruído só
+ * aparece onde não há real, mesmo que a query já garanta isso.
+ */
+export function pontosSeguidores(
+  pontos: PontoSeguidores[],
+  rede: keyof typeof NOME_REDE,
+): PontoGraficoSeguidores[] {
+  return pontos.map((p) => ({
+    dia: p.dia,
+    valor: p[rede],
+    reconstruido: p[rede] === null ? p[`${rede}_calc`] : null,
+  }));
+}

@@ -401,6 +401,100 @@ describe("coletarConta", () => {
     expect(rel.searchParams.get("filters")).toBeNull();
   });
 
+  it("pede o snippet do canal (data de criação para o backfill)", async () => {
+    const fetch = criarFetch();
+    const a = criarAdapterYouTube({ fetch, accessToken: "tok", hoje: QUARTA });
+    await a.coletarConta(QUARTA);
+    const canal = urls(fetch).find((u) => u.pathname.endsWith("/channels"))!;
+    expect(canal.searchParams.get("part")).toBe(
+      "snippet,contentDetails,statistics",
+    );
+  });
+
+  it("backfill parte da criação do canal em janelas de um ano", async () => {
+    // Relatório por janela: cada uma devolve um dia próprio.
+    const porJanela: Record<string, unknown[][]> = {
+      "2025-03-10": [
+        ["2025-03-10", 5, 3, 0],
+        ["2025-06-01", 7, 1, 2],
+      ],
+      "2026-03-10": [
+        ["2026-05-20", 11, 4, 1],
+        ["2026-10-12", 90, 1, 1],
+      ],
+    };
+    const fetch = criarFetch((u) => {
+      if (!u.pathname.endsWith("/reports") || u.searchParams.get("filters")) {
+        return undefined;
+      }
+      if (ehReporting(u)) return undefined;
+      return ok({
+        ...conta,
+        rows: porJanela[u.searchParams.get("startDate")!] ?? [],
+      });
+    });
+    const a = criarAdapterYouTube({ fetch, accessToken: "tok", hoje: QUARTA });
+    const { contas } = await a.coletarConta(QUARTA, "backfill");
+
+    const rels = urls(fetch).filter(
+      (u) =>
+        u.hostname === "youtubeanalytics.googleapis.com" &&
+        !u.searchParams.get("filters"),
+    );
+    expect(
+      rels.map((u) => [
+        u.searchParams.get("startDate"),
+        u.searchParams.get("endDate"),
+      ]),
+    ).toEqual([
+      ["2025-03-10", "2026-03-09"],
+      ["2026-03-10", QUARTA],
+    ]);
+    for (const u of rels) {
+      expect(u.searchParams.get("metrics")).toBe(
+        "views,subscribersGained,subscribersLost",
+      );
+      expect(u.searchParams.get("dimensions")).toBe("day");
+    }
+
+    // Só os dias que o relatório devolveu e os reprocessados: dia sem linha no
+    // histórico não vira null que apagaria `views_dia` gravado.
+    expect(contas.map((c) => c.dia)).toEqual([
+      "2025-03-10",
+      "2025-06-01",
+      "2026-05-20",
+      "2026-10-11",
+      "2026-10-12",
+      "2026-10-13",
+      QUARTA,
+    ]);
+    expect(contas[1]).toMatchObject({
+      views_dia: 7,
+      seguidores: null,
+      extra: { subs_gained: 1, subs_lost: 2 },
+    });
+    expect(contas[0].extra).toEqual({ subs_gained: 3, subs_lost: 0 });
+    // O total de agora só cabe no dia da coleta.
+    expect(contas.map((c) => c.seguidores)).toEqual([
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      321,
+    ]);
+  });
+
+  it("collect continua só nos dias reprocessados", async () => {
+    const fetch = criarFetch();
+    const a = criarAdapterYouTube({ fetch, accessToken: "tok", hoje: QUARTA });
+    await a.coletarConta(QUARTA, "collect");
+    const rels = urls(fetch).filter((u) => u.pathname.endsWith("/reports"));
+    expect(rels).toHaveLength(1);
+    expect(rels[0].searchParams.get("startDate")).toBe("2026-10-11");
+  });
+
   it("hiddenSubscriberCount ligado deixa seguidores null", async () => {
     const oculto = structuredClone(channels);
     oculto.items[0].statistics.hiddenSubscriberCount = true;

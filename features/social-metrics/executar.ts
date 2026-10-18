@@ -61,13 +61,16 @@ export async function executarColeta(
       p.job === "backfill"
         ? INICIO_BACKFILL
         : somarDias(p.dia, -(DIAS_REPROCESSADOS - 1));
-    const conta = await p.adapter.coletarConta(p.dia);
+    const conta = await p.adapter.coletarConta(p.dia, p.job);
     const posts = await p.adapter.coletarPosts(desde, p.job);
 
     const ids = await p.gravador.upsertPosts(posts.posts);
     linhas += ids.size;
     linhas += await p.gravador.upsertMetricas(ids, posts.metricas);
     linhas += await p.gravador.upsertConta(conta.contas);
+    // A cada coleta, não só no backfill: a âncora (total de hoje) muda todo
+    // dia e desloca a série inteira.
+    await p.gravador.recalcularSeguidores(p.rede);
 
     const avisos = [...conta.avisos, ...posts.avisos];
     ok = true;

@@ -101,16 +101,37 @@ describe("seriesSeguidores", () => {
       dia: "2026-10-14",
       youtube: 1010,
       instagram: null,
-    });
-    expect(s.at(-2)).toEqual({
-      dia: "2026-10-13",
-      youtube: null,
-      instagram: null,
+      youtube_calc: null,
+      instagram_calc: null,
     });
     expect(s.at(-4)).toEqual({
       dia: "2026-10-11",
       youtube: null,
       instagram: 500,
+      youtube_calc: null,
+      instagram_calc: null,
+    });
+  });
+
+  it("dia com real usa só o real; sem real, o reconstruído", () => {
+    const s = seriesSeguidores(CONTAS, "2026-10-14");
+    // Real e calc no mesmo dia: o calc não aparece.
+    expect(s.at(-3)).toMatchObject({
+      dia: "2026-10-12",
+      youtube: 1000,
+      youtube_calc: null,
+    });
+    // Sem real, com calc.
+    expect(s.at(-2)).toMatchObject({
+      dia: "2026-10-13",
+      youtube: null,
+      youtube_calc: 1005,
+    });
+    // Sem linha nenhuma: os dois null.
+    expect(s.at(-5)).toMatchObject({
+      dia: "2026-10-10",
+      youtube: null,
+      youtube_calc: null,
     });
   });
 });
@@ -255,6 +276,9 @@ describe("carregarPainel", () => {
       q.text.includes("vitor_social_account_daily"),
     );
     expect(contas?.text).toMatch(/dia >= \$1/);
+    expect(contas?.text).toContain(
+      "(extra->>'seguidores_calc')::float8 as seguidores_calc",
+    );
     expect(contas?.params).toEqual(["2026-07-17"]);
   });
 
