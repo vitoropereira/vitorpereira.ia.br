@@ -93,6 +93,17 @@ describe("reconstruirSeguidores", () => {
     expect(calc.get("2026-10-08")).toBe(38);
   });
 
+  it("lacuna entre âncora antiga e o último Analytics não vira saldo zero", () => {
+    const calc = reconstruirSeguidores([
+      l("2026-10-08", 1, 0),
+      l("2026-10-09", 2, 0, 40),
+      // 10 sem ganhos/perdas: o saldo dele é desconhecido.
+      l("2026-10-10", null, null),
+      l("2026-10-11", 5, 0),
+    ]);
+    expect(calc.size).toBe(0);
+  });
+
   it("usa a âncora mais recente e aceita linhas fora de ordem", () => {
     const calc = reconstruirSeguidores([
       l("2026-10-11", 1, 0, 20),

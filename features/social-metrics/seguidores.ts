@@ -45,13 +45,15 @@ export function reconstruirSeguidores(
   }
   if (!ancora || ancora.seguidores == null || !ultimo) return out;
 
-  // Ajuste da âncora até L, só com dias de dado conhecido. Âncora depois de L
-  // não tem ajuste: por definição de L, não há dia conhecido entre os dois.
+  // Ajuste da âncora até L, dia a dia. Âncora depois de L não tem ajuste: por
+  // definição de L, não há dia conhecido entre os dois. Lacuna entre âncora e
+  // L invalida tudo: somar só os dias conhecidos seria tratá-la como saldo
+  // zero, e o erro contaminaria a série inteira.
   let valor = ancora.seguidores;
-  for (const l of linhas) {
-    if (conhecido(l) && ancora.dia < l.dia && l.dia <= ultimo) {
-      valor += saldo(l);
-    }
+  for (let d = somarDias(ancora.dia, 1); d <= ultimo; d = somarDias(d, 1)) {
+    const l = porDia.get(d);
+    if (!conhecido(l)) return out;
+    valor += saldo(l);
   }
 
   let dia = ultimo;
