@@ -108,14 +108,24 @@ describe("aplicarLinhaAnalytics", () => {
     const base = aplicarLinhaAnalytics(metricaVazia("v1", "2026-10-13"), {
       views: 7,
     });
-    const comImpressao = aplicarLinhaAnalytics(base, {
-      videoThumbnailImpressions: 900,
-      videoThumbnailImpressionsClickRate: 4.2,
-    });
-    expect(comImpressao).toMatchObject({
+    const depois = aplicarLinhaAnalytics(
+      { ...base, impressions: 900, ctr: 4.2 },
+      { subscribersGained: 2 },
+    );
+    expect(depois).toMatchObject({
       views: 7,
+      subs_gained: 2,
       impressions: 900,
       ctr: 4.2,
     });
+  });
+
+  it("coluna de impressão do v2 é ignorada", () => {
+    const m = aplicarLinhaAnalytics(metricaVazia("v1", "2026-10-13"), {
+      videoThumbnailImpressions: 900,
+      videoThumbnailImpressionsClickRate: 4.2,
+    });
+    expect(m.impressions).toBeNull();
+    expect(m.ctr).toBeNull();
   });
 });

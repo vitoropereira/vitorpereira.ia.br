@@ -92,7 +92,10 @@ export function metricaVazia(external_id: string, dia: string): MetricaDiaria {
   };
 }
 
-/** Linha do Analytics (`day` + métricas base e, se vier, impressões). */
+/**
+ * Linha do Analytics (`day` + métricas base). Impressões e CTR não passam por
+ * aqui: o v2 não as tem, e elas vêm da Reporting API (`reporting.ts`).
+ */
 export function aplicarLinhaAnalytics(
   m: MetricaDiaria,
   linha: Record<string, unknown>,
@@ -105,7 +108,5 @@ export function aplicarLinhaAnalytics(
     watch_time_min: pega("estimatedMinutesWatched", m.watch_time_min),
     avg_view_pct: pega("averageViewPercentage", m.avg_view_pct),
     subs_gained: pega("subscribersGained", m.subs_gained),
-    impressions: pega("videoThumbnailImpressions", m.impressions),
-    ctr: pega("videoThumbnailImpressionsClickRate", m.ctr),
   };
 }

@@ -120,13 +120,15 @@ describe("executarColeta", () => {
       rede: "youtube",
       job: "collect",
       adapter: adapterFixo({
-        avisos: ["impressões recusadas (videoThumbnailImpressions): 400"],
+        avisos: [
+          "alcance indisponível (Reporting API): YouTube Reporting HTTP 403",
+        ],
       }),
       gravador: criarGravador(db),
       dia: DIA,
     });
     expect(r.ok).toBe(true);
-    expect(r.erro).toMatch(/^aviso: .*videoThumbnailImpressions/);
+    expect(r.erro).toMatch(/^aviso: alcance indisponível/);
     expect(runs(db)[0]).toMatchObject({ ok: true });
   });
 
