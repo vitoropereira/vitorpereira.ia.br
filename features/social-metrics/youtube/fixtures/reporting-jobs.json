@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "id": "job-outro",
+      "reportTypeId": "channel_basic_a2",
+      "name": "outro job",
+      "createTime": "2026-01-02T10:00:00Z"
+    },
+    {
+      "id": "job-alcance",
+      "reportTypeId": "channel_reach_basic_a1",
+      "name": "vitorpereira-social-alcance",
+      "createTime": "2026-09-01T10:00:00Z"
+    }
+  ]
+}

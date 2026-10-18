@@ -15,6 +15,7 @@ import type {
   MetricaDiaria,
   SocialAdapter,
 } from "../types.ts";
+import { ErroApi, erroDaResposta } from "./http.ts";
 import {
   aplicarLinhaAnalytics,
   linhasPorNome,
@@ -24,6 +25,9 @@ import {
   type RelatorioApi,
   type VideoApi,
 } from "./normalizar.ts";
+import { criarClienteReporting, parseAlcance } from "./reporting.ts";
+
+export { ErroApi };
 
 const DATA_API = "https://www.googleapis.com/youtube/v3";
 const ANALYTICS_API = "https://youtubeanalytics.googleapis.com/v2/reports";
@@ -33,17 +37,6 @@ export const IDADE_MAX_DIARIA = 90;
 
 const METRICAS_BASE =
   "views,estimatedMinutesWatched,averageViewPercentage,subscribersGained";
-const METRICAS_IMPRESSAO =
-  "videoThumbnailImpressions,videoThumbnailImpressionsClickRate";
-
-export class ErroApi extends Error {
-  status: number;
-  constructor(status: number, mensagem: string) {
-    super(mensagem);
-    this.name = "ErroApi";
-    this.status = status;
-  }
-}
 
 interface CanalApi {
   id: string;
@@ -68,14 +61,7 @@ export function criarAdapterYouTube(
     const res = await fetch(url, {
       headers: { authorization: `Bearer ${accessToken}` },
     });
-    if (!res.ok) {
-      // Só a mensagem do Google: a URL e os headers ficam fora do erro.
-      const json = (await res.json().catch(() => ({}))) as {
-        error?: { message?: string };
-      };
-      const msg = json.error?.message ?? "sem mensagem";
-      throw new ErroApi(res.status, `YouTube API HTTP ${res.status}: ${msg}`);
-    }
+    if (!res.ok) throw await erroDaResposta(res, "YouTube API");
     return (await res.json()) as T;
   }
 
@@ -202,30 +188,11 @@ export function criarAdapterYouTube(
       }
     }
 
-    // Impressões e tráfego vão separados: se a API recusar a métrica, só ela
-    // fica null e o resto da coleta segue.
-    let impressaoOk = true;
+    // Tráfego vai separado: se a API recusar a dimensão, só ela fica de fora e
+    // o resto da coleta segue.
     let trafegoOk = true;
     for (const v of serie) {
       for (const [ini, fim] of janelas(inicioDe(v), hoje)) {
-        if (impressaoOk) {
-          try {
-            const r = await relatorio({
-              startDate: ini,
-              endDate: fim,
-              metrics: METRICAS_IMPRESSAO,
-              dimensions: "day",
-              filters: `video==${v.id}`,
-            });
-            for (const l of linhasPorNome(r)) aplicar(v.id, l);
-          } catch (e) {
-            if (!(e instanceof ErroApi && e.status === 400)) throw e;
-            impressaoOk = false;
-            avisos.push(
-              `impressões recusadas (${METRICAS_IMPRESSAO}): ${e.message}`,
-            );
-          }
-        }
         if (trafegoOk) {
           try {
             const r = await relatorio({
@@ -266,7 +233,49 @@ export function criarAdapterYouTube(
       if (total != null) m.extra = { ...m.extra, views_total: total };
     }
 
+    if (serie.length > 0) await aplicarAlcance(desde, porChave, avisos);
+
     return { posts, metricas: [...porChave.values()], avisos };
+  }
+
+  /**
+   * Impressões e CTR da thumb vêm da Reporting API (o Analytics v2 não tem
+   * essas métricas). Só preenche chave que a série já montou: o gravador
+   * grava views e watch_time sem coalesce, e uma linha nova só com impressões
+   * apagaria esses campos. Recusa da API vira aviso; impressões ficam null.
+   */
+  async function aplicarAlcance(
+    desde: string,
+    porChave: Map<string, MetricaDiaria>,
+    avisos: string[],
+  ): Promise<void> {
+    const reporting = criarClienteReporting({ fetch, accessToken });
+    try {
+      const job = await reporting.garantirJob();
+      if (job.criado) {
+        avisos.push(
+          `alcance: job da Reporting criado (${job.id}); relatórios em até ~48h`,
+        );
+        return;
+      }
+      const rels = await reporting.relatoriosDaJanela(job.id, desde);
+      if (rels.length === 0) {
+        avisos.push(`alcance: job ${job.id} ainda sem relatório na janela`);
+        return;
+      }
+      for (const rel of rels) {
+        const alcance = parseAlcance(await reporting.baixar(rel.downloadUrl));
+        for (const [k, v] of alcance) {
+          const m = porChave.get(k);
+          if (!m) continue;
+          m.impressions = v.impressions;
+          m.ctr = v.ctr;
+        }
+      }
+    } catch (e) {
+      if (!(e instanceof ErroApi)) throw e;
+      avisos.push(`alcance indisponível (Reporting API): ${e.message}`);
+    }
   }
 
   async function coletarConta(dia: string): Promise<ColetaConta> {

@@ -1,0 +1,28 @@
+{
+  "reports": [
+    {
+      "id": "r-1011-a",
+      "jobId": "job-alcance",
+      "startTime": "2026-10-11T07:00:00Z",
+      "endTime": "2026-10-12T07:00:00Z",
+      "createTime": "2026-10-12T15:00:00Z",
+      "downloadUrl": "https://youtubereporting.googleapis.com/v1/media/CHANNEL/r-1011-a?alt=media"
+    },
+    {
+      "id": "r-1012",
+      "jobId": "job-alcance",
+      "startTime": "2026-10-12T07:00:00Z",
+      "endTime": "2026-10-13T07:00:00Z",
+      "createTime": "2026-10-13T15:00:00Z",
+      "downloadUrl": "https://youtubereporting.googleapis.com/v1/media/CHANNEL/r-1012?alt=media"
+    },
+    {
+      "id": "r-1011-b",
+      "jobId": "job-alcance",
+      "startTime": "2026-10-11T07:00:00Z",
+      "endTime": "2026-10-12T07:00:00Z",
+      "createTime": "2026-10-14T15:00:00Z",
+      "downloadUrl": "https://youtubereporting.googleapis.com/v1/media/CHANNEL/r-1011-b?alt=media"
+    }
+  ]
+}
