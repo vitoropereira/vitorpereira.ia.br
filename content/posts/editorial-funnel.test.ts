@@ -136,4 +136,22 @@ describe("trilha editorial de agentes", () => {
       "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/403",
     );
   });
+
+  it("publica RLS como controle de linha, não de coluna", () => {
+    const article = postBody("10/19", "rls-nao-protege-coluna");
+
+    expect(article).toContain("date: 2026-10-19T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://www.postgresql.org/docs/current/ddl-rowsecurity.html",
+    );
+    expect(article).toContain(
+      "https://www.postgresql.org/docs/current/ddl-priv.html",
+    );
+    expect(article).toContain(
+      "https://supabase.com/docs/guides/database/postgres/row-level-security",
+    );
+  });
 });

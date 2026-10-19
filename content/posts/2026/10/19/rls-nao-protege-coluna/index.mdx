@@ -1,0 +1,201 @@
+---
+title: "RLS protege linhas. Sua coluna sensível continua exposta."
+description: "Uma policy de RLS decide quais registros uma identidade pode alcançar. Ela não escolhe quais campos essa identidade pode alterar. Dados de autoridade precisam de privilégio por coluna ou de uma mutação de servidor estreita."
+date: 2026-10-19T11:00:00-03:00
+draft: false
+tags: [segurança, postgres, dados, arquitetura]
+comments: true
+---
+
+Uma tabela de perfil tem `user_id`, `display_name`, `plan`, `credit_limit` e
+`approved_by`. A aplicação permite que cada pessoa altere o próprio nome.
+
+A policy parece suficiente:
+
+```sql title="policy de linha"
+create policy "a pessoa altera o próprio perfil"
+on public.profile
+for update
+to app_user
+using (owner_id = current_user)
+with check (owner_id = current_user);
+```
+
+Ela responde uma pergunta importante: **quais linhas** aquele papel pode atualizar?
+
+Não responde outra: **quais colunas** ele pode colocar no `UPDATE`.
+
+Se `app_user` ainda possui `UPDATE` sobre a tabela inteira, uma atualização da
+própria linha pode tentar mudar `plan`, `credit_limit` ou `approved_by` junto com
+`display_name`. RLS não é um filtro de campos. A fronteira precisa separar o
+registro que a pessoa pode alcançar do atributo que ela tem permissão de alterar.
+
+## São duas decisões, não uma policy maior
+
+O PostgreSQL trata essas decisões em camadas diferentes:
+
+```text
+privilégios SQL: este papel pode executar UPDATE nesta tabela ou coluna?
+RLS: entre as linhas permitidas, quais podem ser lidas ou modificadas?
+contrato de escrita: quais campos a aplicação expõe em cada fluxo?
+```
+
+A documentação do PostgreSQL define RLS como uma forma de restringir, por usuário,
+quais **linhas** são retornadas ou modificadas. A mesma documentação também mostra
+que `UPDATE` pode ser concedido para colunas específicas. São controles que se
+completam, não alternativas.
+
+A ordem prática é simples: retire o privilégio amplo e devolva apenas os campos
+que o fluxo precisa escrever.
+
+```sql title="permissão por coluna + policy por linha"
+revoke update on table public.profile from app_user;
+grant update (display_name) on table public.profile to app_user;
+
+alter table public.profile enable row level security;
+
+create policy "a pessoa altera apenas o próprio perfil"
+on public.profile
+for update
+to app_user
+using (owner_id = current_user)
+with check (owner_id = current_user);
+```
+
+O exemplo usa `current_user` apenas para deixar a diferença visível. No sistema
+real, a expressão de identidade deve ser a que o runtime usa de fato. Em um app
+com JWT, por exemplo, a policy precisa se apoiar na identidade validada pelo
+servidor, não em um `user_id` aceito cegamente no body da requisição.
+
+Com esse contrato, `app_user` pode tentar atualizar `display_name` em uma linha
+permitida pela policy. Não recebe autorização de `UPDATE` para `plan` só porque
+ambos os campos moram na mesma linha.
+
+## Um campo de autoridade não é preferência do usuário
+
+A separação fica mais importante quando uma coluna muda o poder de uma identidade
+ou o valor de uma operação:
+
+```text
+display_name: preferência do titular
+avatar_url: preferência do titular
+marketing_opt_in: escolha do titular
+plan: decisão comercial
+credit_limit: decisão financeira
+approved_by: trilha de autoridade
+role: autorização
+```
+
+Não é a tabela que define o nível de risco. É a consequência da alteração.
+
+Permitir que a pessoa atualize seu próprio registro é correto para os três primeiros
+campos. Aplicar a mesma regra a `role`, `credit_limit` ou `approved_by` transforma
+uma conveniência de perfil em uma escalada de privilégio ou alteração de estado
+que deveria pertencer ao servidor.
+
+Uma DTO ou schema de validação no backend ajuda a reduzir o payload aceito. Mas
+ela não deve ser a última barreira. Outro endpoint, uma integração futura ou uma
+mudança de ORM pode ignorar esse schema. O banco continua sendo o lugar onde o
+privilégio de escrever uma coluna sensível precisa ser negado.
+
+## Quando usar função ou endpoint estreito
+
+Há transições que não cabem em um `GRANT UPDATE (coluna)`: aprovar cadastro,
+conceder crédito, trocar papel, fechar fatura. Elas têm regra de negócio, contexto
+de auditoria e, muitas vezes, uma segunda identidade autorizadora.
+
+Nesses casos, prefira uma operação estreita no servidor, com entrada pequena e
+resultado explícito:
+
+```ts title="contrato de uma transição controlada"
+type ApproveAccountInput = {
+  accountId: string;
+  decision: "approved" | "rejected";
+};
+
+async function approveAccount(
+  actor: AuthenticatedOperator,
+  input: ApproveAccountInput,
+) {
+  requirePermission(actor, "accounts.approve");
+
+  return db.transaction(async (tx) => {
+    const account = await tx.account.findUniqueOrThrow({
+      where: { id: input.accountId },
+    });
+
+    if (account.status !== "pending") {
+      throw new Error("invalid account transition");
+    }
+
+    return tx.account.update({
+      where: { id: account.id },
+      data: {
+        status: input.decision,
+        approvedBy: actor.id,
+      },
+    });
+  });
+}
+```
+
+Isso não é uma receita universal de ORM. É um limite de arquitetura: o cliente não
+recebe uma escrita genérica sobre campos de autoridade. Ele pede uma transição
+nomeada; o servidor valida permissão, estado anterior e auditoria antes de tocar
+nos campos protegidos.
+
+## A pegadinha de RLS em APIs expostas
+
+Em uma API baseada em Postgres, uma policy só faz seu trabalho depois que o papel
+tem o privilégio SQL necessário. A documentação do Supabase deixa a separação
+explícita: grants decidem se o papel pode executar uma operação na tabela; policies
+decidem a quais linhas a operação se aplica. Uma permissão ausente falha antes da
+policy; uma policy não remove um grant amplo já existente.
+
+Isso explica dois bugs opostos:
+
+- a policy está correta, mas a atualização falha porque o papel não recebeu o
+  privilégio necessário;
+- a policy está correta, a atualização da própria linha passa e um campo de
+  autoridade mudou porque o papel manteve `UPDATE` amplo.
+
+A solução não é tornar a expressão de RLS cada vez mais complicada. É revisar as
+três camadas: privilégio, linha e contrato de mutação.
+
+## Teste o que o papel não consegue fazer
+
+O teste que importa não é só “uma pessoa consegue mudar o nome”. Ele precisa
+provar também os limites:
+
+1. o papel atualiza `display_name` na própria linha;
+2. o mesmo papel não atualiza `display_name` na linha de outra pessoa;
+3. o mesmo papel não atualiza `role`, `plan`, `credit_limit` ou outro campo de
+   autoridade na própria linha;
+4. a operação interna que muda um campo protegido exige o papel certo, registra o
+   ator e rejeita uma transição de estado inválida.
+
+Esses quatro cenários transformam a intenção de segurança em comportamento
+observável. Sem eles, uma migration, um novo endpoint ou uma mudança de SDK pode
+reabrir um campo sensível sem que a policy de linha pareça quebrada.
+
+<Callout type="note">
+  RLS continua essencial. Só não deve carregar uma responsabilidade que pertence
+  a privilégios por coluna e a operações de servidor deliberadamente estreitas.
+</Callout>
+
+## Fontes
+
+- [PostgreSQL: Row Security Policies](https://www.postgresql.org/docs/current/ddl-rowsecurity.html): RLS restringe, por usuário, quais linhas podem ser consultadas ou modificadas; o exemplo oficial combina policy de linha com `GRANT UPDATE` por coluna.
+- [PostgreSQL: Privileges](https://www.postgresql.org/docs/current/ddl-priv.html): `UPDATE` pode ser concedido para qualquer coluna ou para colunas específicas.
+- [PostgreSQL: `GRANT`](https://www.postgresql.org/docs/current/sql-grant.html): sintaxe de privilégios de coluna para `SELECT`, `INSERT`, `UPDATE` e `REFERENCES`.
+- [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security): grants controlam a operação de tabela; policies delimitam as linhas alcançadas.
+
+## Próximo passo
+
+Se a sua API permite que usuários ou agentes escrevam no banco, mas perfil,
+pagamento, limite ou autorização compartilham a mesma rota de atualização,
+
+<DiagnosticCTA locale="pt">
+  traga esse fluxo para um diagnóstico técnico de 30 minutos
+</DiagnosticCTA>
+.
