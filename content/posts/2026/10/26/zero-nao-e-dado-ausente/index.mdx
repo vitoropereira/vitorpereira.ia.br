@@ -1,0 +1,162 @@
+---
+title: "Zero não é dado ausente"
+description: "Quando uma API não informa uma métrica, gravar zero transforma uma lacuna de observação em uma afirmação. Preserve o desconhecido na ingestão para não fabricar resultado no dashboard."
+date: 2026-10-26T11:00:00-03:00
+draft: false
+tags: [dados, observabilidade, métricas, operação]
+comments: true
+---
+
+Uma coleta chega sem o número de salvamentos de um post. Talvez a plataforma não
+ofereça a métrica para aquele formato. Talvez a API tenha falhado antes de
+retorná-la. Talvez a integração ainda não a implemente.
+
+Há duas formas de gravar isso:
+
+```text
+saves = 0
+```
+
+ou:
+
+```text
+saves = desconhecido
+```
+
+A primeira parece mais prática. Também afirma algo que ninguém observou: que não
+houve nenhum salvamento.
+
+A tese operacional é simples: _zero é uma observação; ausência é estado de
+conhecimento_. Misturar os dois na ingestão fabrica precisão e contamina todo
+cálculo feito depois.
+
+## O erro acontece antes do dashboard
+
+Quando um campo faltante vira zero no adapter, o painel pode somar, calcular
+média e comparar períodos sem encontrar erro algum. O problema é que o número já
+chegou com significado alterado.
+
+Imagine três dias de uma métrica:
+
+| Dia | Resposta da fonte | Dado preservado | Dado convertido |
+| --- | ----------------- | --------------- | --------------- |
+| 1   | 12                | 12              | 12              |
+| 2   | não informado     | desconhecido    | 0               |
+| 3   | 8                 | 8               | 8               |
+
+No último caso, o gráfico mostra queda. Mas a fonte só confirmou dois valores:
+12 e 8. O zero é uma conclusão inventada no caminho.
+
+Não adianta colocar uma nota pequena no dashboard depois. A decisão de significado
+precisa acontecer na borda: no contrato entre a resposta externa e o dado
+persistido.
+
+## `NULL` não é um zero com outra grafia
+
+No SQL, `NULL` participa de comparações como valor _desconhecido_. Por isso,
+`7 = NULL` não é verdadeiro nem falso: produz `NULL`. A documentação do
+[PostgreSQL sobre comparações](https://www.postgresql.org/docs/current/functions-comparison.html)
+descreve essa semântica e os predicados próprios para testar ausência.
+
+Isso importa porque o banco consegue carregar uma informação que o número puro
+não carrega:
+
+```text
+views = 0       → a fonte afirmou zero views
+views = NULL    → não há um número confirmado para esta observação
+```
+
+Não use `NULL` como desculpa para uma coluna sem regra. Dê nome ao estado e faça o
+consumidor escolher o comportamento:
+
+```ts title="contrato de observação"
+type MetricObservation =
+  | { state: "observed"; value: number }
+  | { state: "unavailable"; reason: "not_returned" | "not_supported" };
+```
+
+Em uma tabela relacional, esse contrato pode virar uma coluna numérica anulável
+mais uma causa de indisponibilidade quando ela for relevante para a decisão. O
+ponto é não deixar `0` carregar os dois papéis.
+
+## O contrato precisa sobreviver à coleta
+
+Um schema de métricas operacional deve declarar campos como `views`, `likes`,
+`comments`, `shares`, `saves`, `reach` e `impressions` sem obrigar um valor
+quando a fonte não forneceu um. A regra precisa ficar explícita: métrica não
+retornada permanece ausente; zero continua sendo dado observado.
+
+Não é uma escolha estética de banco. É o contrato que impede que um adapter
+incompleto pareça uma performance ruim.
+
+A chave da série também precisa separar duas perguntas que costumam ser
+misturadas:
+
+```text
+qual observação pertence a este post neste dia?
+qual valor a fonte confirmou para cada métrica dessa observação?
+```
+
+Você pode atualizar uma observação quando a fonte completar ou corrigir a resposta.
+Não deve preencher o que ela não entregou com um zero só para o schema parecer
+completo.
+
+## Três regras para não mentir com métrica
+
+### 1. Normalize a unidade, não o significado
+
+Converter duração para minutos, moeda para centavos ou timestamp para UTC preserva
+o fato observado. Trocar ausência por zero não normaliza: muda a afirmação.
+
+### 2. Mostre cobertura junto com o resultado
+
+Uma média de retenção com 100% dos posts observados e outra com 40% não têm a
+mesma força. O relatório precisa conseguir dizer quantos itens tinham valor
+confirmado, quantos estavam indisponíveis e qual período foi consultado.
+
+Não precisa despejar essa contabilidade em toda interface. Precisa existir na
+camada que decide se um número é comparável.
+
+### 3. Nunca faça fallback silencioso no cálculo decisório
+
+`COALESCE(metrica, 0)` pode ser correto quando a regra de negócio prova que
+ausência _significa_ zero. Em coleta externa, normalmente significa apenas que o
+sistema não sabe ainda.
+
+Antes de usar o fallback, responda por escrito: quem observou o zero? Se a
+resposta for “ninguém”, preserve a lacuna e trate o dado como indisponível.
+
+## O teste que protege a leitura
+
+A ingestão não está pronta quando só aceita números. Ela precisa provar estados
+opostos:
+
+```text
+fonte devolve 0          → persiste 0
+fonte omite a métrica    → persiste ausência, sem substituir por 0
+fonte corrige o valor    → atualiza a observação identificada
+relatório agrega dados   → informa cobertura e não chama ausência de queda
+```
+
+Esse teste evita uma classe chata de incidente: a coleta roda, o dashboard fica
+verde e uma decisão é tomada sobre uma queda que nunca aconteceu.
+
+A mesma disciplina vale para agentes. Um agente que não recebeu uma resposta de
+uma API não deveria concluir “não há dados”. Deve registrar o que consultou, o que
+a fonte devolveu e o que permaneceu desconhecido: como no guia sobre
+[registros para operar agentes](/2026/09/17/logs-para-operar-agentes).
+
+<Callout type="note">
+  Métrica incompleta não é falha moral da operação. É uma condição que o sistema
+  precisa tornar visível antes que alguém a transforme em certeza.
+</Callout>
+
+## Fontes
+
+- [PostgreSQL: Comparison Functions and Operators](https://www.postgresql.org/docs/current/functions-comparison.html): semântica de `NULL` como valor desconhecido em comparações e predicados para testar ausência.
+
+## Próximo passo
+
+Se o seu time ou agente consolida métricas de APIs externas, mas ausência de dado
+vira zero no caminho, <DiagnosticCTA locale="pt">traga esse pipeline para um
+diagnóstico técnico de 30 minutos</DiagnosticCTA>.

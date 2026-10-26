@@ -154,4 +154,16 @@ describe("trilha editorial de agentes", () => {
       "https://supabase.com/docs/guides/database/postgres/row-level-security",
     );
   });
+
+  it("publica ausência de métrica como estado, não como zero", () => {
+    const article = postBody("10/26", "zero-nao-e-dado-ausente");
+
+    expect(article).toContain("date: 2026-10-26T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://www.postgresql.org/docs/current/functions-comparison.html",
+    );
+  });
 });
