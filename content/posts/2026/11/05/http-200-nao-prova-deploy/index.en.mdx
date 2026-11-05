@@ -1,0 +1,169 @@
+---
+title: "HTTP 200 does not prove the deployment delivered the right page"
+description: "A 200 confirms that a request was successfully handled. It does not confirm that the new route, expected content, canonical URL, and CTA reached production."
+date: 2026-11-05T11:00:00-03:00
+draft: false
+tags: [deployment, testing, observability, quality]
+comments: true
+---
+
+The deployment finished. The monitor received `200`. Someone writes “production
+validated.”
+
+The question that matters is still unanswered: **did the person receive the
+right page?**
+
+An HTTP status answers a small part of the contract. [RFC 9110 defines `200
+OK`](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok) as a successful
+request. It does not say that the new title rendered, that the canonical route
+is correct, or that the link moving a person to the next step points to the
+right destination.
+
+Treating availability as complete validation is like checking whether an API
+responds before checking whether its payload matches the contract. The service
+is up. The result can still be wrong.
+
+## What each signal actually proves
+
+Separating signals prevents one check from carrying a responsibility it cannot
+handle.
+
+| Signal                    | What it proves                                           | What it does not prove                                |
+| ------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| `pnpm build`              | The snapshot was transformed into a production artifact. | The public URL serves the intended content.           |
+| Green CI                  | The checks that exist passed.                            | The checks cover the new route, metadata, and action. |
+| `HTTP 200`                | The server completed the request successfully.           | The representation is the right page.                 |
+| Expected text or `h1`     | A person sees the subject promised by the release.       | The final link points to the correct destination.     |
+| Checked link and metadata | The transition and public identity were verified.        | A user converted or generated revenue.                |
+
+That last point matters. A smoke test is not permission to manufacture a click,
+a lead, or a booking. It only confirms that the path exists and points where the
+product declared it would.
+
+## A smoke test needs an observable contract
+
+For a new route, the minimum is not “it returned 200.” It is a short list of
+facts that must all hold at once:
+
+```text
+The canonical URL returns 200
+Content-Type is HTML
+The expected h1 or editorial excerpt is present
+The canonical tag points to the right public URL
+The CTA exists and points to the intended destination
+The sitemap lists the canonical URL when the route should be discoverable
+```
+
+The contract changes with the release. A service page can require its booking
+button. A post needs its title, correct date, and the internal link it promises.
+A protected route should prove denied access and valid access in separate flows.
+
+The mistake is turning a smoke test into a generic script that only counts
+statuses. If a change altered the CTA, the check must know that CTA. If it
+altered the canonical URL, the check must read the rendered canonical URL.
+
+## Run it against the artifact that will be served
+
+Component and unit tests remain useful: they catch regressions early and explain
+the rule that failed. They do not replace running the final build with the
+production server.
+
+The [Next.js Playwright guide](https://nextjs.org/docs/app/guides/testing/playwright)
+recommends running tests against production code to better resemble application
+behavior. That is the difference between validating an isolated function and
+validating the route that brings content, rendering, links, and runtime
+configuration together.
+
+A simple smoke test can start here:
+
+```ts title="public contract smoke test"
+const response = await fetch(
+  "http://127.0.0.1:3100/en/2026/11/05/http-200-nao-prova-deploy",
+);
+const html = await response.text();
+
+expect(response.status).toBe(200);
+expect(response.headers.get("content-type")).toContain("text/html");
+expect(html).toContain(
+  "HTTP 200 does not prove the deployment delivered the right page",
+);
+expect(html).toContain(
+  'rel="canonical" href="https://vitorpereira.ia.br/en/2026/11/05/http-200-nao-prova-deploy"',
+);
+expect(html).toContain("/en/booking/diagnostico-30min");
+```
+
+The example does not depend on a specific tool. When a team uses browser E2E,
+the [Playwright assertions documentation](https://playwright.dev/docs/test-assertions)
+shows matchers for visible content, attributes, and links. When it uses `curl`
+and an HTML parser, the questions are the same.
+
+The tool is a detail. The contract must be explicit.
+
+## Two smoke tests, two different risks
+
+Local and public validation are not duplicates. They answer different risks.
+
+### Local: can the final snapshot serve the route?
+
+After `build`, start the server on the final artifact and test the exact URL.
+That catches route mismatches, content missing from generation, and CTAs broken
+during rendering before opening the PR.
+
+```bash
+corepack pnpm exec next start -p 3100
+```
+
+The smoke test should target that port, not a `dev` server that might serve code
+different from the snapshot that will be committed.
+
+### Public: did the deployment deliver the expected version?
+
+After merge, test the production domain. This is where CDN, cache, environment,
+and configuration that do not exist locally enter the picture.
+
+Check the public URL, its content, and its CTA destination. Record the result
+with the time and commit. If it fails, the problem is not “a green monitor”; it
+is a release failure that needs a rollback or correction.
+
+## Do not hide the gap behind more CI
+
+Adding a job called `smoke` solves nothing if it tests `/` while the change is on
+another route. The check should be born from the change.
+
+An objective PR review lists what changed for a person and maps each item to an
+observation:
+
+```text
+new post          → URL, h1, date, and sources rendered
+new internal link → href resolves to a public route
+new CTA           → destination exists and its copy remains contextual
+metadata changed  → canonical and alternates appear in final HTML
+protected route   → 403/redirect for unauthorised access and a valid authorised flow
+```
+
+That also makes review smaller. Instead of discussing whether “the deployment
+looks good,” the reviewer can ask which release claim has not yet been observed.
+
+The same principle applies to [idempotency in external effects](/2026/09/21/idempotencia-efeito-externo):
+a test must prove the effect that matters, not only that a function was called.
+It also applies to [agent logs](/2026/09/17/logs-para-operar-agentes): without
+recording the URL, build, and expected result, “passed” does not help diagnose
+the next failure.
+
+<Callout type="note">
+  `200` is availability. Expected content, correct metadata, and a valid CTA are
+  separate contracts. Treat each one as a claim that needs evidence.
+</Callout>
+
+## Sources
+
+- [RFC 9110, section 15.3.1](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok): semantics of `200 OK` for a successful request.
+- [Next.js: How to set up Playwright with Next.js](https://nextjs.org/docs/app/guides/testing/playwright): E2E testing guide and recommendation to run against production code.
+- [Playwright: Assertions](https://playwright.dev/docs/test-assertions): matchers for verifying visible text, attributes, links, and browser state.
+
+## Next step
+
+If your team has green CI but cannot prove that the right route, CTA, and
+metadata reached production, <DiagnosticCTA locale="en">bring the release to a
+30-minute technical diagnostic</DiagnosticCTA>.
