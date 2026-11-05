@@ -1,0 +1,169 @@
+---
+title: "HTTP 200 não prova que o deploy entregou a página certa"
+description: "Um 200 confirma que a requisição foi processada com sucesso. Não confirma que a rota nova, o conteúdo esperado, a canonical e a CTA chegaram ao ambiente de produção."
+date: 2026-11-05T11:00:00-03:00
+draft: false
+tags: [deploy, testes, observabilidade, qualidade]
+comments: true
+---
+
+O deploy terminou. O monitor recebeu `200`. Alguém escreve “produção validada”.
+
+Ainda falta a pergunta que interessa: **a pessoa recebeu a página certa?**
+
+O status HTTP responde uma parte pequena do contrato. A
+[RFC 9110 define `200 OK`](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok)
+como uma requisição bem-sucedida. Ela não afirma que o título novo foi renderizado,
+que a rota canônica é a esperada ou que o link que move o usuário para o próximo
+passo aponta para o destino correto.
+
+Tratar disponibilidade como validação completa é como testar se uma API responde
+antes de conferir se o payload tem o contrato certo. O serviço está de pé. O
+resultado pode continuar errado.
+
+## O que cada sinal realmente prova
+
+Separar os sinais evita que um check ganhe uma responsabilidade que não consegue
+carregar.
+
+| Sinal                      | O que ele prova                                                | O que ainda não prova                                  |
+| -------------------------- | -------------------------------------------------------------- | ------------------------------------------------------ |
+| `pnpm build`               | O snapshot conseguiu ser transformado no artefato de produção. | Que a URL pública entrega o conteúdo pretendido.       |
+| CI verde                   | Os checks que existem passaram.                                | Que os checks cobrem a rota, a metadata e a ação nova. |
+| `HTTP 200`                 | A requisição foi concluída com sucesso pelo servidor.          | Que a representação é a página certa.                  |
+| Texto ou `h1` esperado     | A pessoa vê o assunto que o release prometeu.                  | Que o link final leva ao destino correto.              |
+| Link e metadata conferidos | A transição e a identidade pública foram verificadas.          | Que o usuário converteu ou gerou receita.              |
+
+O último ponto importa. Uma smoke test não é autorização para fabricar um clique,
+um lead ou um booking. Ela só confirma que o caminho existe e aponta para onde o
+produto declarou.
+
+## Smoke precisa testar um contrato observável
+
+Para uma rota nova, o mínimo não é “retornou 200”. É uma lista curta de coisas que
+precisam estar verdadeiras ao mesmo tempo:
+
+```text
+URL canônica responde 200
+Content-Type é HTML
+h1 ou trecho editorial esperado está presente
+canonical aponta para a URL pública correta
+CTA existe e aponta para o destino previsto
+sitemap enumera a URL canônica, quando a rota deve ser descoberta
+```
+
+O contrato muda com o release. Uma página de serviço pode exigir o botão de
+agendamento. Um post precisa do título, da data correta e do link interno que ele
+promete. Uma rota autenticada deve provar acesso negado e acesso permitido em
+fluxos separados.
+
+O erro é transformar a smoke em um script genérico que só sabe contar status. Se
+uma mudança alterou a CTA, o check precisa conhecer aquela CTA. Se alterou a
+canonical, o check precisa ler a canonical renderizada.
+
+## Rode contra o artefato que será servido
+
+Testes de componente e unitários continuam úteis: eles pegam regressões cedo e
+explicam a regra que falhou. Eles não substituem a execução do build final com o
+servidor de produção.
+
+A documentação do [Next.js para Playwright](https://nextjs.org/docs/app/guides/testing/playwright)
+recomenda rodar os testes contra o código de produção para aproximar o comportamento
+do aplicativo. É a diferença entre validar uma função isolada e validar a rota
+que juntou conteúdo, renderização, links e configuração de runtime.
+
+Uma smoke simples pode começar assim:
+
+```ts title="smoke do contrato público"
+const response = await fetch(
+  "http://127.0.0.1:3100/2026/11/05/http-200-nao-prova-deploy",
+);
+const html = await response.text();
+
+expect(response.status).toBe(200);
+expect(response.headers.get("content-type")).toContain("text/html");
+expect(html).toContain(
+  "HTTP 200 não prova que o deploy entregou a página certa",
+);
+expect(html).toContain(
+  'rel="canonical" href="https://vitorpereira.ia.br/2026/11/05/http-200-nao-prova-deploy"',
+);
+expect(html).toContain("/agendar/diagnostico-30min");
+```
+
+O exemplo não depende de uma ferramenta específica. Se o time usa browser E2E,
+a [documentação de assertions do Playwright](https://playwright.dev/docs/test-assertions)
+mostra matchers para conteúdo visível, atributos e links. Se usa `curl` e um parser
+HTML, as perguntas são as mesmas.
+
+A ferramenta é detalhe. O contrato precisa ser explícito.
+
+## Duas smoketests, dois riscos diferentes
+
+A validação local e a validação pública não são duplicadas. Elas respondem riscos
+diferentes.
+
+### Local: o snapshot final consegue servir a rota?
+
+Depois de `build`, suba o servidor no artefato final e teste a URL exata. Isso
+pega route mismatch, conteúdo que não entrou na geração e CTA que quebrou durante
+a renderização antes de abrir o PR.
+
+```bash
+corepack pnpm exec next start -p 3100
+```
+
+A smoke deve apontar para essa porta, não para um `dev` server que pode estar
+servindo código diferente do snapshot que será commitado.
+
+### Público: o deploy entregou a versão esperada?
+
+Depois do merge, teste o domínio de produção. Aqui entram CDN, cache, ambiente e
+a configuração que não existem no processo local.
+
+Confira a URL pública, o conteúdo e o destino da CTA. Registre o resultado com
+horário e commit. Se falhar, o problema não é “monitor verde”; é uma falha de
+release que precisa de rollback ou correção.
+
+## Não esconda a lacuna atrás de mais CI
+
+Adicionar um job chamado `smoke` não resolve nada se ele testa `/` enquanto a
+mudança foi em outra rota. O check deve nascer da alteração.
+
+Uma forma objetiva de revisar um PR é listar o que mudou para o usuário e ligar
+cada item a uma observação:
+
+```text
+novo post          → URL, h1, data e fontes renderizadas
+novo link interno  → href resolve para rota pública
+nova CTA           → destino existe e texto permanece contextual
+metadata alterada  → canonical e alternates no HTML final
+rota protegida     → 403/redirect para não autorizado e fluxo válido para autorizado
+```
+
+Isso também deixa a revisão menor. Em vez de discutir “o deploy parece bom”, o
+reviewer consegue perguntar qual afirmação do release ainda não foi observada.
+
+O mesmo princípio vale para [idempotência em efeitos externos](/2026/09/21/idempotencia-efeito-externo):
+o teste precisa provar o efeito que importa, não apenas que uma função foi chamada.
+E vale para [logs de agentes](/2026/09/17/logs-para-operar-agentes): sem registrar
+qual URL, qual build e qual expectativa foram verificados, um “passou” não ajuda a
+diagnosticar a próxima falha.
+
+<Callout type="note">
+  `200` é disponibilidade. Conteúdo esperado, metadata correta e CTA válida são
+  contratos separados. Trate cada um como uma afirmação que precisa de
+  evidência.
+</Callout>
+
+## Fontes
+
+- [RFC 9110, seção 15.3.1](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok): semântica de `200 OK` para uma requisição bem-sucedida.
+- [Next.js: How to set up Playwright with Next.js](https://nextjs.org/docs/app/guides/testing/playwright): guia de testes E2E e recomendação de executar contra o código de produção.
+- [Playwright: Assertions](https://playwright.dev/docs/test-assertions): matchers para verificar texto, atributos, links e estado visível no browser.
+
+## Próximo passo
+
+Se o seu time tem CI verde, mas não consegue provar que a rota, a CTA e a metadata
+certas chegaram à produção, <DiagnosticCTA locale="pt">traga o release para um
+diagnóstico técnico de 30 minutos</DiagnosticCTA>.
