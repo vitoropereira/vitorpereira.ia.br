@@ -1,0 +1,168 @@
+---
+title: "HTTP 200 confirma uma resposta, não o seu release"
+description: "Um status 200 confirma que uma requisição foi bem-sucedida. Não identifica o build em produção, nem prova que a rota, o conteúdo, a canonical e a CTA esperados chegaram ao usuário."
+date: 2026-11-09T11:00:00-03:00
+draft: false
+tags: [deploy, testes, observabilidade, qualidade]
+comments: true
+---
+
+O monitor recebeu `200`. O deploy parece pronto.
+
+A pergunta que ainda falta é mais específica: **a URL pública está entregando a
+representação que o release prometeu?**
+
+O status HTTP responde apenas parte dessa pergunta. A [RFC 9110 define `200
+OK`](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok) como sucesso para a
+requisição. Ele não identifica o commit que respondeu, não confirma o título
+novo e não verifica o destino de uma CTA.
+
+Isso não diminui o valor de monitorar disponibilidade. Só impede que um sinal
+pequeno carregue uma conclusão maior do que consegue sustentar.
+
+## O que cada sinal realmente confirma
+
+| Sinal                      | Confirma                                             | Ainda não confirma                                  |
+| -------------------------- | ---------------------------------------------------- | --------------------------------------------------- |
+| `pnpm build`               | O snapshot foi transformado em artefato de produção. | Que o domínio público está servindo esse snapshot.  |
+| CI verde                   | Os checks existentes passaram.                       | Que eles cobrem a rota, metadata e ação alteradas.  |
+| `HTTP 200`                 | A requisição recebeu uma resposta bem-sucedida.      | Que a representação pertence ao release esperado.   |
+| `h1` ou trecho esperado    | O conteúdo relevante chegou ao HTML.                 | Que o link de saída aponta para o destino certo.    |
+| CTA e metadata verificadas | A transição e a identidade pública foram observadas. | Que alguém clicou, marcou reunião ou gerou receita. |
+
+A última linha é importante: uma smoke test não autoriza criar clique, lead ou
+booking sintético. Ela só confere o contrato público que o release declarou.
+
+## Por que status sozinho não identifica a versão
+
+Uma resposta HTTP descreve a interação que aconteceu naquela requisição. O HTTP
+não foi desenhado para expor como o serviço implementa a rota por trás da
+interface. A própria RFC separa a interface HTTP dos detalhes internos do
+serviço.
+
+Além disso, uma resposta pode vir de cache. O [guia de caching do
+MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching) explica que
+caches armazenam respostas associadas a requisições e podem reutilizá-las depois;
+caches gerenciados podem existir em uma CDN ou reverse proxy.
+
+Logo, o check precisa inspecionar o que importa para o release, não inferir a
+versão a partir de um único número.
+
+## Smoke é um contrato observável
+
+Para uma rota pública nova, a smoke mínima deve declarar as condições que precisam
+ser verdadeiras ao mesmo tempo:
+
+```text
+URL canônica responde 200
+Content-Type é HTML
+h1 ou trecho editorial esperado está presente
+canonical aponta para a URL pública correta
+CTA existe e aponta para o destino previsto
+sitemap enumera a URL canônica, quando a rota deve ser descoberta
+```
+
+O contrato muda com a alteração. Uma página de serviço pode exigir o botão de
+agendamento. Um post precisa do título, da data e dos links que prometeu. Uma rota
+protegida precisa provar negação e acesso válido em fluxos separados.
+
+O erro é manter uma smoke genérica que só conta status enquanto o release muda
+conteúdo, link ou metadata. Se a mudança alterou a CTA, o teste precisa conhecer
+a CTA. Se alterou a canonical, precisa ler a canonical renderizada.
+
+## Rode contra o artefato final
+
+Testes unitários e de componente continuam úteis. Eles encontram uma regressão
+cedo e deixam clara a regra que quebrou. Mas não substituem o servidor que vai
+servir o artefato final.
+
+O guia do [Next.js para Playwright](https://nextjs.org/docs/app/guides/testing/playwright)
+recomenda executar testes contra o código de produção para aproximar o
+comportamento do aplicativo. A smoke pode ser simples e ainda verificar o que
+muda para quem acessa a rota:
+
+```ts title="smoke do contrato público"
+const response = await fetch(
+  "http://127.0.0.1:3100/2026/11/09/http-200-confirma-resposta-nao-release",
+  { redirect: "manual" },
+);
+const html = await response.text();
+
+expect(response.status).toBe(200);
+expect(response.headers.get("content-type")).toContain("text/html");
+expect(html).toContain("HTTP 200 confirma uma resposta, não o seu release");
+expect(html).toContain(
+  "https://vitorpereira.ia.br/2026/11/09/http-200-confirma-resposta-nao-release",
+);
+expect(html).toContain("/agendar/diagnostico-30min");
+```
+
+Com browser E2E, as [assertions do Playwright](https://playwright.dev/docs/test-assertions)
+permitem verificar texto visível, atributos e links. Com `curl` e parser HTML, as
+perguntas são as mesmas. A ferramenta é detalhe; a expectativa precisa ser
+explícita.
+
+## Local e público cobrem riscos diferentes
+
+### Local: o snapshot final serve a rota?
+
+Depois do build, suba o servidor a partir do artefato final e consulte a URL
+exata. Isso pega route mismatch, conteúdo fora da geração e CTA quebrada na
+renderização antes de abrir o PR.
+
+```bash
+corepack pnpm exec next start -p 3100
+```
+
+A smoke deve apontar para essa porta, não para um `dev` server que pode estar
+servindo outro snapshot.
+
+### Público: o domínio recebeu a versão esperada?
+
+Depois do merge, consulte o domínio de produção. Aqui entram CDN, cache, ambiente
+e configuração do provedor, que não existem no processo local.
+
+Valide a URL, o conteúdo e o destino da CTA. Registre horário e SHA do merge. Se
+um desses itens falhar, o problema é uma falha de release, não um monitor verde.
+
+## Um mapa curto para revisar o PR
+
+Em vez de perguntar se o deploy “parece bom”, liste o que mudou para a pessoa e
+ligue cada item a uma observação:
+
+```text
+novo post          → URL, h1, data e fontes renderizadas
+novo link interno  → href resolve para rota pública
+nova CTA           → destino existe e permanece contextual
+metadata alterada  → canonical e alternates no HTML final
+rota protegida     → negação para não autorizado e fluxo válido para autorizado
+```
+
+Isso reduz ruído na revisão. Também cria uma evidência útil quando o próximo
+release falhar: URL, expectativa, SHA e resultado podem ser comparados sem
+precisar reconstruir o que “verde” significava naquele momento.
+
+O mesmo princípio aparece em [idempotência de efeitos externos](/2026/09/21/idempotencia-efeito-externo):
+o teste precisa provar o efeito que importa, não apenas que uma função foi
+chamada. E vale para [logs de agentes](/2026/09/17/logs-para-operar-agentes):
+sem registrar URL, versão e expectativa, um “passou” não ajuda a diagnosticar a
+próxima falha.
+
+<Callout type="note">
+  `200` confirma uma resposta HTTP bem-sucedida. Conteúdo esperado, metadata
+  correta e CTA válida são contratos separados. Trate cada um como uma afirmação
+  que precisa de evidência.
+</Callout>
+
+## Fontes
+
+- [RFC 9110, seção 15.3.1](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok): semântica de `200 OK` para uma requisição bem-sucedida.
+- [MDN: HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching): caches armazenam e podem reutilizar respostas; caches gerenciados incluem CDNs e reverse proxies.
+- [Next.js: How to set up Playwright with Next.js](https://nextjs.org/docs/app/guides/testing/playwright): recomendação de executar testes contra o código de produção.
+- [Playwright: Assertions](https://playwright.dev/docs/test-assertions): assertions para conteúdo, atributos e links.
+
+## Próximo passo
+
+Se o seu time tem CI verde, mas não consegue provar que a rota, a CTA e a metadata
+certas chegaram à produção, <DiagnosticCTA locale="pt">traga o release para um
+diagnóstico técnico de 30 minutos</DiagnosticCTA>.

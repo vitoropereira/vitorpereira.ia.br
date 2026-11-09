@@ -166,4 +166,35 @@ describe("trilha editorial de agentes", () => {
       "https://www.postgresql.org/docs/current/functions-comparison.html",
     );
   });
+
+  it("publica HTTP 200 como resposta, não como prova do release", () => {
+    const article = postBody("11/09", "http-200-confirma-resposta-nao-release");
+
+    expect(article).toContain("date: 2026-11-09T11:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok",
+    );
+    expect(article).toContain(
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    );
+    expect(article).toContain(
+      "https://nextjs.org/docs/app/guides/testing/playwright",
+    );
+    expect(article).toContain("https://playwright.dev/docs/test-assertions");
+
+    const englishArticle = postBody(
+      "11/09",
+      "http-200-confirma-resposta-nao-release",
+      "index.en.mdx",
+    );
+    expect(englishArticle).toContain("date: 2026-11-09T11:00:00-03:00");
+    expect(englishArticle).toContain("draft: false");
+    expect(englishArticle).toContain('<DiagnosticCTA locale="en">');
+    expect(englishArticle).toContain(
+      "https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok",
+    );
+  });
 });
