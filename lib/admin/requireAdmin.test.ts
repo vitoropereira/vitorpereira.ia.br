@@ -93,7 +93,7 @@ describe("requireAdmin — caso feliz", () => {
     comUsuario("root@y.com");
     await expect(requireAdmin("redes")).resolves.toEqual({
       email: "root@y.com",
-      sections: ["redes"],
+      sections: ["redes", "fabrica"],
     });
   });
 });
@@ -120,7 +120,7 @@ describe("requireAdminApi", () => {
     comUsuario("root@y.com");
     await expect(requireAdminApi("redes")).resolves.toEqual({
       email: "root@y.com",
-      sections: ["redes"],
+      sections: ["redes", "fabrica"],
     });
   });
 });

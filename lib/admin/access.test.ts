@@ -69,7 +69,10 @@ describe("allowedSections", () => {
   });
 
   it("* devolve o catálogo inteiro", () => {
-    expect(allowedSections("x@y.com", "x@y.com:*")).toEqual(["redes"]);
+    expect(allowedSections("x@y.com", "x@y.com:*")).toEqual([
+      "redes",
+      "fabrica",
+    ]);
   });
 
   it("seção fora do catálogo não aparece", () => {
