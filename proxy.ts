@@ -18,8 +18,25 @@ function nextWithPathname(request: NextRequest) {
   });
 }
 
+// No subdomínio do admin, o caminho limpo é o admin: `/` = /admin,
+// `/fabrica` = /admin/fabrica. Caminho que já começa com /admin segue igual.
+const ADMIN_HOST = "admin.vitorpereira.ia.br";
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host")?.split(":")[0];
+
+  if (
+    host === ADMIN_HOST &&
+    pathname !== "/admin" &&
+    !pathname.startsWith("/admin/")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname === "/" ? "/admin" : `/admin${pathname}`;
+    const headers = new Headers(request.headers);
+    headers.set("x-pathname", url.pathname);
+    return updateSession(request, headers, url);
+  }
 
   // /admin não tem idioma: só renova a sessão do Supabase. O x-pathname segue
   // para o root layout resolver `pt` no <html lang>.

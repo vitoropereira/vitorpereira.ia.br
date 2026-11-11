@@ -15,18 +15,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "img.youtube.com" },
     ],
   },
-  // O subdomínio do admin cai direto na fábrica. Fica aqui e não no proxy.ts
-  // porque o proxy só decide idioma em `/`.
-  async redirects() {
-    return [
-      {
-        source: "/",
-        has: [{ type: "host", value: "admin\\.vitorpereira\\.ia\\.br" }],
-        destination: "/admin/fabrica",
-        permanent: false,
-      },
-    ];
-  },
 };
 
 export default withNextIntl(nextConfig);

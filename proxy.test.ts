@@ -112,6 +112,42 @@ describe("proxy", () => {
     },
   );
 
+  describe("subdomínio admin.vitorpereira.ia.br", () => {
+    const adm = (path: string) =>
+      new NextRequest(new URL(path, "https://admin.vitorpereira.ia.br"), {
+        headers: { host: "admin.vitorpereira.ia.br", "accept-language": "en" },
+      });
+
+    it.each([
+      ["/", "/admin"],
+      ["/fabrica", "/admin/fabrica"],
+      ["/login", "/admin/login"],
+      ["/redes/pecas", "/admin/redes/pecas"],
+    ])("%s → reescreve para %s, fora do i18n", async (path, alvo) => {
+      updateSession.mockClear();
+      const res = await proxy(adm(path));
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.cookies.get("NEXT_LOCALE")).toBeUndefined();
+      expect(updateSession).toHaveBeenCalledTimes(1);
+      expect((updateSession.mock.calls[0] as unknown[])[2]).toHaveProperty(
+        "pathname",
+        alvo,
+      );
+    });
+
+    it("/admin/fabrica no subdomínio segue sem reescrever", async () => {
+      updateSession.mockClear();
+      await proxy(adm("/admin/fabrica"));
+      expect((updateSession.mock.calls[0] as unknown[])[2]).toBeUndefined();
+    });
+
+    it("host do site não reescreve /fabrica", async () => {
+      updateSession.mockClear();
+      await proxy(req("/fabrica", { host: "vitorpereira.ia.br" }));
+      expect(updateSession).not.toHaveBeenCalled();
+    });
+  });
+
   it("matcher preservado", () => {
     expect(config.matcher).toEqual(["/((?!_next|api|.*\\..*).*)"]);
   });
