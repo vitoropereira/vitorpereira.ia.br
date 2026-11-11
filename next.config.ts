@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        has: [{ type: "host", value: "admin.vitorpereira.ia.br" }],
+        has: [{ type: "host", value: "admin\\.vitorpereira\\.ia\\.br" }],
         destination: "/admin/fabrica",
         permanent: false,
       },

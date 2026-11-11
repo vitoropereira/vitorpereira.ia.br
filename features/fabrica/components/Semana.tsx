@@ -9,9 +9,11 @@ export function Semana({
   semana: Record<string, string | number>;
   eventos: EventoFabrica[];
 }) {
-  // ISO 8601 ordena como texto; mais novos primeiro.
+  // Por instante, não por texto: offsets diferentes quebrariam a ordem. Data
+  // ilegível (NaN) vai pro fim.
+  const instante = (em: string) => Date.parse(em) || 0;
   const recentes = [...eventos]
-    .sort((a, b) => b.em.localeCompare(a.em))
+    .sort((a, b) => instante(b.em) - instante(a.em))
     .slice(0, MAX_EVENTOS);
   const resumo = Object.entries(semana);
   return (

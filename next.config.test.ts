@@ -12,7 +12,7 @@ describe("next.config redirects", () => {
     ).redirects();
     expect(cfg).toContainEqual({
       source: "/",
-      has: [{ type: "host", value: "admin.vitorpereira.ia.br" }],
+      has: [{ type: "host", value: "admin\\.vitorpereira\\.ia\\.br" }],
       destination: "/admin/fabrica",
       permanent: false,
     });
