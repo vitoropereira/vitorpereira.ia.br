@@ -1,14 +1,20 @@
-import { ESTACOES, type ItemFabrica } from "../status";
+import type { EstacaoFabrica, ItemFabrica } from "../status";
 
-export function LinhaEstacoes({ itens }: { itens: ItemFabrica[] }) {
+export function LinhaEstacoes({
+  estacoes,
+  itens,
+}: {
+  estacoes: EstacaoFabrica[];
+  itens: ItemFabrica[];
+}) {
   // Estação fora da lista não some: sem esta linha a soma das caixas ficaria
   // menor que o total e o painel pareceria saudável.
-  const conhecidas = new Set<string>(ESTACOES.map((e) => e.id));
+  const conhecidas = new Set<string>(estacoes.map((e) => e.id));
   const desconhecidos = itens.filter((it) => !conhecidas.has(it.estacao));
   return (
     <div className="flex flex-col gap-3">
       <ol className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {ESTACOES.map((e, i) => {
+        {estacoes.map((e, i) => {
           const total = itens.filter((it) => it.estacao === e.id).length;
           return (
             <li

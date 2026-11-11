@@ -60,7 +60,7 @@ describe("/admin/fabrica — resistência", () => {
         estacoes: [],
         itens: [],
         aguardando_dono: [
-          { titulo: "Aprovar plano X", repo: "a/b", estacao: "plano-ok" },
+          { titulo: "Aprovar plano X", repo: "a/b", estacao: "bancada" },
         ],
       }),
     });

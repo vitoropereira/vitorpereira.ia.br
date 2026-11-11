@@ -1,10 +1,13 @@
-import { ESTACOES, type ItemFabrica } from "../status";
+import type { EstacaoFabrica, ItemFabrica } from "../status";
 
-const NOME_ESTACAO: Record<string, string> = Object.fromEntries(
-  ESTACOES.map((e) => [e.id, e.nome]),
-);
-
-export function ItensPorRepo({ itens }: { itens: ItemFabrica[] }) {
+export function ItensPorRepo({
+  estacoes,
+  itens,
+}: {
+  estacoes: EstacaoFabrica[];
+  itens: ItemFabrica[];
+}) {
+  const NOME_ESTACAO = Object.fromEntries(estacoes.map((e) => [e.id, e.nome]));
   if (itens.length === 0) {
     return (
       <p className="text-muted-foreground text-sm">Nenhum item na fábrica.</p>

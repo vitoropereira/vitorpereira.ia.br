@@ -47,14 +47,19 @@ describe("carregarStatus", () => {
       resposta({
         gerado_em: "2026-11-11T11:00:00Z",
         estacoes: [],
-        itens: [{ titulo: "A", repo: "r", estacao: "gate" }],
+        repos: { "a/b": { itens: [{ titulo: "A", estacao: "provar" }] } },
         aguardando_dono: [],
         eventos: [{ em: "x", texto: "y" }],
       }),
     );
     const r = await carregarStatus(agora);
     if (r.erro) throw new Error("esperava dados");
-    expect(r.status.itens[0].titulo).toBe("A");
+    expect(r.status.itens[0]).toMatchObject({
+      titulo: "A",
+      repo: "a/b",
+      estacao: "provar",
+    });
+    expect(r.status.estacoes).toHaveLength(10);
     expect(r.minutosDesde).toBe(60);
     expect(r.velho).toBe(true);
   });
@@ -68,6 +73,22 @@ describe("carregarStatus", () => {
     expect(r.velho).toBe(false);
   });
 
+  it("usa estacoes[] do arquivo, na ordem", async () => {
+    fetchMock.mockResolvedValue(
+      resposta({
+        estacoes: [{ id: "z", nome: "Zê" }, "a"],
+        repos: [{ repo: "r/s", itens: [{ titulo: "T", estacao: "z" }] }],
+      }),
+    );
+    const r = await carregarStatus(agora);
+    if (r.erro) throw new Error("esperava dados");
+    expect(r.status.estacoes).toEqual([
+      { id: "z", nome: "Zê" },
+      { id: "a", nome: "a" },
+    ]);
+    expect(r.status.itens[0].repo).toBe("r/s");
+  });
+
   it("JSON sem estacoes é indisponivel", async () => {
     fetchMock.mockResolvedValue(resposta({ itens: [] }));
     expect(await carregarStatus(agora)).toEqual({ erro: "indisponivel" });
@@ -78,7 +99,7 @@ describe("carregarStatus", () => {
     await carregarStatus(agora);
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/repos/vitoropereira/content-os/contents/status.json?ref=main",
+      "https://api.github.com/repos/vitoropereira/dev-flow/contents/status.json?ref=fabrica-status",
     );
     expect(init.headers.Authorization).toBe("Bearer tok");
     expect(init.headers.Accept).toBe("application/vnd.github.raw+json");

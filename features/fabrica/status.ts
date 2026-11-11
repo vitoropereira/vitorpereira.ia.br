@@ -1,15 +1,19 @@
-export const ESTACOES = [
-  { id: "intake", nome: "Pedido (intake)" },
-  { id: "planejamento", nome: "Planejamento" },
-  { id: "plano-ok", nome: "Plano aprovado" },
-  { id: "execucao", nome: "Execução" },
-  { id: "gate", nome: "Gate" },
-  { id: "pr", nome: "Pull request" },
-  { id: "revisao", nome: "Revisão" },
-  { id: "merge", nome: "Merge" },
-  { id: "deploy", nome: "Deploy" },
-  { id: "relatorio", nome: "Relatório" },
-] as const;
+// Estações do status.json da fábrica, na ordem do fluxo. É só o nome de tela e
+// o reserva quando o arquivo não traz `estacoes[]`; a ordem real vem do arquivo.
+const NOMES_ESTACAO: Record<string, string> = {
+  pedido: "Pedido (intake)",
+  bancada: "Bancada",
+  construir: "Construir",
+  provar: "Provar",
+  revisar: "Revisar",
+  porteiro: "Porteiro",
+  entrar: "Entrar",
+  publicar: "Publicar",
+  acompanhar: "Acompanhar",
+  relatorio: "Relatório",
+};
+
+export type EstacaoFabrica = { id: string; nome: string };
 
 export type ItemFabrica = {
   titulo: string;
@@ -26,7 +30,7 @@ export type EventoFabrica = {
 
 export type StatusFabrica = {
   gerado_em?: string;
-  estacoes: unknown[];
+  estacoes: EstacaoFabrica[];
   itens: ItemFabrica[];
   aguardando_dono: ItemFabrica[];
   semana: Record<string, string | number>;
@@ -42,8 +46,8 @@ export type ResultadoStatus =
       velho: boolean;
     };
 
-const REPO_PADRAO = "vitoropereira/content-os";
-const BRANCH_PADRAO = "main";
+const REPO_PADRAO = "vitoropereira/dev-flow";
+const BRANCH_PADRAO = "fabrica-status";
 const LIMITE_VELHO_MIN = 30;
 
 const ehObjeto = (v: unknown): v is Record<string, unknown> =>
@@ -52,20 +56,53 @@ const ehObjeto = (v: unknown): v is Record<string, unknown> =>
 const lista = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? v.filter(ehObjeto) : [];
 
-const texto = (v: unknown, padrao = ""): string =>
-  typeof v === "string" ? v : padrao;
+// Primeiro campo textual presente entre os nomes aceitos: o produtor do JSON
+// já variou nomes de campo, e um painel vazio parece saudável.
+const primeiro = (o: Record<string, unknown>, ...chaves: string[]): string => {
+  for (const k of chaves) {
+    const v = o[k];
+    if (typeof v === "string" && v) return v;
+  }
+  return "";
+};
 
-function item(o: Record<string, unknown>): ItemFabrica {
+function item(o: Record<string, unknown>, repoPadrao = ""): ItemFabrica {
+  const url = primeiro(o, "url", "link");
   return {
-    titulo: texto(o.titulo, "(sem título)"),
-    repo: texto(o.repo),
-    estacao: texto(o.estacao),
+    titulo: primeiro(o, "titulo", "title", "nome") || "(sem título)",
+    repo: primeiro(o, "repo") || repoPadrao,
+    estacao: primeiro(o, "estacao", "etapa"),
     // Só https vira link: `javascript:` num href seria XSS vindo do JSON.
-    url:
-      typeof o.url === "string" && o.url.startsWith("https://")
-        ? o.url
-        : undefined,
+    url: url.startsWith("https://") ? url : undefined,
   };
+}
+
+function estacoes(v: unknown): EstacaoFabrica[] {
+  const lidas: EstacaoFabrica[] = [];
+  for (const e of Array.isArray(v) ? v : []) {
+    const o = typeof e === "string" ? { id: e } : ehObjeto(e) ? e : null;
+    const id = o && primeiro(o, "id", "slug", "estacao");
+    if (!o || !id) continue;
+    lidas.push({
+      id,
+      nome: primeiro(o, "nome", "titulo", "label") || NOMES_ESTACAO[id] || id,
+    });
+  }
+  if (lidas.length > 0) return lidas;
+  return Object.entries(NOMES_ESTACAO).map(([id, nome]) => ({ id, nome }));
+}
+
+// `repos` pode vir como lista ({repo, itens}) ou mapa (repo → itens | {itens}).
+function itensDosRepos(repos: unknown): ItemFabrica[] {
+  const grupos: [string, unknown][] = Array.isArray(repos)
+    ? repos.filter(ehObjeto).map((r) => [primeiro(r, "repo", "nome"), r])
+    : ehObjeto(repos)
+      ? Object.entries(repos)
+      : [];
+  return grupos.flatMap(([repo, g]) => {
+    const dentro = ehObjeto(g) ? g.itens : g;
+    return lista(dentro).map((o) => item(o, repo));
+  });
 }
 
 function normalizar(bruto: unknown): StatusFabrica | null {
@@ -81,14 +118,17 @@ function normalizar(bruto: unknown): StatusFabrica | null {
   return {
     gerado_em:
       typeof bruto.gerado_em === "string" ? bruto.gerado_em : undefined,
-    estacoes: bruto.estacoes,
-    itens: lista(bruto.itens).map(item),
-    aguardando_dono: lista(bruto.aguardando_dono).map(item),
+    estacoes: estacoes(bruto.estacoes),
+    itens: [
+      ...itensDosRepos(bruto.repos),
+      ...lista(bruto.itens).map((o) => item(o)),
+    ],
+    aguardando_dono: lista(bruto.aguardando_dono).map((o) => item(o)),
     semana,
     eventos: lista(bruto.eventos).map((e) => ({
-      em: texto(e.em),
-      texto: texto(e.texto),
-      repo: typeof e.repo === "string" ? e.repo : undefined,
+      em: primeiro(e, "em", "quando", "data", "ts", "at"),
+      texto: primeiro(e, "texto", "mensagem", "descricao", "evento"),
+      repo: primeiro(e, "repo") || undefined,
     })),
   };
 }

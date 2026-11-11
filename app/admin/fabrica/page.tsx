@@ -61,13 +61,16 @@ export default async function FabricaPage() {
             </Aviso>
           )}
           <Secao titulo="Estações">
-            <LinhaEstacoes itens={r.status.itens} />
+            <LinhaEstacoes
+              estacoes={r.status.estacoes}
+              itens={r.status.itens}
+            />
           </Secao>
           <Secao titulo="Esperando você">
             <EsperandoVoce itens={r.status.aguardando_dono} />
           </Secao>
           <Secao titulo="Itens por repo">
-            <ItensPorRepo itens={r.status.itens} />
+            <ItensPorRepo estacoes={r.status.estacoes} itens={r.status.itens} />
           </Secao>
           <Secao titulo="Semana">
             <Semana semana={r.status.semana} eventos={r.status.eventos} />
