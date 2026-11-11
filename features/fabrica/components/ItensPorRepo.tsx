@@ -35,7 +35,7 @@ export function ItensPorRepo({
               >
                 <span>{it.titulo}</span>
                 <span className="text-muted-foreground text-xs">
-                  {NOME_ESTACAO[it.estacao] ?? it.estacao}
+                  {NOME_ESTACAO[it.estacao] ?? (it.estacao || "(sem estação)")}
                 </span>
               </li>
             ))}
