@@ -40,12 +40,17 @@ export default async function FabricaPage() {
         >
           ← Admin
         </Link>
-        <h1 className="text-2xl font-semibold">Fábrica</h1>
+        <h1 className="text-2xl font-semibold">Fábrica (dev-flow)</h1>
+        {!r.erro && r.minutosDesde !== null && (
+          <p className="text-muted-foreground text-sm">
+            atualizado há {r.minutosDesde} min
+          </p>
+        )}
       </header>
 
       {r.erro === "sem-token" && (
         <Aviso>
-          Defina FACTORY_GITHUB_TOKEN no ambiente para ler o status da fábrica.
+          Token do GitHub não configurado (FACTORY_GITHUB_TOKEN, só leitura).
         </Aviso>
       )}
       {r.erro === "indisponivel" && (
@@ -58,6 +63,11 @@ export default async function FabricaPage() {
               {r.minutosDesde === null
                 ? "O status não informa quando foi gerado."
                 : `O status foi gerado há ${r.minutosDesde} min; a fábrica pode estar parada.`}
+            </Aviso>
+          )}
+          {r.status.erros.length > 0 && (
+            <Aviso>
+              A fábrica não conseguiu ler: {r.status.erros.join("; ")}
             </Aviso>
           )}
           <Secao titulo="Estações">

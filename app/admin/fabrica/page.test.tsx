@@ -78,3 +78,91 @@ describe("/admin/fabrica — resistência", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+// Formato real do status.json (factory/status.py do dev-flow), sintético.
+const statusReal = () => ({
+  versao: 1,
+  gerado_em: new Date(Date.now() - 4 * 60_000).toISOString(),
+  dono: "dono",
+  estacoes: [
+    { id: "pedido", nome: "Pedido (intake)", faz: "x" },
+    { id: "porteiro", nome: "Porteiro", faz: "x" },
+    { id: "relatorio", nome: "Relatório", faz: "x" },
+  ],
+  repos: [
+    {
+      alias: "vp",
+      repo: "o/site",
+      itens: [
+        {
+          n: 101,
+          titulo: "Admin da fábrica",
+          estacao: "porteiro",
+          aguarda: "ok do dono no PR",
+          labels: ["dev-flow"],
+          url: "https://github.com/o/site/issues/101",
+          pr: "https://github.com/o/site/pull/102",
+          atualizado: "2026-11-11T14:30:31Z",
+        },
+      ],
+    },
+  ],
+  aguardando_dono: [
+    {
+      alias: "vp",
+      repo: "o/site",
+      n: 101,
+      titulo: "Admin da fábrica",
+      estacao: "porteiro",
+      aguarda: "ok do dono no PR",
+      url: "https://github.com/o/site/issues/101",
+      pr: "https://github.com/o/site/pull/102",
+    },
+  ],
+  semana: { porteiro: 4, volta: 2 },
+  eventos: [
+    {
+      ts: "2026-11-11T05:01:38Z",
+      tipo: "porteiro",
+      repo: "o/site",
+      n: 101,
+      veredito: "aguarda-dono",
+    },
+    {
+      ts: "2026-11-11T06:00:00Z",
+      tipo: "merge",
+      repo: "o/site",
+      n: 7,
+      titulo: "Corrige X",
+    },
+  ],
+  erros: [{ repo: "o/outro", erro: "HTTP 502" }],
+});
+
+describe("/admin/fabrica — status.json no formato real", () => {
+  it("mostra #n, aguarda, links, eventos com texto, erros e a idade", async () => {
+    comUsuario("root@y.com");
+    fetchMock.mockResolvedValue({ ok: true, json: async () => statusReal() });
+    const html = renderToStaticMarkup(await FabricaPage());
+    expect(html).toContain("Fábrica (dev-flow)");
+    expect(html).toContain("atualizado há 4 min");
+    expect(html).toContain("#101");
+    expect(html).toContain("ok do dono no PR");
+    expect(html).toContain('href="https://github.com/o/site/issues/101"');
+    expect(html).toContain('href="https://github.com/o/site/pull/102"');
+    expect(html).toContain("porteiro (aguarda-dono)");
+    expect(html).toContain("merge: Corrige X");
+    expect(html).toContain("o/outro: HTTP 502");
+    // agrupado pelo apelido
+    expect(html).toMatch(/<h3[^>]*>vp/);
+  });
+
+  it("link que não é https não vira href", async () => {
+    comUsuario("root@y.com");
+    const st = statusReal();
+    st.aguardando_dono[0].pr = "javascript:alert(1)";
+    fetchMock.mockResolvedValue({ ok: true, json: async () => st });
+    const html = renderToStaticMarkup(await FabricaPage());
+    expect(html).not.toContain("javascript:");
+  });
+});

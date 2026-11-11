@@ -18,14 +18,21 @@ export type EstacaoFabrica = { id: string; nome: string };
 export type ItemFabrica = {
   titulo: string;
   repo: string;
+  // Apelido curto do repo (vp, vpc…) que o status.json traz.
+  alias?: string;
+  n?: number;
   estacao: string;
+  // O que destrava o item (ex.: "ok do dono no PR").
+  aguarda?: string;
   url?: string;
+  pr?: string;
 };
 
 export type EventoFabrica = {
   em: string;
   texto: string;
   repo?: string;
+  n?: number;
 };
 
 export type StatusFabrica = {
@@ -35,6 +42,7 @@ export type StatusFabrica = {
   aguardando_dono: ItemFabrica[];
   semana: Record<string, string | number>;
   eventos: EventoFabrica[];
+  erros: string[];
 };
 
 export type ResultadoStatus =
@@ -66,14 +74,46 @@ const primeiro = (o: Record<string, unknown>, ...chaves: string[]): string => {
   return "";
 };
 
-function item(o: Record<string, unknown>, repoPadrao = ""): ItemFabrica {
-  const url = primeiro(o, "url", "link");
+// Só https vira link: `javascript:` num href seria XSS vindo do JSON.
+const https = (v: string) => (v.startsWith("https://") ? v : undefined);
+
+const numero = (v: unknown) =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+
+function item(
+  o: Record<string, unknown>,
+  repoPadrao = "",
+  aliasPadrao = "",
+): ItemFabrica {
   return {
     titulo: primeiro(o, "titulo", "title", "nome") || "(sem título)",
     repo: primeiro(o, "repo") || repoPadrao,
+    alias: primeiro(o, "alias") || aliasPadrao || undefined,
+    n: numero(o.n),
     estacao: primeiro(o, "estacao", "etapa"),
-    // Só https vira link: `javascript:` num href seria XSS vindo do JSON.
-    url: url.startsWith("https://") ? url : undefined,
+    aguarda: primeiro(o, "aguarda") || undefined,
+    url: https(primeiro(o, "url", "link")),
+    pr: https(primeiro(o, "pr")),
+  };
+}
+
+// Evento real: {ts, tipo, repo, n, titulo?, veredito?}. Vira uma linha legível.
+function evento(e: Record<string, unknown>): EventoFabrica {
+  const tipo = primeiro(e, "tipo");
+  const titulo = primeiro(e, "titulo");
+  const veredito = primeiro(e, "veredito");
+  const composto = [
+    tipo,
+    titulo && `: ${titulo}`,
+    veredito && veredito !== tipo && ` (${veredito})`,
+  ]
+    .filter(Boolean)
+    .join("");
+  return {
+    em: primeiro(e, "ts", "em", "quando", "data", "at"),
+    texto: primeiro(e, "texto", "mensagem", "descricao") || composto,
+    repo: primeiro(e, "repo") || undefined,
+    n: numero(e.n),
   };
 }
 
@@ -101,7 +141,8 @@ function itensDosRepos(repos: unknown): ItemFabrica[] {
       : [];
   return grupos.flatMap(([repo, g]) => {
     const dentro = ehObjeto(g) ? g.itens : g;
-    return lista(dentro).map((o) => item(o, repo));
+    const alias = ehObjeto(g) ? primeiro(g, "alias") : "";
+    return lista(dentro).map((o) => item(o, repo, alias));
   });
 }
 
@@ -125,11 +166,19 @@ function normalizar(bruto: unknown): StatusFabrica | null {
     ],
     aguardando_dono: lista(bruto.aguardando_dono).map((o) => item(o)),
     semana,
-    eventos: lista(bruto.eventos).map((e) => ({
-      em: primeiro(e, "em", "quando", "data", "ts", "at"),
-      texto: primeiro(e, "texto", "mensagem", "descricao", "evento"),
-      repo: primeiro(e, "repo") || undefined,
-    })),
+    eventos: lista(bruto.eventos).map(evento),
+    // Repo que a fábrica não conseguiu ler: {repo, erro}.
+    erros: (Array.isArray(bruto.erros) ? bruto.erros : [])
+      .map((e) =>
+        typeof e === "string"
+          ? e
+          : ehObjeto(e)
+            ? [primeiro(e, "repo"), primeiro(e, "erro", "mensagem")]
+                .filter(Boolean)
+                .join(": ")
+            : "",
+      )
+      .filter(Boolean),
   };
 }
 
@@ -148,6 +197,7 @@ export async function carregarStatus(
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.raw+json",
+        "X-GitHub-Api-Version": "2022-11-28",
       },
       cache: "no-store",
     });

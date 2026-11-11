@@ -3,7 +3,7 @@
 // estes slugs.
 export const ADMIN_SECTIONS = [
   { slug: "redes", label: "Redes sociais", href: "/admin/redes" },
-  { slug: "fabrica", label: "Fábrica", href: "/admin/fabrica" },
+  { slug: "fabrica", label: "Fábrica (dev-flow)", href: "/admin/fabrica" },
 ] as const;
 
 export type AdminSection = (typeof ADMIN_SECTIONS)[number]["slug"];

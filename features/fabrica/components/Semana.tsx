@@ -38,9 +38,13 @@ export function Semana({
                 {e.em}
               </time>
               <span>
-                {e.texto}
+                {e.texto || "(evento)"}
                 {e.repo && (
-                  <span className="text-muted-foreground"> · {e.repo}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {e.repo}
+                    {e.n !== undefined && ` #${e.n}`}
+                  </span>
                 )}
               </span>
             </li>

@@ -104,6 +104,7 @@ describe("carregarStatus", () => {
     expect(init.headers.Authorization).toBe("Bearer tok");
     expect(init.headers.Accept).toBe("application/vnd.github.raw+json");
     expect(init.cache).toBe("no-store");
+    expect(init.headers["X-GitHub-Api-Version"]).toBe("2022-11-28");
 
     vi.stubEnv("FACTORY_STATUS_REPO", "o/r");
     vi.stubEnv("FACTORY_STATUS_BRANCH", "dev");
