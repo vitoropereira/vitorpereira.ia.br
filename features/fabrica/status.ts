@@ -35,10 +35,32 @@ export type EventoFabrica = {
   n?: number;
 };
 
+// Contagens do repo que o produtor já calcula (ex.: {abertos, aguardando}).
+export type ResumoRepo = Record<string, number>;
+
+export type GrupoRepo = {
+  alias: string;
+  repo: string;
+  itens: ItemFabrica[];
+  resumo: ResumoRepo;
+};
+
+// Últimos 7 dias por tipo de evento, do mais antigo ao mais novo.
+export type Historico = Record<string, number[]>;
+
+export type Gargalo = { estacao: string; texto: string };
+
+export const DIAS_HISTORICO = 7;
+
 export type StatusFabrica = {
   gerado_em?: string;
   estacoes: EstacaoFabrica[];
   itens: ItemFabrica[];
+  // Mesmos itens, agrupados por repo (matriz e tabela).
+  repos: GrupoRepo[];
+  historico: Historico;
+  gargalo: Gargalo | null;
+  tempoMedioHoras: number | null;
   aguardando_dono: ItemFabrica[];
   semana: Record<string, string | number>;
   eventos: EventoFabrica[];
@@ -132,17 +154,59 @@ function estacoes(v: unknown): EstacaoFabrica[] {
   return Object.entries(NOMES_ESTACAO).map(([id, nome]) => ({ id, nome }));
 }
 
+// Sempre 7 números ≥ 0: o gráfico não pode quebrar com série curta ou suja.
+// Série mais longa fica com os 7 dias mais recentes; mais curta é completada
+// com zeros no começo.
+function serie(v: unknown): number[] {
+  const nums = (Array.isArray(v) ? v : []).map((x) =>
+    typeof x === "number" && Number.isFinite(x) && x > 0 ? x : 0,
+  );
+  const ultimos = nums.slice(-DIAS_HISTORICO);
+  return [
+    ...Array<number>(DIAS_HISTORICO - ultimos.length).fill(0),
+    ...ultimos,
+  ];
+}
+
+function historico(v: unknown): Historico {
+  if (!ehObjeto(v)) return {};
+  return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, serie(s)]));
+}
+
+function resumo(v: unknown): ResumoRepo {
+  if (!ehObjeto(v)) return {};
+  const r: ResumoRepo = {};
+  for (const [k, n] of Object.entries(v)) {
+    const x = numero(n);
+    if (x !== undefined) r[k] = x;
+  }
+  return r;
+}
+
+function gargalo(v: unknown): Gargalo | null {
+  if (typeof v === "string") return v ? { estacao: "", texto: v } : null;
+  if (!ehObjeto(v)) return null;
+  const estacao = primeiro(v, "estacao", "id");
+  const texto = primeiro(v, "texto", "motivo", "descricao");
+  return estacao || texto ? { estacao, texto } : null;
+}
+
 // `repos` pode vir como lista ({repo, itens}) ou mapa (repo → itens | {itens}).
-function itensDosRepos(repos: unknown): ItemFabrica[] {
+function gruposDosRepos(repos: unknown): GrupoRepo[] {
   const grupos: [string, unknown][] = Array.isArray(repos)
     ? repos.filter(ehObjeto).map((r) => [primeiro(r, "repo", "nome"), r])
     : ehObjeto(repos)
       ? Object.entries(repos)
       : [];
-  return grupos.flatMap(([repo, g]) => {
+  return grupos.map(([repo, g]) => {
     const dentro = ehObjeto(g) ? g.itens : g;
     const alias = ehObjeto(g) ? primeiro(g, "alias") : "";
-    return lista(dentro).map((o) => item(o, repo, alias));
+    return {
+      alias,
+      repo,
+      itens: lista(dentro).map((o) => item(o, repo, alias)),
+      resumo: ehObjeto(g) ? resumo(g.resumo) : {},
+    };
   });
 }
 
@@ -156,14 +220,32 @@ function normalizar(bruto: unknown): StatusFabrica | null {
       if (typeof v === "string" || typeof v === "number") semana[k] = v;
     }
   }
+  const repos = gruposDosRepos(bruto.repos);
+  const soltos = lista(bruto.itens).map((o) => item(o));
+  // Item solto também entra na matriz e na tabela, no grupo do próprio repo.
+  for (const it of soltos) {
+    const g = repos.find(
+      (r) => r.repo === it.repo && r.alias === (it.alias ?? ""),
+    );
+    if (g) g.itens.push(it);
+    else
+      repos.push({
+        alias: it.alias ?? "",
+        repo: it.repo,
+        itens: [it],
+        resumo: {},
+      });
+  }
+  const tempo = numero(bruto.tempo_medio_horas);
   return {
     gerado_em:
       typeof bruto.gerado_em === "string" ? bruto.gerado_em : undefined,
     estacoes: estacoes(bruto.estacoes),
-    itens: [
-      ...itensDosRepos(bruto.repos),
-      ...lista(bruto.itens).map((o) => item(o)),
-    ],
+    itens: repos.flatMap((g) => g.itens),
+    repos,
+    historico: historico(bruto.historico),
+    gargalo: gargalo(bruto.gargalo),
+    tempoMedioHoras: tempo !== undefined && tempo >= 0 ? tempo : null,
     aguardando_dono: lista(bruto.aguardando_dono).map((o) => item(o)),
     semana,
     eventos: lista(bruto.eventos).map(evento),

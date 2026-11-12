@@ -20,6 +20,10 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("next/font/google", () => ({
+  JetBrains_Mono: () => ({ className: "font-mono-teste" }),
+}));
+
 import FabricaPage from "./page";
 
 const comUsuario = (email: string) =>
@@ -162,7 +166,7 @@ describe("/admin/fabrica — status.json no formato real", () => {
     expect(html).toContain("merge: Corrige X");
     expect(html).toContain("o/outro: HTTP 502");
     // agrupado pelo apelido
-    expect(html).toMatch(/<h3[^>]*>vp/);
+    expect(html).toMatch(/<th[^>]*>vp/);
   });
 
   it("link que não é https não vira href", async () => {
@@ -172,5 +176,57 @@ describe("/admin/fabrica — status.json no formato real", () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => st });
     const html = renderToStaticMarkup(await FabricaPage());
     expect(html).not.toContain("javascript:");
+  });
+});
+
+describe("/admin/fabrica — layout v2", () => {
+  const statusV2 = () => ({
+    ...statusReal(),
+    historico: {
+      merge: [0, 1, 0, 2, 1, 0, 3],
+      volta: [0, 0, 1, 0, 0, 0, 1],
+    },
+    tempo_medio_horas: 33,
+    gargalo: { estacao: "porteiro", texto: "4 itens esperando o dono" },
+    repos: [
+      { ...statusReal().repos[0], resumo: { itens: 1, aguardando: 1, prs: 1 } },
+    ],
+  });
+
+  it("mostra KPIs, espera você, kanban, repo, tempo médio e gargalo", async () => {
+    comUsuario("root@y.com");
+    fetchMock.mockResolvedValue({ ok: true, json: async () => statusV2() });
+    const html = renderToStaticMarkup(await FabricaPage());
+    expect(html).toContain("ESPERA VOCÊ");
+    for (const rotulo of [
+      "EM ANDAMENTO",
+      "AGUARDANDO",
+      "MERGES 7D",
+      "VOLTAS 7D",
+      "TEMPO MÉDIO",
+      "GARGALO",
+    ]) {
+      expect(html).toContain(rotulo);
+    }
+    expect(html).toContain("Kanban");
+    expect(html).toContain("Repos × estações");
+    expect(html).toContain("font-mono-teste");
+    expect(html).toContain("33 h");
+    expect(html).toContain("4 itens esperando o dono");
+    expect(html).toMatch(/<th[^>]*>vp/);
+    const externos = html.match(/<a [^>]*href="https:\/\/[^>]*>/g) ?? [];
+    expect(externos.length).toBeGreaterThan(0);
+    for (const a of externos) {
+      expect(a).toContain('target="_blank"');
+      expect(a).toContain('rel="noopener noreferrer"');
+    }
+  });
+
+  it("status v1 (sem campos v2) renderiza sem erro", async () => {
+    comUsuario("root@y.com");
+    fetchMock.mockResolvedValue({ ok: true, json: async () => statusReal() });
+    const html = renderToStaticMarkup(await FabricaPage());
+    expect(html).toContain("TEMPO MÉDIO");
+    expect(html).toContain("—");
   });
 });

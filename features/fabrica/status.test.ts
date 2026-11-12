@@ -113,4 +113,58 @@ describe("carregarStatus", () => {
       "https://api.github.com/repos/o/r/contents/status.json?ref=dev",
     );
   });
+  it("campos v2: historico de 7 dias, resumo do repo, gargalo e tempo médio", async () => {
+    fetchMock.mockResolvedValue(
+      resposta({
+        estacoes: [],
+        repos: [
+          {
+            alias: "vp",
+            repo: "o/site",
+            resumo: { abertos: 3, aguardando: 1, lixo: "x" },
+            itens: [{ titulo: "A", estacao: "provar" }],
+          },
+        ],
+        historico: {
+          merge: [1, 2, 3, 4, 5, 6, 7],
+          volta: [1, "x", -2],
+          longo: [9, 9, 1, 2, 3, 4, 5, 6, 7],
+        },
+        gargalo: { estacao: "porteiro", texto: "4 itens esperando" },
+        tempo_medio_horas: 33,
+      }),
+    );
+    const r = await carregarStatus(agora);
+    if (r.erro) throw new Error("esperava dados");
+    expect(r.status.historico.merge).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(r.status.historico.volta).toEqual([0, 0, 0, 0, 1, 0, 0]);
+    expect(r.status.historico.longo).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(r.status.repos[0]).toMatchObject({
+      alias: "vp",
+      repo: "o/site",
+      resumo: { abertos: 3, aguardando: 1 },
+    });
+    expect(r.status.repos[0].resumo).not.toHaveProperty("lixo");
+    expect(r.status.itens).toHaveLength(1);
+    expect(r.status.gargalo).toEqual({
+      estacao: "porteiro",
+      texto: "4 itens esperando",
+    });
+    expect(r.status.tempoMedioHoras).toBe(33);
+  });
+
+  it("status v1 (sem campos v2) usa os padrões", async () => {
+    fetchMock.mockResolvedValue(
+      resposta({
+        estacoes: [],
+        repos: [{ repo: "o/site", itens: [{ titulo: "A", estacao: "x" }] }],
+      }),
+    );
+    const r = await carregarStatus(agora);
+    if (r.erro) throw new Error("esperava dados");
+    expect(r.status.historico).toEqual({});
+    expect(r.status.gargalo).toBeNull();
+    expect(r.status.tempoMedioHoras).toBeNull();
+    expect(r.status.repos[0].resumo).toEqual({});
+  });
 });

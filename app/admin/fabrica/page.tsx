@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { Aviso } from "@/features/social-metrics/components/SaudeColeta";
+import { JetBrains_Mono } from "next/font/google";
 import { EsperandoVoce } from "@/features/fabrica/components/EsperandoVoce";
-import { ItensPorRepo } from "@/features/fabrica/components/ItensPorRepo";
-import { LinhaEstacoes } from "@/features/fabrica/components/LinhaEstacoes";
-import { Semana } from "@/features/fabrica/components/Semana";
+import { Estacoes } from "@/features/fabrica/components/Estacoes";
+import { Eventos } from "@/features/fabrica/components/Eventos";
+import { Kpis } from "@/features/fabrica/components/Kpis";
+import { Rodape } from "@/features/fabrica/components/Rodape";
+import { TabelaRepos } from "@/features/fabrica/components/TabelaRepos";
 import { carregarStatus } from "@/features/fabrica/status";
+
+// Fonte mono só neste painel; o resto do admin segue a fonte do site.
+const mono = JetBrains_Mono({ subsets: ["latin"], display: "swap" });
 
 // Estado da fábrica de agora, lido a cada request.
 export const dynamic = "force-dynamic";
@@ -32,7 +38,10 @@ export default async function FabricaPage() {
   const r = await carregarStatus(new Date());
 
   return (
-    <div data-largura="ampla" className="flex flex-col gap-10">
+    <div
+      data-largura="ampla"
+      className={`${mono.className} flex flex-col gap-8`}
+    >
       <header className="flex flex-col gap-1">
         <Link
           href="/admin"
@@ -70,21 +79,20 @@ export default async function FabricaPage() {
               A fábrica não conseguiu ler: {r.status.erros.join("; ")}
             </Aviso>
           )}
-          <Secao titulo="Estações">
-            <LinhaEstacoes
-              estacoes={r.status.estacoes}
-              itens={r.status.itens}
-            />
-          </Secao>
-          <Secao titulo="Esperando você">
+          <Kpis status={r.status} />
+          <Secao titulo="ESPERA VOCÊ">
             <EsperandoVoce itens={r.status.aguardando_dono} />
           </Secao>
-          <Secao titulo="Itens por repo">
-            <ItensPorRepo estacoes={r.status.estacoes} itens={r.status.itens} />
+          <Secao titulo="Estações">
+            <Estacoes estacoes={r.status.estacoes} repos={r.status.repos} />
           </Secao>
-          <Secao titulo="Semana">
-            <Semana semana={r.status.semana} eventos={r.status.eventos} />
+          <Secao titulo="Repos">
+            <TabelaRepos repos={r.status.repos} />
           </Secao>
+          <Secao titulo="Eventos">
+            <Eventos eventos={r.status.eventos} />
+          </Secao>
+          <Rodape status={r.status} minutosDesde={r.minutosDesde} />
         </>
       )}
     </div>
