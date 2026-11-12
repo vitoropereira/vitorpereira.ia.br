@@ -150,6 +150,14 @@ describe("/admin/fabrica — status.json no formato real", () => {
     expect(html).toContain("ok do dono no PR");
     expect(html).toContain('href="https://github.com/o/site/issues/101"');
     expect(html).toContain('href="https://github.com/o/site/pull/102"');
+    // Link para fora do admin abre em aba nova, sem dar acesso ao opener.
+    const externos =
+      html.match(/<a [^>]*href="https:\/\/github\.com[^>]*>/g) ?? [];
+    expect(externos.length).toBeGreaterThan(0);
+    for (const a of externos) {
+      expect(a).toContain('target="_blank"');
+      expect(a).toContain('rel="noopener noreferrer"');
+    }
     expect(html).toContain("porteiro (aguarda-dono)");
     expect(html).toContain("merge: Corrige X");
     expect(html).toContain("o/outro: HTTP 502");

@@ -22,6 +22,8 @@ export function EsperandoVoce({ itens }: { itens: ItemFabrica[] }) {
               {it.url ? (
                 <a
                   href={it.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-medium underline underline-offset-4"
                 >
                   {it.titulo}
@@ -31,7 +33,12 @@ export function EsperandoVoce({ itens }: { itens: ItemFabrica[] }) {
               )}
             </span>
             {it.pr && (
-              <a href={it.pr} className="text-xs underline underline-offset-4">
+              <a
+                href={it.pr}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs underline underline-offset-4"
+              >
                 PR
               </a>
             )}
