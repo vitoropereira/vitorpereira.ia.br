@@ -163,8 +163,11 @@ describe("/admin/fabrica — status.json no formato real", () => {
       expect(a).toContain('target="_blank"');
       expect(a).toContain('rel="noopener noreferrer"');
     }
-    expect(html).toContain("porteiro (aguarda-dono)");
-    expect(html).toContain("merge: Corrige X");
+    // Tipo do evento colorido à parte; o resto da linha vem depois.
+    expect(html).toMatch(/>porteiro<\/span> \(aguarda-dono\)/);
+    expect(html).toMatch(/>merge<\/span> Corrige X/);
+    // Hora legível, não o ISO cru.
+    expect(html).not.toContain(">2026-11-11T05:01:38Z<");
     expect(html).toContain("o/outro: HTTP 502");
     // agrupado pelo apelido
     expect(html).toMatch(/<th[^>]*>vp/);
@@ -181,54 +184,66 @@ describe("/admin/fabrica — status.json no formato real", () => {
 });
 
 describe("/admin/fabrica — layout v2", () => {
+  // Campos v2 copiados do JSON de exemplo da issue #105, sobre o status real.
   const statusV2 = () => ({
     ...statusReal(),
-    semana: { "no-ar": 6, voltas: 2, porteiro: 4, reverts: 1 },
+    versao: 2,
+    semana: { porteiro: 7, chamou: 5, volta: 2, "no-ar": 1 },
     historico: {
-      chamou: [0, 1, 0, 2, 1, 0, 3],
-      "no-ar": [0, 1, 0, 2, 1, 0, 2],
-      voltas: [0, 0, 1, 0, 0, 0, 1],
+      porteiro: [0, 0, 0, 0, 0, 6, 1],
+      chamou: [0, 0, 0, 0, 0, 5, 0],
+      volta: [0, 0, 0, 0, 0, 2, 0],
+      "no-ar": [0, 0, 0, 0, 0, 0, 1],
     },
-    tempo_medio_horas: 28,
-    gargalo: { estacao: "porteiro", qtd: 4 },
+    gargalo: { estacao: "porteiro", qtd: 1 },
+    tempo_medio_horas: 33.5,
     repos: [
       {
         ...statusReal().repos[0],
         resumo: {
-          ativos: 7,
-          entregues: 3,
-          voltas: 1,
+          ativos: 1,
+          entregues: 1,
+          voltas: 2,
           ultimo_deploy: new Date().toISOString(),
-          saude: "ok",
+          saude: "atencao",
         },
       },
     ],
   });
 
+  // Valor do KPI logo depois do rótulo.
+  const kpi = (html: string, rotulo: string) =>
+    html.match(new RegExp(`>${rotulo}</span><span[^>]*>(\\d+)<`))?.[1];
+
   it("mostra KPIs, espera você, kanban, repo, tempo médio e gargalo", async () => {
     comUsuario("root@y.com");
     fetchMock.mockResolvedValue({ ok: true, json: async () => statusV2() });
     const html = renderToStaticMarkup(await FabricaPage());
-    expect(html).toContain("ESPERA VOCÊ");
-    for (const rotulo of [
-      "EM ANDAMENTO",
-      "ENTREGUES",
-      "VOLTAS",
-      "PORTEIRO SEGUROU",
-      "REVERTS",
-    ]) {
-      expect(html).toContain(rotulo);
-    }
+    expect(html).toContain("ESPERA VOCÊ · 1");
+    expect(html).toContain(">Abrir<");
+    expect(kpi(html, "EM ANDAMENTO")).toBe("1");
+    expect(kpi(html, "ESPERA VOCÊ")).toBe("1");
+    expect(kpi(html, "ENTREGUES")).toBe("1");
+    expect(kpi(html, "VOLTAS")).toBe("2");
+    expect(kpi(html, "PORTEIRO SEGUROU")).toBe("7");
+    // Tipo ausente no histórico é zero, não erro.
+    expect(kpi(html, "REVERTS")).toBe("0");
+    expect(html).toContain('aria-pressed="true"');
     expect(html).toContain("Kanban");
     expect(html).toContain("Repos × estações");
     expect(html).toContain("font-mono-teste");
     expect(html).toContain("fabrica@dev-flow");
     expect(html).toContain("● online");
-    expect(html).toContain("1 dia e 4 h");
+    expect(html).toContain("1 dia e 10 h");
     expect(html).toContain("pedido → no ar (média)");
-    expect(html).toContain("Porteiro · 4 itens");
+    expect(html).toContain("Porteiro · 1 item");
     expect(html).toContain("hoje ");
-    expect(html.indexOf("ESPERA VOCÊ")).toBeLessThan(
+    expect(html).toContain("atencao");
+    // Paleta do mock C.
+    expect(html).toContain("#05070c");
+    expect(html).toContain("#0b0f17");
+    expect(html).not.toMatch(/\brounded/);
+    expect(html.indexOf("ESPERA VOCÊ · 1")).toBeLessThan(
       html.indexOf("EM ANDAMENTO"),
     );
     for (const coluna of [
@@ -254,5 +269,16 @@ describe("/admin/fabrica — layout v2", () => {
     const html = renderToStaticMarkup(await FabricaPage());
     expect(html).toContain("sem dado");
     expect(html).toContain("nada andando");
+    expect(kpi(html, "VOLTAS")).toBe("0");
+  });
+
+  it("sem item esperando o dono a faixa some e sem erro o bloco de erros some", async () => {
+    comUsuario("root@y.com");
+    const st = { ...statusV2(), aguardando_dono: [], erros: [] };
+    fetchMock.mockResolvedValue({ ok: true, json: async () => st });
+    const html = renderToStaticMarkup(await FabricaPage());
+    expect(html).not.toContain("ESPERA VOCÊ ·");
+    expect(kpi(html, "ESPERA VOCÊ")).toBe("0");
+    expect(html).not.toMatch(/erros ·/);
   });
 });

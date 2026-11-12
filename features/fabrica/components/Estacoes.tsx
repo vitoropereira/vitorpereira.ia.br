@@ -3,47 +3,55 @@
 import { useState } from "react";
 import { CORES, corEstacao } from "../cores";
 import type { EstacaoFabrica, GrupoRepo, ItemFabrica } from "../status";
+import { Painel } from "./Painel";
 
 type Modo = "kanban" | "matriz";
 
 const SEM_ESTACAO = "__desconhecida__";
 
+const ref = (it: ItemFabrica) =>
+  `${it.alias || it.repo}${it.n !== undefined ? ` #${it.n}` : ""}`;
+
 function Cartao({ it }: { it: ItemFabrica }) {
   return (
     <li
-      className="border-border flex flex-col gap-1 rounded border p-2 text-xs"
-      style={it.aguarda ? { borderColor: CORES.espera } : undefined}
+      className="flex flex-col gap-1 border p-2 text-xs"
+      style={
+        it.aguarda
+          ? {
+              borderColor: CORES.espera,
+              background: `color-mix(in oklab, ${CORES.espera} 10%, ${CORES.fundo})`,
+            }
+          : { borderColor: CORES.borda, background: CORES.fundo }
+      }
     >
-      <span>
-        <span className="text-muted-foreground">
-          {it.alias || it.repo}
-          {it.n !== undefined && ` #${it.n}`}
-        </span>{" "}
-        {it.url ? (
-          <a
-            href={it.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-4"
-          >
-            {it.titulo}
-          </a>
-        ) : (
-          it.titulo
-        )}
-      </span>
+      <span style={{ color: CORES.rotulo }}>{ref(it)}</span>
+      {it.url ? (
+        <a
+          href={it.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-4"
+          style={{ color: CORES.forte }}
+        >
+          {it.titulo}
+        </a>
+      ) : (
+        <span style={{ color: CORES.forte }}>{it.titulo}</span>
+      )}
       {it.pr && (
         <a
           href={it.pr}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground underline underline-offset-4"
+          className="underline underline-offset-4"
+          style={{ color: CORES.destaque }}
         >
           PR
         </a>
       )}
       {it.aguarda && (
-        <span style={{ color: CORES.espera }}>aguarda: {it.aguarda}</span>
+        <span style={{ color: CORES.esperaClaro }}>aguarda: {it.aguarda}</span>
       )}
     </li>
   );
@@ -69,23 +77,39 @@ export function Estacoes({
   const colunaDe = (it: ItemFabrica) =>
     conhecidas.has(it.estacao) ? it.estacao : SEM_ESTACAO;
 
-  const botao = (m: Modo, rotulo: string) => (
-    <button
-      type="button"
-      aria-pressed={modo === m}
-      onClick={() => setModo(m)}
-      className="border-border aria-pressed:bg-foreground aria-pressed:text-background rounded border px-3 py-1 text-xs"
-    >
-      {rotulo}
-    </button>
-  );
+  const botao = (m: Modo, rotulo: string) => {
+    const ativo = modo === m;
+    return (
+      <button
+        type="button"
+        aria-pressed={ativo}
+        onClick={() => setModo(m)}
+        className="border px-3 py-1 text-xs"
+        style={
+          ativo
+            ? {
+                borderColor: CORES.destaque,
+                color: CORES.fundo,
+                background: CORES.destaque,
+              }
+            : { borderColor: CORES.borda, color: CORES.texto }
+        }
+      >
+        {rotulo}
+      </button>
+    );
+  };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex gap-2">
-        {botao("kanban", "Kanban")}
-        {botao("matriz", "Repos × estações")}
-      </div>
+    <Painel
+      titulo="Estações"
+      extra={
+        <div className="flex gap-2">
+          {botao("kanban", "Kanban")}
+          {botao("matriz", "Repos × estações")}
+        </div>
+      }
+    >
       {modo === "kanban" ? (
         <div className="grid auto-cols-[minmax(11rem,1fr)] grid-flow-col gap-3 overflow-x-auto pb-2">
           {colunas.map((c) => {
@@ -94,10 +118,13 @@ export function Estacoes({
               <section key={c.id} className="flex flex-col gap-2">
                 <h3
                   className="border-b-2 pb-1 text-xs font-medium"
-                  style={{ borderColor: corEstacao(c.id) }}
+                  style={{ borderColor: corEstacao(c.id), color: CORES.forte }}
                 >
                   {c.nome}{" "}
-                  <span className="text-muted-foreground tabular-nums">
+                  <span
+                    className="tabular-nums"
+                    style={{ color: CORES.rotulo }}
+                  >
                     {daColuna.length}
                   </span>
                 </h3>
@@ -115,12 +142,21 @@ export function Estacoes({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full border-collapse text-xs">
             <thead>
-              <tr>
-                <th className="p-2 text-left font-medium">Repo</th>
+              <tr style={{ color: CORES.rotulo }}>
+                {/* Coluna do repo presa à esquerda ao rolar no celular. */}
+                <th
+                  className="sticky left-0 p-2 text-left font-medium"
+                  style={{ background: CORES.painel }}
+                >
+                  Repo
+                </th>
                 {colunas.map((c) => (
-                  <th key={c.id} className="p-2 text-right font-medium">
+                  <th
+                    key={c.id}
+                    className="min-w-[9rem] p-2 text-left font-medium"
+                  >
                     {c.nome}
                   </th>
                 ))}
@@ -130,22 +166,49 @@ export function Estacoes({
               {repos.map((g) => (
                 <tr
                   key={`${g.alias}:${g.repo}`}
-                  className="border-border border-t"
+                  className="border-t align-top"
+                  style={{ borderColor: CORES.borda }}
                 >
-                  <th scope="row" className="p-2 text-left font-medium">
+                  <th
+                    scope="row"
+                    className="sticky left-0 p-2 text-left font-medium"
+                    style={{ background: CORES.painel, color: CORES.forte }}
+                  >
                     {g.alias || g.repo || "(sem repo)"}
+                    {g.alias && g.repo && (
+                      <span
+                        className="block font-normal"
+                        style={{ color: CORES.rotulo }}
+                      >
+                        {g.repo}
+                      </span>
+                    )}
                   </th>
                   {colunas.map((c) => {
-                    const n = g.itens.filter(
+                    const daCelula = g.itens.filter(
                       (it) => colunaDe(it) === c.id,
-                    ).length;
+                    );
                     return (
-                      <td
-                        key={c.id}
-                        className="p-2 text-right tabular-nums"
-                        style={n > 0 ? { color: corEstacao(c.id) } : undefined}
-                      >
-                        {n || "·"}
+                      <td key={c.id} className="p-2">
+                        {daCelula.length === 0 ? (
+                          <span style={{ color: CORES.rotulo }}>·</span>
+                        ) : (
+                          <ul className="flex flex-col gap-1">
+                            {daCelula.map((it, i) => (
+                              <li
+                                key={`${it.n ?? it.titulo}:${i}`}
+                                style={{
+                                  color: it.aguarda
+                                    ? CORES.esperaClaro
+                                    : CORES.texto,
+                                }}
+                              >
+                                {it.n !== undefined && `#${it.n} `}
+                                {it.titulo}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </td>
                     );
                   })}
@@ -155,6 +218,6 @@ export function Estacoes({
           </table>
         </div>
       )}
-    </div>
+    </Painel>
   );
 }

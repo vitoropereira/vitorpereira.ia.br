@@ -1,11 +1,12 @@
 import { CORES } from "../cores";
-import type { StatusFabrica } from "../status";
+import { DIAS_HISTORICO, type StatusFabrica } from "../status";
 
-const soma = (xs: number[] | undefined) =>
-  (xs ?? []).reduce((a, b) => a + b, 0);
+const ZEROS = Array<number>(DIAS_HISTORICO).fill(0);
+
+const soma = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
 // 7 barras, uma por dia; a altura é relativa ao maior valor da série.
-function Barras({ valores }: { valores: number[] }) {
+function Barras({ valores, cor }: { valores: number[]; cor: string }) {
   const max = Math.max(1, ...valores);
   return (
     <svg
@@ -23,7 +24,7 @@ function Barras({ valores }: { valores: number[] }) {
             y={16 - h}
             width={5}
             height={h}
-            fill={CORES.barra}
+            fill={v > 0 ? cor : CORES.borda}
           />
         );
       })}
@@ -34,7 +35,7 @@ function Barras({ valores }: { valores: number[] }) {
 function Kpi({
   rotulo,
   valor,
-  cor,
+  cor = CORES.forte,
   serie,
 }: {
   rotulo: string;
@@ -43,71 +44,70 @@ function Kpi({
   serie?: number[];
 }) {
   return (
-    <div className="border-border flex flex-col gap-1 rounded-md border p-3">
-      <span className="text-muted-foreground text-[11px] tracking-wider">
+    <div
+      className="flex flex-col gap-1 border p-3"
+      style={{ background: CORES.painel, borderColor: CORES.borda }}
+    >
+      <span
+        className="text-[11px] tracking-wider"
+        style={{ color: CORES.rotulo }}
+      >
         {rotulo}
       </span>
       <span
         className="text-2xl font-semibold tabular-nums"
-        style={cor ? { color: cor } : undefined}
+        style={{ color: cor }}
       >
         {valor}
       </span>
-      {serie && <Barras valores={serie} />}
+      {serie && <Barras valores={serie} cor={cor} />}
     </div>
   );
 }
 
-// O produtor já variou entre singular e plural nas chaves da semana e do
-// histórico; aceita as duas para o KPI não zerar em silêncio.
-const daSemana = (s: StatusFabrica["semana"], ...chaves: string[]): number => {
-  for (const k of chaves) {
-    const v = s[k];
-    if (typeof v === "number") return v;
-  }
-  return 0;
-};
-const daSerie = (h: StatusFabrica["historico"], ...chaves: string[]) =>
-  chaves.map((k) => h[k]).find((x) => x !== undefined);
-
 export function Kpis({ status }: { status: StatusFabrica }) {
   const { historico: h, semana: s } = status;
+  // Tipo ausente no histórico (status v1, ou dia sem evento) é série zerada.
+  const serie = (tipo: string) => h[tipo] ?? ZEROS;
   const ativos = status.repos.reduce((a, g) => a + g.resumo.ativos, 0);
   const esperam = status.aguardando_dono.length;
-  const serieVoltas = daSerie(h, "voltas", "volta");
-  const serieReverts = daSerie(h, "reverts", "revert");
-  // Total da semana quando o produtor traz; senão a soma dos 7 dias.
-  const voltas = daSemana(s, "voltas", "volta") || soma(serieVoltas);
-  const porteiro = daSemana(s, "porteiro") || soma(h.porteiro);
-  const reverts = daSemana(s, "reverts", "revert") || soma(serieReverts);
-  const entregues = daSemana(s, "no-ar") || soma(h["no-ar"]);
+  const noAr = s["no-ar"];
+  const entregues = typeof noAr === "number" ? noAr : 0;
+  const voltas = soma(serie("volta"));
+  const porteiro = soma(serie("porteiro"));
+  const reverts = soma(serie("revert"));
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <Kpi rotulo="EM ANDAMENTO" valor={ativos || status.itens.length} />
+      <Kpi rotulo="EM ANDAMENTO" valor={ativos} cor={CORES.destaque} />
       <Kpi
         rotulo="ESPERA VOCÊ"
         valor={esperam}
-        cor={esperam > 0 ? CORES.espera : undefined}
-        serie={h.chamou}
+        cor={CORES.espera}
+        serie={serie("chamou")}
       />
       <Kpi
         rotulo="ENTREGUES"
         valor={entregues}
         cor={CORES.ok}
-        serie={h["no-ar"]}
+        serie={serie("no-ar")}
       />
       <Kpi
         rotulo="VOLTAS"
         valor={voltas}
-        cor={voltas > 0 ? CORES.alerta : undefined}
-        serie={serieVoltas}
+        cor={CORES.volta}
+        serie={serie("volta")}
       />
-      <Kpi rotulo="PORTEIRO SEGUROU" valor={porteiro} serie={h.porteiro} />
+      <Kpi
+        rotulo="PORTEIRO SEGUROU"
+        valor={porteiro}
+        cor={CORES.porteiro}
+        serie={serie("porteiro")}
+      />
       <Kpi
         rotulo="REVERTS"
         valor={reverts}
-        cor={reverts > 0 ? CORES.alerta : undefined}
-        serie={serieReverts}
+        cor={CORES.revert}
+        serie={serie("revert")}
       />
     </div>
   );

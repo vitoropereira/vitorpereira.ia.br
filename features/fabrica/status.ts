@@ -30,6 +30,9 @@ export type ItemFabrica = {
 
 export type EventoFabrica = {
   em: string;
+  // Tipo do evento (porteiro, volta, no-ar…), que dá a cor na lista.
+  tipo: string;
+  // O resto da linha: título e veredito, ou o texto pronto do produtor.
   texto: string;
   repo?: string;
   n?: number;
@@ -132,15 +135,12 @@ function evento(e: Record<string, unknown>): EventoFabrica {
   const tipo = primeiro(e, "tipo");
   const titulo = primeiro(e, "titulo");
   const veredito = primeiro(e, "veredito");
-  const composto = [
-    tipo,
-    titulo && `: ${titulo}`,
-    veredito && veredito !== tipo && ` (${veredito})`,
-  ]
+  const composto = [titulo, veredito && veredito !== tipo && `(${veredito})`]
     .filter(Boolean)
-    .join("");
+    .join(" ");
   return {
     em: primeiro(e, "ts", "em", "quando", "data", "at"),
+    tipo,
     texto: primeiro(e, "texto", "mensagem", "descricao") || composto,
     repo: primeiro(e, "repo") || undefined,
     n: numero(e.n),
