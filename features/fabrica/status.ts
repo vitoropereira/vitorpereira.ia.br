@@ -227,6 +227,13 @@ function normalizar(bruto: unknown): StatusFabrica | null {
     const g = repos.find(
       (r) => r.repo === it.repo && r.alias === (it.alias ?? ""),
     );
+    // Mesmo item nas duas listas (repos e itens) não conta em dobro.
+    const repetido =
+      it.n !== undefined &&
+      repos.some((r) =>
+        r.itens.some((x) => x.repo === it.repo && x.n === it.n),
+      );
+    if (repetido) continue;
     if (g) g.itens.push(it);
     else
       repos.push({

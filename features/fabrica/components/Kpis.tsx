@@ -89,7 +89,12 @@ export function Kpis({ status }: { status: StatusFabrica }) {
       />
       <Kpi
         rotulo="GARGALO"
-        valor={gargalo ? gargalo.estacao || gargalo.texto : "—"}
+        valor={
+          gargalo
+            ? (status.estacoes.find((e) => e.id === gargalo.estacao)?.nome ??
+              (gargalo.estacao || gargalo.texto))
+            : "—"
+        }
         cor={gargalo ? CORES.espera : undefined}
       />
     </div>
