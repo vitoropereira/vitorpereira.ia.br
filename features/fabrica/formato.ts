@@ -1,13 +1,14 @@
+import { diaSaoPaulo as dia } from "@/features/social-metrics/dia";
+
 // Fuso do dono: "hoje" e "ontem" são do calendário dele, não do servidor (UTC).
 const FUSO = "America/Sao_Paulo";
-
-const dia = (d: Date) =>
-  new Intl.DateTimeFormat("sv-SE", { timeZone: FUSO }).format(d);
 
 // "1 dia e 4 h", "33 min", "5 h"; null vira "sem dado" (não um 0 que pareça medida).
 export function formatarTempoMedio(horas: number | null): string {
   if (horas === null) return "sem dado";
-  if (horas < 1) return `${Math.max(1, Math.round(horas * 60))} min`;
+  // Arredonda em minutos antes de decidir a unidade: 0,995 h não vira "60 min".
+  const minutos = Math.round(horas * 60);
+  if (minutos < 60) return `${Math.max(1, minutos)} min`;
   const totalH = Math.round(horas);
   const dias = Math.floor(totalH / 24);
   const h = totalH % 24;
@@ -16,12 +17,13 @@ export function formatarTempoMedio(horas: number | null): string {
   return h === 0 ? d : `${d} e ${h} h`;
 }
 
-const hora = (d: Date) =>
-  new Intl.DateTimeFormat("pt-BR", {
-    timeZone: FUSO,
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
+// Criado uma vez: Intl.DateTimeFormat é caro e a lista chama por linha.
+const HORA = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: FUSO,
+  hour: "2-digit",
+  minute: "2-digit",
+});
+const hora = (d: Date) => HORA.format(d);
 
 // Hora do evento: "11:22" se for de hoje, "11/11 05:01" se não. ISO cru na
 // lista é ilegível; data ilegível vira "—".

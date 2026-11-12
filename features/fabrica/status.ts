@@ -209,7 +209,12 @@ function gargalo(v: unknown): Gargalo | null {
 }
 
 // `repos` pode vir como lista ({repo, itens}) ou mapa (repo → itens | {itens}).
-function gruposDosRepos(repos: unknown): GrupoRepo[] {
+// `semResumo` recebe os grupos que vieram sem `resumo`, para o chamador
+// completar a contagem depois de juntar os itens soltos.
+function gruposDosRepos(
+  repos: unknown,
+  semResumo: Set<GrupoRepo>,
+): GrupoRepo[] {
   const grupos: [string, unknown][] = Array.isArray(repos)
     ? repos.filter(ehObjeto).map((r) => [primeiro(r, "repo", "nome"), r])
     : ehObjeto(repos)
@@ -218,12 +223,15 @@ function gruposDosRepos(repos: unknown): GrupoRepo[] {
   return grupos.map(([repo, g]) => {
     const dentro = ehObjeto(g) ? g.itens : g;
     const alias = ehObjeto(g) ? primeiro(g, "alias") : "";
-    return {
+    const resumoBruto = ehObjeto(g) ? g.resumo : undefined;
+    const grupo: GrupoRepo = {
       alias,
       repo,
       itens: lista(dentro).map((o) => item(o, repo, alias)),
-      resumo: resumo(ehObjeto(g) ? g.resumo : undefined),
+      resumo: resumo(resumoBruto),
     };
+    if (!ehObjeto(resumoBruto)) semResumo.add(grupo);
+    return grupo;
   });
 }
 
@@ -237,12 +245,15 @@ function normalizar(bruto: unknown): StatusFabrica | null {
       if (typeof v === "string" || typeof v === "number") semana[k] = v;
     }
   }
-  const repos = gruposDosRepos(bruto.repos);
+  const semResumo = new Set<GrupoRepo>();
+  const repos = gruposDosRepos(bruto.repos, semResumo);
   const soltos = lista(bruto.itens).map((o) => item(o));
   // Item solto também entra na matriz e na tabela, no grupo do próprio repo.
   for (const it of soltos) {
+    // Item solto sem apelido cai no grupo do mesmo repo, com ou sem apelido:
+    // senão o repo aparece em duas linhas na matriz e na tabela.
     const g = repos.find(
-      (r) => r.repo === it.repo && r.alias === (it.alias ?? ""),
+      (r) => r.repo === it.repo && (!it.alias || r.alias === it.alias),
     );
     // Mesmo item nas duas listas (repos e itens) não conta em dobro.
     const repetido =
@@ -251,14 +262,23 @@ function normalizar(bruto: unknown): StatusFabrica | null {
         r.itens.some((x) => x.repo === it.repo && x.n === it.n),
       );
     if (repetido) continue;
-    if (g) g.itens.push(it);
-    else
-      repos.push({
+    if (g) {
+      g.itens.push(it);
+    } else {
+      const novo: GrupoRepo = {
         alias: it.alias ?? "",
         repo: it.repo,
         itens: [it],
         resumo: resumo(undefined),
-      });
+      };
+      semResumo.add(novo);
+      repos.push(novo);
+    }
+  }
+  // Grupo sem `resumo` (status v1 ou repo só de itens soltos) conta os itens
+  // que tem: senão "EM ANDAMENTO" mostra 0 com o kanban cheio.
+  for (const g of repos) {
+    if (semResumo.has(g)) g.resumo.ativos = g.itens.length;
   }
   const tempo = numero(bruto.tempo_medio_horas);
   return {

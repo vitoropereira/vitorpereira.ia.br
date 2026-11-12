@@ -221,12 +221,36 @@ describe("carregarStatus", () => {
     expect(r.status.historico).toEqual({});
     expect(r.status.gargalo).toBeNull();
     expect(r.status.tempoMedioHoras).toBeNull();
+    // Sem `resumo`, "ativos" conta os itens do grupo (o kanban mostra 1).
     expect(r.status.repos[0].resumo).toEqual({
-      ativos: 0,
+      ativos: 1,
       entregues: 0,
       voltas: 0,
       ultimoDeploy: null,
       saude: "",
     });
+  });
+
+  it("item solto sem apelido entra no grupo do mesmo repo com apelido", async () => {
+    fetchMock.mockResolvedValue(
+      resposta({
+        estacoes: [],
+        repos: [
+          {
+            alias: "vp",
+            repo: "o/site",
+            itens: [{ n: 1, titulo: "A", estacao: "x" }],
+            resumo: { ativos: 5 },
+          },
+        ],
+        itens: [{ n: 2, titulo: "B", repo: "o/site", estacao: "x" }],
+      }),
+    );
+    const r = await carregarStatus(agora);
+    if (r.erro) throw new Error("esperava dados");
+    expect(r.status.repos).toHaveLength(1);
+    expect(r.status.repos[0].itens.map((i) => i.n)).toEqual([1, 2]);
+    // Com `resumo`, vale o número do produtor.
+    expect(r.status.repos[0].resumo.ativos).toBe(5);
   });
 });

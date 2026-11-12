@@ -14,6 +14,7 @@ describe("formatarTempoMedio", () => {
     expect(formatarTempoMedio(48)).toBe("2 dias");
     expect(formatarTempoMedio(5)).toBe("5 h");
     expect(formatarTempoMedio(0.5)).toBe("30 min");
+    expect(formatarTempoMedio(0.995)).toBe("1 h");
   });
 });
 

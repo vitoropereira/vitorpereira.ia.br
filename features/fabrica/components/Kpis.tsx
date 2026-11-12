@@ -5,7 +5,7 @@ const ZEROS = Array<number>(DIAS_HISTORICO).fill(0);
 
 const soma = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
-// 7 barras, uma por dia; a altura é relativa ao maior valor da série.
+// Uma barra por dia; a altura é relativa ao maior valor da série.
 function Barras({ valores, cor }: { valores: number[]; cor: string }) {
   const max = Math.max(1, ...valores);
   return (
@@ -13,7 +13,7 @@ function Barras({ valores, cor }: { valores: number[]; cor: string }) {
       viewBox="0 0 49 16"
       className="h-4 w-12"
       role="img"
-      aria-label={`últimos 7 dias: ${valores.join(", ")}`}
+      aria-label={`últimos ${DIAS_HISTORICO} dias: ${valores.join(", ")}`}
     >
       {valores.map((v, i) => {
         const h = Math.max(1, (v / max) * 16);
