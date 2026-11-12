@@ -40,7 +40,12 @@ export function ItensPorRepo({
                     <span className="text-muted-foreground">#{it.n} </span>
                   )}
                   {it.url ? (
-                    <a href={it.url} className="underline underline-offset-4">
+                    <a
+                      href={it.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-4"
+                    >
                       {it.titulo}
                     </a>
                   ) : (
@@ -51,6 +56,8 @@ export function ItensPorRepo({
                       {" "}
                       <a
                         href={it.pr}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-muted-foreground text-xs underline underline-offset-4"
                       >
                         PR
