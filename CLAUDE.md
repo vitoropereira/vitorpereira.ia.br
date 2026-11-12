@@ -151,6 +151,11 @@ redireciona certo, só não loga.
   Contents read-only, um repo só, e o leitor só faz GET. Sem ele a tela mostra
   um aviso em vez de 500. Se o `sync_pecas` passar a gravar as peças numa
   tabela, o token sai do deploy.
+- **Segunda exceção: `FACTORY_GITHUB_TOKEN` vai pra Vercel**, server-only.
+  O `/admin/fabrica` lê o `status.json` da fábrica pela API do GitHub
+  (`FACTORY_STATUS_REPO`/`FACTORY_STATUS_BRANCH` ajustam repo e branch). Mesmo
+  desenho: fine-grained, Contents read-only, só GET; sem token a tela avisa em
+  vez de dar 500.
 - **Squash merge faz branch mergeada parecer pendente** no `git branch --merged`.
   Confira pelo PR, não pelo git local.
 

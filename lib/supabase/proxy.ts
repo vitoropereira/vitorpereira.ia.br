@@ -8,8 +8,14 @@ import { hardenCookie, supabaseAuthEnv } from "./env";
 export async function updateSession(
   request: NextRequest,
   requestHeaders: Headers,
+  rewriteTo?: URL,
 ) {
-  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  // rewriteTo: o subdomínio do admin serve /admin/* em caminho limpo.
+  const seguir = () =>
+    rewriteTo
+      ? NextResponse.rewrite(rewriteTo, { request: { headers: requestHeaders } })
+      : NextResponse.next({ request: { headers: requestHeaders } });
+  let response = seguir();
 
   let env: ReturnType<typeof supabaseAuthEnv>;
   try {
@@ -31,7 +37,7 @@ export async function updateSession(
         // O cookie renovado precisa ir na request (para a página ler o token
         // novo) e na response (para o browser guardar).
         requestHeaders.set("cookie", request.cookies.toString());
-        response = NextResponse.next({ request: { headers: requestHeaders } });
+        response = seguir();
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, hardenCookie(options));
         }
