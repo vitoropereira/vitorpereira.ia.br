@@ -1,0 +1,144 @@
+---
+title: "Uma sessão MCP não é uma identidade"
+description: "O MCP-Session-Id correlaciona interações. Ele não prova quem fez a próxima chamada. Em um servidor HTTP com dados ou efeitos reais, cada request ainda precisa de autorização verificável."
+date: 2026-11-12T11:00:00-03:00
+draft: false
+tags: [agentes, mcp, segurança, arquitetura]
+comments: true
+---
+
+Um servidor MCP por HTTP inicializa uma conversa, devolve um `MCP-Session-Id` e passa a receber esse valor nas chamadas seguintes. É fácil tratar esse identificador como se fosse o login da pessoa.
+
+Não é.
+
+O ID de sessão resolve uma pergunta de transporte: **qual sequência de interações pertence ao mesmo contexto?** Autorização resolve outra: **quem está fazendo esta chamada e o que essa identidade pode fazer agora?**
+
+Misturar as duas coisas cria um atalho perigoso: depois de uma primeira autenticação, o servidor passa a confiar apenas no header de sessão. Quem obtiver aquele identificador passa a falar como o cliente original.
+
+A especificação do MCP é explícita: servidores que implementam autorização devem verificar **todas** as requests de entrada e não podem usar sessões como autenticação. Ela também descreve o cenário de sequestro em que alguém obtém um ID de sessão e faz chamadas sem uma nova verificação de autorização. [Não é uma sutileza de implementação; é uma fronteira do protocolo.](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/docs/2025-11-25/tutorials/security/security_best_practices.mdx#session-hijacking)
+
+## O header de sessão tem um trabalho menor
+
+No Streamable HTTP, o servidor pode devolver `MCP-Session-Id` durante a inicialização. O cliente então o inclui nas requests posteriores; o servidor pode usá-lo para manter estado, encerrar a sessão ou correlacionar streams. A [especificação de transportes](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/basic/transports.mdx#session-management) descreve esse ciclo.
+
+Isso é útil para coisas como:
+
+```text
+sessão → stream SSE a retomar
+sessão → estado temporário de uma conversa
+sessão → cursor de eventos ou de progresso
+```
+
+Nenhuma dessas relações responde, sozinha, a perguntas de permissão:
+
+```text
+identidade → qual usuário, serviço ou operador chamou?
+credencial → ela ainda é válida para este servidor?
+escopo → esta identidade pode executar esta tool?
+```
+
+Um UUID forte reduz a chance de alguém adivinhar uma sessão. Não transforma o UUID em evidência de identidade. Se ele vaza em log, URL, fila, browser ou integração, a aleatoriedade já não ajuda.
+
+## O bug aparece depois do primeiro request
+
+Considere um endpoint que usa sessão para manter o contexto de uma análise:
+
+```ts title="sessão não substitui autorização"
+async function postMcp(request: Request) {
+  const sessionId = request.headers.get("mcp-session-id");
+  const actor = await authenticateBearer(request.headers.get("authorization"));
+
+  if (!actor) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
+  const session = await sessions.findForActor({
+    sessionId,
+    actorId: actor.id,
+  });
+
+  if (!session) {
+    return new Response("unknown session", { status: 404 });
+  }
+
+  return handleMcpRequest({ actor, session, request });
+}
+```
+
+A parte importante não é a função fictícia. É a ordem do contrato:
+
+1. validar a credencial da request atual;
+2. derivar a identidade dessa credencial, não do body nem do header de sessão;
+3. procurar a sessão dentro da identidade já autorizada;
+4. aplicar o escopo da tool antes de executar a lógica.
+
+Uma implementação insegura inverte a dependência:
+
+```ts title="anti-padrão: sessão vira login"
+const session = await sessions.findById(request.headers.get("mcp-session-id"));
+
+if (!session) return new Response("unknown session", { status: 404 });
+
+return handleMcpRequest({ actor: session.actor, session, request });
+```
+
+Nesse caso, `session.actor` vira uma identidade reaproveitável por qualquer request que conheça o ID. O servidor não está mais autorizando a chamada; está aceitando uma referência a uma autorização anterior.
+
+## Vincule o estado ao ator, não só ao token de sessão
+
+A mitigação do MCP recomenda IDs de sessão seguros e não determinísticos. Também recomenda vinculá-los a informação específica do usuário autorizado — por exemplo, uma chave interna no formato `<user_id>:<session_id>`, em que o `user_id` é derivado do token validado, não fornecido pelo cliente. [A recomendação existe para impedir que um ID obtido ou adivinhado permita personificação.](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/docs/2025-11-25/tutorials/security/security_best_practices.mdx#session-hijacking)
+
+Na prática, isso evita dois atalhos ruins:
+
+- uma fila compartilhada que indexa eventos só por `sessionId`;
+- um cache que devolve estado de qualquer pessoa que apresente aquele valor.
+
+A sessão ainda pode existir. Ela só deixa de ser a autoridade. O banco, a fila ou o cache recebem uma chave que combina o contexto da sessão com o ator autenticado.
+
+## Sessão e Bearer vivem juntos, não em competição
+
+Em MCP sobre HTTP, autorização pode usar OAuth. Quando ela é usada, a especificação exige que o cliente inclua autorização em **cada** request HTTP, mesmo dentro da mesma sessão lógica. O servidor precisa validar o token e aceitar apenas tokens válidos para os próprios recursos. [Esse é o contrato de autorização do transporte, não uma otimização opcional depois do handshake.](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/basic/authorization.mdx#access-token-usage)
+
+O resultado é deliberadamente redundante:
+
+```text
+Authorization: Bearer …  → prova atual de identidade e escopo
+MCP-Session-Id: …        → continuidade e correlação do protocolo
+```
+
+Essa separação também melhora o encerramento de acesso. Revogar ou expirar uma credencial passa a bloquear a próxima chamada, mesmo que uma sessão antiga ainda exista. E uma sessão encerrada não exige inventar uma nova política de identidade: ela só deixa de apontar para estado válido.
+
+## O teste que vale mais que `tools/list`
+
+Um teste de integração para um servidor stateful não deveria provar apenas que a sessão funciona. Ele precisa provar que a sessão **não atravessa** a fronteira de identidade:
+
+```text
+ator A inicia sessão                  → recebe um MCP-Session-Id
+ator A + sessão válida                → request permitida dentro do escopo
+ator B + ID da sessão de A            → bloqueio
+sem Authorization + ID válido de A    → 401
+credencial expirada + ID válido de A  → 401
+ator A + sessão encerrada             → 404 ou estado definido pelo contrato
+```
+
+O status exato depende do endpoint. A propriedade não: um ID de sessão não pode conceder acesso por si só.
+
+Esse cuidado complementa o problema de schema e rate limit. Limitar o tamanho de uma request evita trabalho excessivo; marcar uma tool como read-only reduz a superfície de efeito; validar identidade em toda chamada impede que uma sessão antiga vire um passe livre. São controles diferentes e todos precisam aparecer nos testes.
+
+Para o restante do contrato de uma tool, leia também [ferramentas como contrato](/2026/07/25/ferramentas-como-contrato) e [por que read-only não é uma política de segurança](/2026/10/05/read-only-nao-e-politica-de-seguranca).
+
+<Callout type="note">
+  Sessão é contexto. Autorização é decisão renovada a cada request. Quando um
+  servidor mistura os dois, um detalhe de transporte passa a carregar o poder de
+  uma credencial.
+</Callout>
+
+## Fontes
+
+- [MCP: Session Hijacking](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/docs/2025-11-25/tutorials/security/security_best_practices.mdx#session-hijacking): requer verificação de todas as requests em servidores com autorização, proíbe usar sessão como autenticação e recomenda vincular estado de sessão ao usuário autorizado.
+- [MCP: Session Management](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/basic/transports.mdx#session-management): define a criação e o uso de `MCP-Session-Id` no Streamable HTTP.
+- [MCP: Access Token Usage](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2025-11-25/basic/authorization.mdx#access-token-usage): exige autorização em cada request HTTP e validação do token pelo resource server.
+
+## Próximo passo
+
+Se seu servidor MCP guarda sessão, consulta dados operacionais ou prepara ações externas, mas a permissão fica implícita depois do handshake, <DiagnosticCTA locale="pt">traga esse fluxo para um diagnóstico técnico de 30 minutos</DiagnosticCTA>.
