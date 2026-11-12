@@ -35,8 +35,15 @@ export type EventoFabrica = {
   n?: number;
 };
 
-// Contagens do repo que o produtor já calcula (ex.: {abertos, aguardando}).
-export type ResumoRepo = Record<string, number>;
+// Resumo do repo que o produtor calcula: contagens, data do último deploy e
+// saúde ("ok" | "atencao"). Chave ausente vira 0 / null / "".
+export type ResumoRepo = {
+  ativos: number;
+  entregues: number;
+  voltas: number;
+  ultimoDeploy: string | null;
+  saude: string;
+};
 
 export type GrupoRepo = {
   alias: string;
@@ -48,7 +55,8 @@ export type GrupoRepo = {
 // Últimos 7 dias por tipo de evento, do mais antigo ao mais novo.
 export type Historico = Record<string, number[]>;
 
-export type Gargalo = { estacao: string; texto: string };
+// Estação onde mais item está parado e quantos.
+export type Gargalo = { estacao: string; qtd: number };
 
 export const DIAS_HISTORICO = 7;
 
@@ -173,22 +181,31 @@ function historico(v: unknown): Historico {
   return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, serie(s)]));
 }
 
+const RESUMO_VAZIO: ResumoRepo = {
+  ativos: 0,
+  entregues: 0,
+  voltas: 0,
+  ultimoDeploy: null,
+  saude: "",
+};
+
 function resumo(v: unknown): ResumoRepo {
-  if (!ehObjeto(v)) return {};
-  const r: ResumoRepo = {};
-  for (const [k, n] of Object.entries(v)) {
-    const x = numero(n);
-    if (x !== undefined) r[k] = x;
-  }
-  return r;
+  if (!ehObjeto(v)) return { ...RESUMO_VAZIO };
+  const n = (k: string) => Math.max(0, numero(v[k]) ?? 0);
+  return {
+    ativos: n("ativos"),
+    entregues: n("entregues"),
+    voltas: n("voltas"),
+    ultimoDeploy: primeiro(v, "ultimo_deploy") || null,
+    saude: primeiro(v, "saude"),
+  };
 }
 
 function gargalo(v: unknown): Gargalo | null {
-  if (typeof v === "string") return v ? { estacao: "", texto: v } : null;
   if (!ehObjeto(v)) return null;
   const estacao = primeiro(v, "estacao", "id");
-  const texto = primeiro(v, "texto", "motivo", "descricao");
-  return estacao || texto ? { estacao, texto } : null;
+  const qtd = Math.max(0, numero(v.qtd) ?? 0);
+  return estacao ? { estacao, qtd } : null;
 }
 
 // `repos` pode vir como lista ({repo, itens}) ou mapa (repo → itens | {itens}).
@@ -205,7 +222,7 @@ function gruposDosRepos(repos: unknown): GrupoRepo[] {
       alias,
       repo,
       itens: lista(dentro).map((o) => item(o, repo, alias)),
-      resumo: ehObjeto(g) ? resumo(g.resumo) : {},
+      resumo: resumo(ehObjeto(g) ? g.resumo : undefined),
     };
   });
 }
@@ -240,7 +257,7 @@ function normalizar(bruto: unknown): StatusFabrica | null {
         alias: it.alias ?? "",
         repo: it.repo,
         itens: [it],
-        resumo: {},
+        resumo: resumo(undefined),
       });
   }
   const tempo = numero(bruto.tempo_medio_horas);

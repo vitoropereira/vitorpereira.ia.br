@@ -8,6 +8,7 @@ import { Eventos } from "@/features/fabrica/components/Eventos";
 import { Kpis } from "@/features/fabrica/components/Kpis";
 import { Rodape } from "@/features/fabrica/components/Rodape";
 import { TabelaRepos } from "@/features/fabrica/components/TabelaRepos";
+import { CORES } from "@/features/fabrica/cores";
 import { carregarStatus } from "@/features/fabrica/status";
 
 // Fonte mono só neste painel; o resto do admin segue a fonte do site.
@@ -35,7 +36,8 @@ export default async function FabricaPage() {
   // Antes de qualquer busca: sem sessão ou sem a seção, o GitHub não é chamado.
   await requireAdmin("fabrica");
 
-  const r = await carregarStatus(new Date());
+  const agora = new Date();
+  const r = await carregarStatus(agora);
 
   return (
     <div
@@ -50,6 +52,19 @@ export default async function FabricaPage() {
           ← Admin
         </Link>
         <h1 className="text-2xl font-semibold">Fábrica (dev-flow)</h1>
+        {!r.erro && (
+          <p className="text-sm">
+            <span>fabrica@dev-flow </span>
+            {r.velho ? (
+              <span style={{ color: CORES.espera }}>
+                ● parado
+                {r.minutosDesde !== null && ` há ${r.minutosDesde} min`}
+              </span>
+            ) : (
+              <span style={{ color: CORES.ok }}>● online</span>
+            )}
+          </p>
+        )}
         {!r.erro && r.minutosDesde !== null && (
           <p className="text-muted-foreground text-sm">
             atualizado há {r.minutosDesde} min
@@ -79,20 +94,24 @@ export default async function FabricaPage() {
               A fábrica não conseguiu ler: {r.status.erros.join("; ")}
             </Aviso>
           )}
-          <Kpis status={r.status} />
-          <Secao titulo="ESPERA VOCÊ">
+          <section
+            className="flex flex-col gap-3 rounded-md border-l-4 p-3"
+            style={{ borderColor: CORES.espera }}
+          >
+            <h2 className="text-lg font-semibold">ESPERA VOCÊ</h2>
             <EsperandoVoce itens={r.status.aguardando_dono} />
-          </Secao>
+          </section>
+          <Kpis status={r.status} />
           <Secao titulo="Estações">
             <Estacoes estacoes={r.status.estacoes} repos={r.status.repos} />
           </Secao>
           <Secao titulo="Repos">
-            <TabelaRepos repos={r.status.repos} />
+            <TabelaRepos repos={r.status.repos} agora={agora} />
           </Secao>
           <Secao titulo="Eventos">
             <Eventos eventos={r.status.eventos} />
           </Secao>
-          <Rodape status={r.status} minutosDesde={r.minutosDesde} />
+          <Rodape status={r.status} />
         </>
       )}
     </div>

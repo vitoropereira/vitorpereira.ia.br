@@ -182,14 +182,25 @@ describe("/admin/fabrica — status.json no formato real", () => {
 describe("/admin/fabrica — layout v2", () => {
   const statusV2 = () => ({
     ...statusReal(),
+    semana: { "no-ar": 6, voltas: 2, porteiro: 4, reverts: 1 },
     historico: {
-      merge: [0, 1, 0, 2, 1, 0, 3],
-      volta: [0, 0, 1, 0, 0, 0, 1],
+      chamou: [0, 1, 0, 2, 1, 0, 3],
+      "no-ar": [0, 1, 0, 2, 1, 0, 2],
+      voltas: [0, 0, 1, 0, 0, 0, 1],
     },
-    tempo_medio_horas: 33,
-    gargalo: { estacao: "porteiro", texto: "4 itens esperando o dono" },
+    tempo_medio_horas: 28,
+    gargalo: { estacao: "porteiro", qtd: 4 },
     repos: [
-      { ...statusReal().repos[0], resumo: { itens: 1, aguardando: 1, prs: 1 } },
+      {
+        ...statusReal().repos[0],
+        resumo: {
+          ativos: 7,
+          entregues: 3,
+          voltas: 1,
+          ultimo_deploy: new Date().toISOString(),
+          saude: "ok",
+        },
+      },
     ],
   });
 
@@ -200,19 +211,33 @@ describe("/admin/fabrica — layout v2", () => {
     expect(html).toContain("ESPERA VOCÊ");
     for (const rotulo of [
       "EM ANDAMENTO",
-      "AGUARDANDO",
-      "MERGES 7D",
-      "VOLTAS 7D",
-      "TEMPO MÉDIO",
-      "GARGALO",
+      "ENTREGUES",
+      "VOLTAS",
+      "PORTEIRO SEGUROU",
+      "REVERTS",
     ]) {
       expect(html).toContain(rotulo);
     }
     expect(html).toContain("Kanban");
     expect(html).toContain("Repos × estações");
     expect(html).toContain("font-mono-teste");
-    expect(html).toContain("33 h");
-    expect(html).toContain("4 itens esperando o dono");
+    expect(html).toContain("fabrica@dev-flow");
+    expect(html).toContain("● online");
+    expect(html).toContain("1 dia e 4 h");
+    expect(html).toContain("pedido → no ar (média)");
+    expect(html).toContain("Porteiro · 4 itens");
+    expect(html).toContain("hoje ");
+    expect(html.indexOf("ESPERA VOCÊ")).toBeLessThan(
+      html.indexOf("EM ANDAMENTO"),
+    );
+    for (const coluna of [
+      "Ativos",
+      "Entregues/sem",
+      "Último deploy",
+      "Saúde",
+    ]) {
+      expect(html).toContain(coluna);
+    }
     expect(html).toMatch(/<th[^>]*>vp/);
     const externos = html.match(/<a [^>]*href="https:\/\/[^>]*>/g) ?? [];
     expect(externos.length).toBeGreaterThan(0);
@@ -226,7 +251,7 @@ describe("/admin/fabrica — layout v2", () => {
     comUsuario("root@y.com");
     fetchMock.mockResolvedValue({ ok: true, json: async () => statusReal() });
     const html = renderToStaticMarkup(await FabricaPage());
-    expect(html).toContain("TEMPO MÉDIO");
-    expect(html).toContain("—");
+    expect(html).toContain("sem dado");
+    expect(html).toContain("nada andando");
   });
 });

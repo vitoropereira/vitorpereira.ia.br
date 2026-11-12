@@ -1,28 +1,23 @@
+import { formatarTempoMedio } from "../formato";
 import type { StatusFabrica } from "../status";
 
-export function Rodape({
-  status,
-  minutosDesde,
-}: {
-  status: StatusFabrica;
-  minutosDesde: number | null;
-}) {
+export function Rodape({ status }: { status: StatusFabrica }) {
   const { gargalo } = status;
+  const nome = gargalo
+    ? (status.estacoes.find((e) => e.id === gargalo.estacao)?.nome ??
+      gargalo.estacao)
+    : "";
   return (
-    <footer className="text-muted-foreground flex flex-col gap-1 text-xs">
-      {gargalo && (
-        <p>
-          gargalo: {gargalo.estacao}
-          {gargalo.estacao && gargalo.texto && " — "}
-          {gargalo.texto}
-        </p>
-      )}
+    <footer className="text-muted-foreground grid gap-2 text-xs sm:grid-cols-2">
       <p>
-        {Object.entries(status.semana)
-          .map(([k, v]) => `${k}: ${v}`)
-          .join(" · ") || "sem resumo da semana"}
+        gargalo:{" "}
+        {gargalo
+          ? `${nome} · ${gargalo.qtd} ${gargalo.qtd === 1 ? "item" : "itens"}`
+          : "nada andando"}
       </p>
-      {minutosDesde !== null && <p>gerado há {minutosDesde} min</p>}
+      <p>
+        pedido → no ar (média): {formatarTempoMedio(status.tempoMedioHoras)}
+      </p>
     </footer>
   );
 }

@@ -38,7 +38,7 @@ function Kpi({
   serie,
 }: {
   rotulo: string;
-  valor: string;
+  valor: number;
   cor?: string;
   serie?: number[];
 }) {
@@ -53,49 +53,62 @@ function Kpi({
       >
         {valor}
       </span>
-      {serie && serie.length > 0 && <Barras valores={serie} />}
+      {serie && <Barras valores={serie} />}
     </div>
   );
 }
 
+// O produtor já variou entre singular e plural nas chaves da semana e do
+// histórico; aceita as duas para o KPI não zerar em silêncio.
+const daSemana = (s: StatusFabrica["semana"], ...chaves: string[]): number => {
+  for (const k of chaves) {
+    const v = s[k];
+    if (typeof v === "number") return v;
+  }
+  return 0;
+};
+const daSerie = (h: StatusFabrica["historico"], ...chaves: string[]) =>
+  chaves.map((k) => h[k]).find((x) => x !== undefined);
+
 export function Kpis({ status }: { status: StatusFabrica }) {
-  const { historico, gargalo, tempoMedioHoras } = status;
+  const { historico: h, semana: s } = status;
+  const ativos = status.repos.reduce((a, g) => a + g.resumo.ativos, 0);
   const esperam = status.aguardando_dono.length;
+  const voltas = daSemana(s, "voltas", "volta");
+  const porteiro = daSemana(s, "porteiro");
+  const reverts = daSemana(s, "reverts", "revert");
+  const entregues = daSemana(s, "no-ar");
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <Kpi rotulo="EM ANDAMENTO" valor={String(status.itens.length)} />
+      <Kpi rotulo="EM ANDAMENTO" valor={ativos || status.itens.length} />
       <Kpi
-        rotulo="AGUARDANDO"
-        valor={String(esperam)}
+        rotulo="ESPERA VOCÊ"
+        valor={esperam}
         cor={esperam > 0 ? CORES.espera : undefined}
+        serie={h.chamou}
       />
       <Kpi
-        rotulo="MERGES 7D"
-        valor={String(soma(historico.merge))}
+        rotulo="ENTREGUES"
+        valor={entregues || soma(h["no-ar"])}
         cor={CORES.ok}
-        serie={historico.merge}
+        serie={h["no-ar"]}
       />
       <Kpi
-        rotulo="VOLTAS 7D"
-        valor={String(soma(historico.volta))}
-        cor={soma(historico.volta) > 0 ? CORES.alerta : undefined}
-        serie={historico.volta}
+        rotulo="VOLTAS"
+        valor={voltas || soma(daSerie(h, "voltas", "volta"))}
+        cor={voltas > 0 ? CORES.alerta : undefined}
+        serie={daSerie(h, "voltas", "volta")}
       />
       <Kpi
-        rotulo="TEMPO MÉDIO"
-        valor={
-          tempoMedioHoras === null ? "—" : `${Math.round(tempoMedioHoras)} h`
-        }
+        rotulo="PORTEIRO SEGUROU"
+        valor={porteiro || soma(h.porteiro)}
+        serie={h.porteiro}
       />
       <Kpi
-        rotulo="GARGALO"
-        valor={
-          gargalo
-            ? (status.estacoes.find((e) => e.id === gargalo.estacao)?.nome ??
-              (gargalo.estacao || gargalo.texto))
-            : "—"
-        }
-        cor={gargalo ? CORES.espera : undefined}
+        rotulo="REVERTS"
+        valor={reverts || soma(daSerie(h, "reverts", "revert"))}
+        cor={reverts > 0 ? CORES.alerta : undefined}
+        serie={daSerie(h, "reverts", "revert")}
       />
     </div>
   );

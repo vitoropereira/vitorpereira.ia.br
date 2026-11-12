@@ -121,7 +121,14 @@ describe("carregarStatus", () => {
           {
             alias: "vp",
             repo: "o/site",
-            resumo: { abertos: 3, aguardando: 1, lixo: "x" },
+            resumo: {
+              ativos: 3,
+              entregues: 5,
+              voltas: 1,
+              ultimo_deploy: "2026-11-11T14:22:00Z",
+              saude: "ok",
+              lixo: "x",
+            },
             itens: [{ titulo: "A", estacao: "provar" }],
           },
         ],
@@ -130,7 +137,7 @@ describe("carregarStatus", () => {
           volta: [1, "x", -2],
           longo: [9, 9, 1, 2, 3, 4, 5, 6, 7],
         },
-        gargalo: { estacao: "porteiro", texto: "4 itens esperando" },
+        gargalo: { estacao: "porteiro", qtd: 4 },
         tempo_medio_horas: 33,
       }),
     );
@@ -142,14 +149,17 @@ describe("carregarStatus", () => {
     expect(r.status.repos[0]).toMatchObject({
       alias: "vp",
       repo: "o/site",
-      resumo: { abertos: 3, aguardando: 1 },
+      resumo: {
+        ativos: 3,
+        entregues: 5,
+        voltas: 1,
+        ultimoDeploy: "2026-11-11T14:22:00Z",
+        saude: "ok",
+      },
     });
     expect(r.status.repos[0].resumo).not.toHaveProperty("lixo");
     expect(r.status.itens).toHaveLength(1);
-    expect(r.status.gargalo).toEqual({
-      estacao: "porteiro",
-      texto: "4 itens esperando",
-    });
+    expect(r.status.gargalo).toEqual({ estacao: "porteiro", qtd: 4 });
     expect(r.status.tempoMedioHoras).toBe(33);
   });
 
@@ -165,6 +175,12 @@ describe("carregarStatus", () => {
     expect(r.status.historico).toEqual({});
     expect(r.status.gargalo).toBeNull();
     expect(r.status.tempoMedioHoras).toBeNull();
-    expect(r.status.repos[0].resumo).toEqual({});
+    expect(r.status.repos[0].resumo).toEqual({
+      ativos: 0,
+      entregues: 0,
+      voltas: 0,
+      ultimoDeploy: null,
+      saude: "",
+    });
   });
 });

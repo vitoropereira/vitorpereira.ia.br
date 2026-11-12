@@ -1,6 +1,19 @@
+import { CORES } from "../cores";
+import { formatarUltimoDeploy } from "../formato";
 import type { GrupoRepo } from "../status";
 
-export function TabelaRepos({ repos }: { repos: GrupoRepo[] }) {
+const COR_SAUDE: Record<string, string> = {
+  ok: CORES.ok,
+  atencao: CORES.espera,
+};
+
+export function TabelaRepos({
+  repos,
+  agora = new Date(),
+}: {
+  repos: GrupoRepo[];
+  agora?: Date;
+}) {
   if (repos.length === 0) {
     return (
       <p className="text-muted-foreground text-sm">Nenhum item na fábrica.</p>
@@ -11,18 +24,16 @@ export function TabelaRepos({ repos }: { repos: GrupoRepo[] }) {
       <thead className="text-muted-foreground text-xs">
         <tr>
           <th className="py-1 text-left font-medium">Repo</th>
-          <th className="py-1 text-right font-medium">Itens</th>
-          <th className="py-1 text-right font-medium">Aguardando</th>
-          <th className="py-1 text-right font-medium">PRs</th>
+          <th className="py-1 text-right font-medium">Ativos</th>
+          <th className="py-1 text-right font-medium">Entregues/sem</th>
+          <th className="py-1 text-right font-medium">Voltas</th>
+          <th className="py-1 text-right font-medium">Último deploy</th>
+          <th className="py-1 text-right font-medium">Saúde</th>
         </tr>
       </thead>
       <tbody>
         {repos.map((g) => {
-          // O resumo do produtor manda; sem ele, conta pelos itens.
-          const itens = g.resumo.itens ?? g.itens.length;
-          const aguardando =
-            g.resumo.aguardando ?? g.itens.filter((it) => it.aguarda).length;
-          const prs = g.resumo.prs ?? g.itens.filter((it) => it.pr).length;
+          const { resumo: r } = g;
           return (
             <tr key={`${g.alias}:${g.repo}`} className="border-border border-t">
               <th scope="row" className="py-1 text-left font-medium">
@@ -34,9 +45,18 @@ export function TabelaRepos({ repos }: { repos: GrupoRepo[] }) {
                   </span>
                 )}
               </th>
-              <td className="py-1 text-right tabular-nums">{itens}</td>
-              <td className="py-1 text-right tabular-nums">{aguardando}</td>
-              <td className="py-1 text-right tabular-nums">{prs}</td>
+              <td className="py-1 text-right tabular-nums">{r.ativos}</td>
+              <td className="py-1 text-right tabular-nums">{r.entregues}</td>
+              <td className="py-1 text-right tabular-nums">{r.voltas}</td>
+              <td className="py-1 text-right">
+                {formatarUltimoDeploy(r.ultimoDeploy, agora)}
+              </td>
+              <td
+                className="py-1 text-right"
+                style={{ color: COR_SAUDE[r.saude] ?? CORES.neutro }}
+              >
+                {r.saude || "—"}
+              </td>
             </tr>
           );
         })}

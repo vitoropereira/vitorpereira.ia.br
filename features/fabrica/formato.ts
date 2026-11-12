@@ -1,0 +1,39 @@
+// Fuso do dono: "hoje" e "ontem" são do calendário dele, não do servidor (UTC).
+const FUSO = "America/Sao_Paulo";
+
+const dia = (d: Date) =>
+  new Intl.DateTimeFormat("sv-SE", { timeZone: FUSO }).format(d);
+
+// "1 dia e 4 h", "33 min", "5 h"; null vira "sem dado" (não um 0 que pareça medida).
+export function formatarTempoMedio(horas: number | null): string {
+  if (horas === null) return "sem dado";
+  if (horas < 1) return `${Math.max(1, Math.round(horas * 60))} min`;
+  const totalH = Math.round(horas);
+  const dias = Math.floor(totalH / 24);
+  const h = totalH % 24;
+  if (dias === 0) return `${h} h`;
+  const d = `${dias} ${dias === 1 ? "dia" : "dias"}`;
+  return h === 0 ? d : `${d} e ${h} h`;
+}
+
+// "hoje 11:22", "ontem" ou "21/04"; sem data (ou data ilegível) vira "—".
+export function formatarUltimoDeploy(
+  iso: string | null,
+  agora: Date = new Date(),
+): string {
+  if (!iso) return "—";
+  const t = new Date(iso);
+  if (Number.isNaN(t.getTime())) return "—";
+  const dt = dia(t);
+  if (dt === dia(agora)) {
+    const hora = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: FUSO,
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(t);
+    return `hoje ${hora}`;
+  }
+  if (dt === dia(new Date(agora.getTime() - 24 * 3_600_000))) return "ontem";
+  const [, mes, d] = dt.split("-");
+  return `${d}/${mes}`;
+}
