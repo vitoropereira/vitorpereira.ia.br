@@ -30,15 +30,48 @@ export type ItemFabrica = {
 
 export type EventoFabrica = {
   em: string;
+  // Tipo do evento (porteiro, volta, no-ar…), que dá a cor na lista.
+  tipo: string;
+  // O resto da linha: título e veredito, ou o texto pronto do produtor.
   texto: string;
   repo?: string;
   n?: number;
 };
 
+// Resumo do repo que o produtor calcula: contagens, data do último deploy e
+// saúde ("ok" | "atencao"). Chave ausente vira 0 / null / "".
+export type ResumoRepo = {
+  ativos: number;
+  entregues: number;
+  voltas: number;
+  ultimoDeploy: string | null;
+  saude: string;
+};
+
+export type GrupoRepo = {
+  alias: string;
+  repo: string;
+  itens: ItemFabrica[];
+  resumo: ResumoRepo;
+};
+
+// Últimos 7 dias por tipo de evento, do mais antigo ao mais novo.
+export type Historico = Record<string, number[]>;
+
+// Estação onde mais item está parado e quantos.
+export type Gargalo = { estacao: string; qtd: number };
+
+export const DIAS_HISTORICO = 7;
+
 export type StatusFabrica = {
   gerado_em?: string;
   estacoes: EstacaoFabrica[];
   itens: ItemFabrica[];
+  // Mesmos itens, agrupados por repo (matriz e tabela).
+  repos: GrupoRepo[];
+  historico: Historico;
+  gargalo: Gargalo | null;
+  tempoMedioHoras: number | null;
   aguardando_dono: ItemFabrica[];
   semana: Record<string, string | number>;
   eventos: EventoFabrica[];
@@ -102,15 +135,12 @@ function evento(e: Record<string, unknown>): EventoFabrica {
   const tipo = primeiro(e, "tipo");
   const titulo = primeiro(e, "titulo");
   const veredito = primeiro(e, "veredito");
-  const composto = [
-    tipo,
-    titulo && `: ${titulo}`,
-    veredito && veredito !== tipo && ` (${veredito})`,
-  ]
+  const composto = [titulo, veredito && veredito !== tipo && `(${veredito})`]
     .filter(Boolean)
-    .join("");
+    .join(" ");
   return {
     em: primeiro(e, "ts", "em", "quando", "data", "at"),
+    tipo,
     texto: primeiro(e, "texto", "mensagem", "descricao") || composto,
     repo: primeiro(e, "repo") || undefined,
     n: numero(e.n),
@@ -132,17 +162,76 @@ function estacoes(v: unknown): EstacaoFabrica[] {
   return Object.entries(NOMES_ESTACAO).map(([id, nome]) => ({ id, nome }));
 }
 
+// Sempre 7 números ≥ 0: o gráfico não pode quebrar com série curta ou suja.
+// Série mais longa fica com os 7 dias mais recentes; mais curta é completada
+// com zeros no começo.
+function serie(v: unknown): number[] {
+  const nums = (Array.isArray(v) ? v : []).map((x) =>
+    typeof x === "number" && Number.isFinite(x) && x > 0 ? x : 0,
+  );
+  const ultimos = nums.slice(-DIAS_HISTORICO);
+  return [
+    ...Array<number>(DIAS_HISTORICO - ultimos.length).fill(0),
+    ...ultimos,
+  ];
+}
+
+function historico(v: unknown): Historico {
+  if (!ehObjeto(v)) return {};
+  return Object.fromEntries(Object.entries(v).map(([k, s]) => [k, serie(s)]));
+}
+
+const RESUMO_VAZIO: ResumoRepo = {
+  ativos: 0,
+  entregues: 0,
+  voltas: 0,
+  ultimoDeploy: null,
+  saude: "",
+};
+
+function resumo(v: unknown): ResumoRepo {
+  if (!ehObjeto(v)) return { ...RESUMO_VAZIO };
+  const n = (k: string) => Math.max(0, numero(v[k]) ?? 0);
+  return {
+    ativos: n("ativos"),
+    entregues: n("entregues"),
+    voltas: n("voltas"),
+    ultimoDeploy: primeiro(v, "ultimo_deploy") || null,
+    saude: primeiro(v, "saude"),
+  };
+}
+
+function gargalo(v: unknown): Gargalo | null {
+  if (!ehObjeto(v)) return null;
+  const estacao = primeiro(v, "estacao", "id");
+  const qtd = Math.max(0, numero(v.qtd) ?? 0);
+  return estacao ? { estacao, qtd } : null;
+}
+
 // `repos` pode vir como lista ({repo, itens}) ou mapa (repo → itens | {itens}).
-function itensDosRepos(repos: unknown): ItemFabrica[] {
+// `semResumo` recebe os grupos que vieram sem `resumo`, para o chamador
+// completar a contagem depois de juntar os itens soltos.
+function gruposDosRepos(
+  repos: unknown,
+  semResumo: Set<GrupoRepo>,
+): GrupoRepo[] {
   const grupos: [string, unknown][] = Array.isArray(repos)
     ? repos.filter(ehObjeto).map((r) => [primeiro(r, "repo", "nome"), r])
     : ehObjeto(repos)
       ? Object.entries(repos)
       : [];
-  return grupos.flatMap(([repo, g]) => {
+  return grupos.map(([repo, g]) => {
     const dentro = ehObjeto(g) ? g.itens : g;
     const alias = ehObjeto(g) ? primeiro(g, "alias") : "";
-    return lista(dentro).map((o) => item(o, repo, alias));
+    const resumoBruto = ehObjeto(g) ? g.resumo : undefined;
+    const grupo: GrupoRepo = {
+      alias,
+      repo,
+      itens: lista(dentro).map((o) => item(o, repo, alias)),
+      resumo: resumo(resumoBruto),
+    };
+    if (!ehObjeto(resumoBruto)) semResumo.add(grupo);
+    return grupo;
   });
 }
 
@@ -156,14 +245,51 @@ function normalizar(bruto: unknown): StatusFabrica | null {
       if (typeof v === "string" || typeof v === "number") semana[k] = v;
     }
   }
+  const semResumo = new Set<GrupoRepo>();
+  const repos = gruposDosRepos(bruto.repos, semResumo);
+  const soltos = lista(bruto.itens).map((o) => item(o));
+  // Item solto também entra na matriz e na tabela, no grupo do próprio repo.
+  for (const it of soltos) {
+    // Item solto sem apelido cai no grupo do mesmo repo, com ou sem apelido:
+    // senão o repo aparece em duas linhas na matriz e na tabela.
+    const g = repos.find(
+      (r) => r.repo === it.repo && (!it.alias || r.alias === it.alias),
+    );
+    // Mesmo item nas duas listas (repos e itens) não conta em dobro.
+    const repetido =
+      it.n !== undefined &&
+      repos.some((r) =>
+        r.itens.some((x) => x.repo === it.repo && x.n === it.n),
+      );
+    if (repetido) continue;
+    if (g) {
+      g.itens.push(it);
+    } else {
+      const novo: GrupoRepo = {
+        alias: it.alias ?? "",
+        repo: it.repo,
+        itens: [it],
+        resumo: resumo(undefined),
+      };
+      semResumo.add(novo);
+      repos.push(novo);
+    }
+  }
+  // Grupo sem `resumo` (status v1 ou repo só de itens soltos) conta os itens
+  // que tem: senão "EM ANDAMENTO" mostra 0 com o kanban cheio.
+  for (const g of repos) {
+    if (semResumo.has(g)) g.resumo.ativos = g.itens.length;
+  }
+  const tempo = numero(bruto.tempo_medio_horas);
   return {
     gerado_em:
       typeof bruto.gerado_em === "string" ? bruto.gerado_em : undefined,
     estacoes: estacoes(bruto.estacoes),
-    itens: [
-      ...itensDosRepos(bruto.repos),
-      ...lista(bruto.itens).map((o) => item(o)),
-    ],
+    itens: repos.flatMap((g) => g.itens),
+    repos,
+    historico: historico(bruto.historico),
+    gargalo: gargalo(bruto.gargalo),
+    tempoMedioHoras: tempo !== undefined && tempo >= 0 ? tempo : null,
     aguardando_dono: lista(bruto.aguardando_dono).map((o) => item(o)),
     semana,
     eventos: lista(bruto.eventos).map(evento),
