@@ -74,10 +74,13 @@ export function Kpis({ status }: { status: StatusFabrica }) {
   const { historico: h, semana: s } = status;
   const ativos = status.repos.reduce((a, g) => a + g.resumo.ativos, 0);
   const esperam = status.aguardando_dono.length;
-  const voltas = daSemana(s, "voltas", "volta");
-  const porteiro = daSemana(s, "porteiro");
-  const reverts = daSemana(s, "reverts", "revert");
-  const entregues = daSemana(s, "no-ar");
+  const serieVoltas = daSerie(h, "voltas", "volta");
+  const serieReverts = daSerie(h, "reverts", "revert");
+  // Total da semana quando o produtor traz; senão a soma dos 7 dias.
+  const voltas = daSemana(s, "voltas", "volta") || soma(serieVoltas);
+  const porteiro = daSemana(s, "porteiro") || soma(h.porteiro);
+  const reverts = daSemana(s, "reverts", "revert") || soma(serieReverts);
+  const entregues = daSemana(s, "no-ar") || soma(h["no-ar"]);
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       <Kpi rotulo="EM ANDAMENTO" valor={ativos || status.itens.length} />
@@ -89,26 +92,22 @@ export function Kpis({ status }: { status: StatusFabrica }) {
       />
       <Kpi
         rotulo="ENTREGUES"
-        valor={entregues || soma(h["no-ar"])}
+        valor={entregues}
         cor={CORES.ok}
         serie={h["no-ar"]}
       />
       <Kpi
         rotulo="VOLTAS"
-        valor={voltas || soma(daSerie(h, "voltas", "volta"))}
+        valor={voltas}
         cor={voltas > 0 ? CORES.alerta : undefined}
-        serie={daSerie(h, "voltas", "volta")}
+        serie={serieVoltas}
       />
-      <Kpi
-        rotulo="PORTEIRO SEGUROU"
-        valor={porteiro || soma(h.porteiro)}
-        serie={h.porteiro}
-      />
+      <Kpi rotulo="PORTEIRO SEGUROU" valor={porteiro} serie={h.porteiro} />
       <Kpi
         rotulo="REVERTS"
-        valor={reverts || soma(daSerie(h, "reverts", "revert"))}
+        valor={reverts}
         cor={reverts > 0 ? CORES.alerta : undefined}
-        serie={daSerie(h, "reverts", "revert")}
+        serie={serieReverts}
       />
     </div>
   );

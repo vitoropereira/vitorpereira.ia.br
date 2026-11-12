@@ -149,7 +149,8 @@ describe("/admin/fabrica — status.json no formato real", () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => statusReal() });
     const html = renderToStaticMarkup(await FabricaPage());
     expect(html).toContain("Fábrica (dev-flow)");
-    expect(html).toContain("atualizado há 4 min");
+    // A idade parte de Date.now() na fixture; sob carga o relógio anda.
+    expect(html).toMatch(/atualizado há \d+ min/);
     expect(html).toContain("#101");
     expect(html).toContain("ok do dono no PR");
     expect(html).toContain('href="https://github.com/o/site/issues/101"');
