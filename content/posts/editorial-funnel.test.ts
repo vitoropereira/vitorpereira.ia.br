@@ -166,4 +166,23 @@ describe("trilha editorial de agentes", () => {
       "https://www.postgresql.org/docs/current/functions-comparison.html",
     );
   });
+
+  it("publica a fronteira entre código de PR e credenciais do CI", () => {
+    const article = postBody(
+      "11/16",
+      "codigo-da-pr-nao-escolhe-credenciais-ci",
+    );
+
+    expect(article).toContain("date: 2026-11-16T10:00:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://docs.github.com/en/actions/reference/security/secure-use",
+    );
+    expect(article).toContain(
+      "https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target",
+    );
+    expect(article).toContain("](/2026/11/12/sessao-mcp-nao-e-autorizacao)");
+  });
 });
