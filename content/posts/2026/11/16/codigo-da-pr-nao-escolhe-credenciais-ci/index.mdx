@@ -1,0 +1,153 @@
+---
+title: "O código da PR não pode escolher as credenciais do CI"
+description: "Uma pull request pode trazer código útil e ainda ser uma fronteira de confiança. O job que executa esse código não deve receber o mesmo token que publica, comenta ou faz deploy."
+date: 2026-11-16T10:00:00-03:00
+draft: false
+tags: [segurança, ci-cd, github-actions, arquitetura]
+comments: true
+---
+
+Uma pull request não é só uma proposta de mudança. Ela também pode carregar código que o seu CI vai executar.
+
+Esse detalhe muda o desenho do pipeline. Se um job faz checkout do código vindo da PR e também recebe segredo de deploy, token com escrita ou credencial de registry, a contribuição passou a decidir o que roda perto de uma credencial privilegiada.
+
+A regra prática é simples: **código não confiável pode ser testado; não pode escolher o ambiente privilegiado que o testa.**
+
+O GitHub trata isso como uma fronteira de segurança. A documentação recomenda aplicar o menor privilégio ao `GITHUB_TOKEN`, fixar actions de terceiros por SHA completo e tratar com cuidado especial qualquer workflow que faça checkout de código não confiável. [Essas não são preferências de YAML; são controles para o código que o runner executa.](https://docs.github.com/en/actions/reference/security/secure-use)
+
+## O risco não está no evento. Está na combinação
+
+Eventos como `pull_request`, `pull_request_target` e `workflow_run` respondem a perguntas diferentes. O erro comum é escolher um deles pelo nome e esquecer o que cada job junta na mesma execução.
+
+Pense em três coisas separadas:
+
+```text
+origem do código      → qual ref será executada?
+capacidade do job     → quais tokens, secrets e permissões existem?
+efeito externo        → o job só testa ou também comenta, publica e faz deploy?
+```
+
+O problema aparece quando uma única execução responde:
+
+```text
+código da PR + segredo de produção + comando que envia algo para fora
+```
+
+Não importa se a intenção era apenas rodar testes. Um `npm install`, um script de build, um hook de pacote ou uma action composta podem executar código no runner. Se esse runner tem uma credencial útil, a credencial entrou na superfície da PR.
+
+## Separe verificação de efeito externo
+
+O fluxo seguro começa dividindo o pipeline em duas classes de job.
+
+### 1. Job de verificação
+
+Ele pode fazer checkout da ref da PR e rodar lint, typecheck, testes e build. Em troca, não recebe segredos de deploy, não usa token com escrita e não publica artefato como efeito final.
+
+O objetivo é responder: **este código atende ao contrato técnico?**
+
+### 2. Job privilegiado
+
+Ele pode comentar um resultado, assinar um artefato, publicar um pacote ou fazer deploy. Em troca, não executa a ref não confiável como se fosse código da base.
+
+O objetivo é responder: **uma mudança já validada e aprovada pode produzir este efeito?**
+
+Essa separação não impede o segundo job de consumir informação produzida pelo primeiro. Mas obriga a tratar essa informação como dado: validar formato, tamanho, caminho e conteúdo antes de usar. Um artefato criado por código não confiável continua sendo entrada não confiável quando chega a um job com credenciais.
+
+<Callout type="note">
+  "Passou no CI" não é uma identidade. É apenas o resultado de uma execução, e o
+  pipeline precisa saber qual código produziu esse resultado e quais permissões
+  ele recebeu.
+</Callout>
+
+## `pull_request_target` não é um `pull_request` com mais poder
+
+O evento `pull_request_target` existe para cenários em que o workflow precisa de permissões ou secrets indisponíveis para uma PR comum. Ele executa no contexto da branch base, não da branch enviada pela PR. [A documentação do GitHub alerta para não fazer checkout nem executar o código não confiável da PR nesse contexto.](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target)
+
+O anti-padrão costuma parecer inofensivo:
+
+```yaml
+on:
+  pull_request_target:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+```
+
+O problema não é a sintaxe. É a ref. O job ganhou o contexto privilegiado de `pull_request_target` e, logo depois, trocou o checkout pelo código que veio da PR.
+
+Se o objetivo é testar a PR, use um job sem segredos e com permissões mínimas. Se o objetivo é executar uma ação privilegiada, mantenha o checkout na base confiável e passe apenas os dados estritamente necessários, depois de validá-los.
+
+## O token deve nascer pequeno
+
+`GITHUB_TOKEN` não é um detalhe de implementação. Ele é uma credencial que actions e scripts podem acessar durante o job. O GitHub recomenda configurar o padrão com acesso de leitura ao conteúdo do repositório e elevar permissões apenas no job que precisa delas. [O princípio é explícito na documentação de hardening.](https://docs.github.com/en/actions/reference/security/secure-use#using-secrets)
+
+Em vez de deixar a permissão implícita, declare a intenção:
+
+```yaml
+permissions:
+  contents: read
+
+jobs:
+  check:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm lint
+      - run: pnpm test
+
+  publish-comment:
+    if: github.event_name == 'workflow_run'
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./scripts/publicar-resumo-validado.sh
+```
+
+O exemplo não é uma receita universal. Um `workflow_run` também precisa de desenho cuidadoso: quem pode iniciar o workflow anterior, qual artefato chega ao job e que validações ocorrem antes do efeito externo. A regra permanece: **a permissão acompanha o efeito, não a conveniência de reutilizar o mesmo job.**
+
+## Action de terceiro também é código no seu runner
+
+`uses: fornecedor/action@v4` parece configuração. Na prática, autoriza código de outro repositório a rodar na sua automação.
+
+Tags podem mudar. Por isso, a orientação do GitHub é fixar uma action de terceiro em um SHA completo e verificar que o SHA veio do repositório correto, não de um fork. [O pin por SHA reduz a chance de uma alteração posterior de tag mudar o código que o workflow executa.](https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions)
+
+Isso não elimina a necessidade de revisar a action. Também não transforma um SHA em garantia de que o código é seguro. Ele resolve outro problema: torna a dependência exata e imutável para o pipeline.
+
+## O teste que encontra a fronteira errada
+
+Não basta testar se a pipeline publica quando deveria. Teste se ela **recusa poder** quando não deveria existir.
+
+Uma revisão de CI útil inclui casos como estes:
+
+```text
+PR de fork executa testes                 → sem secrets e sem token de escrita
+job privilegiado recebe artefato da PR    → formato e limites validados antes do uso
+workflow com pull_request_target          → não faz checkout da ref não confiável
+nova action de terceiro                   → SHA completo, origem revisada
+job de deploy                              → credencial e permissão declaradas nele
+```
+
+Esse conjunto não transforma CI em segurança perfeita. Ele faz algo mais concreto: impede que um atalho de automação misture contribuição não confiável e credencial poderosa sem que isso apareça no código, no review e nos testes.
+
+A mesma lógica vale para agentes com tools: a entrada pode orientar uma análise, mas não deve ganhar por acidente o poder de executar uma ação. A diferença entre dados e autoridade precisa sobreviver até o último job.
+
+Para uma fronteira parecida em MCP, vale ler [uma sessão MCP não é uma identidade](/2026/11/12/sessao-mcp-nao-e-autorizacao).
+
+## Fontes
+
+- [GitHub Docs: Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use): menor privilégio para `GITHUB_TOKEN`, checkout de código não confiável e pin de actions de terceiros.
+- [GitHub Docs: `pull_request_target`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target): contexto da branch base e o risco de executar a ref não confiável da PR nesse evento.
+
+## Próximo passo
+
+Se seu CI testa código vindo de PRs e também comenta, publica ou faz deploy, mas você não consegue apontar onde a credencial entra e onde o código não confiável para, <DiagnosticCTA locale="pt">traga o pipeline para um diagnóstico técnico de 30 minutos</DiagnosticCTA>.
