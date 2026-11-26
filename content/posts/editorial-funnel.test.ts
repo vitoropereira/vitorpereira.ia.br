@@ -185,4 +185,19 @@ describe("trilha editorial de agentes", () => {
     );
     expect(article).toContain("](/2026/11/12/sessao-mcp-nao-e-autorizacao)");
   });
+
+  it("publica cron como intenção observável, não como recibo de execução", () => {
+    const article = postBody("11/26", "cron-nao-e-prova-de-execucao");
+
+    expect(article).toContain("date: 2026-11-26T11:15:00-03:00");
+    expect(article).toContain("draft: false");
+    expect(article).toContain('<DiagnosticCTA locale="pt">');
+    expect(article.match(/<DiagnosticCTA/g)).toHaveLength(1);
+    expect(article).toContain(
+      "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule",
+    );
+    expect(article).toContain("](/2026/09/21/idempotencia-efeito-externo)");
+    expect(article).toContain("scheduledFor");
+    expect(article).toContain("effectKey");
+  });
 });
