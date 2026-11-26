@@ -1,0 +1,108 @@
+---
+title: "Cron não é prova de execução"
+description: "Um agendamento cria uma intenção de rodar. Para operar um workflow, você ainda precisa registrar entrega, início, resultado e efeito externo."
+date: 2026-11-26T11:15:00-03:00
+draft: false
+tags: [automação, operação, observabilidade, github-actions]
+comments: true
+---
+
+Um cron responde a uma pergunta pequena: **quando o sistema deveria tentar rodar?**
+
+Ele não prova que o trigger foi entregue, que o worker começou, que o job terminou nem que o efeito externo aconteceu uma vez só.
+
+Essa diferença parece semântica até o primeiro relatório que não chega, a primeira cobrança que fica parada ou o primeiro retry que repete uma ação. A partir daí, tratar agenda como evidência de execução vira uma falha de operação.
+
+## O horário é intenção, não recibo
+
+No GitHub Actions, por exemplo, o evento `schedule` pode atrasar em períodos de alta carga; jobs enfileirados podem ser descartados se a carga for suficiente. A própria documentação recomenda evitar o início da hora para reduzir a chance de atraso. [O agendamento é um gatilho do serviço, não uma confirmação de que o workflow produziu o resultado esperado.](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+Esse comportamento não torna o GitHub Actions inadequado. Ele só define a fronteira correta: o cron pode iniciar o processo, mas não pode ser a única observação sobre ele.
+
+A mesma documentação acrescenta duas restrições que afetam o desenho: workflows agendados executam na branch padrão, e, em repositórios públicos sem atividade por 60 dias, podem ser desabilitados automaticamente. [Uma regra de horário não substitui verificar se o workflow continua elegível para rodar.](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+## Registre o ciclo completo
+
+Para cada execução esperada, mantenha estados separados. Não basta um único campo chamado `lastRun`.
+
+```text
+scheduledFor       → quando a operação era esperada
+triggerReceivedAt  → quando o runtime recebeu o gatilho
+startedAt          → quando o trabalho começou
+finishedAt         → quando terminou
+outcome            → succeeded | failed | timed_out | skipped
+effectKey          → qual intenção externa esta execução representa
+```
+
+Esses campos respondem a incidentes diferentes:
+
+```text
+scheduledFor sem triggerReceivedAt  → o gatilho não chegou ou não foi observado
+triggerReceivedAt sem startedAt     → fila, worker ou capacidade travou
+startedAt sem finishedAt            → processo morreu ou excedeu o tempo
+finishedAt = failed                 → houve execução, mas não houve resultado
+finishedAt = succeeded              → ainda falta saber se o efeito externo foi único
+```
+
+O objetivo não é produzir mais logs. É impedir que uma única informação esconda etapas que exigem ações diferentes.
+
+<Callout type="note">
+  "Executou às 9h" só é uma afirmação útil quando o sistema consegue mostrar o
+  instante, o resultado e a evidência do efeito que aquela execução tentou
+  produzir.
+</Callout>
+
+## O watchdog verifica ausência, não só erro
+
+Muitos jobs sabem avisar quando lançam uma exceção. Poucos sabem perceber que **não rodaram**.
+
+Um watchdog independente deve procurar a lacuna entre `scheduledFor` e o estado observado. Ele pode operar com uma regra simples:
+
+```text
+se agora > scheduledFor + tolerância
+  e não existe execução terminal para aquela janela
+então abrir incidente de execução ausente
+```
+
+A tolerância depende do contrato. Um relatório diário aceita minutos ou horas; uma rotina de expiração talvez não. O ponto é declarar esse limite antes da falha, em vez de descobri-lo quando alguém pergunta pelo resultado.
+
+Também vale escolher horários que não concentrem trabalho sem necessidade. Para workflows agendados no GitHub Actions, o início de cada hora tem risco maior de atraso segundo a documentação oficial. [Deslocar o minuto reduz a colisão previsível; não elimina a necessidade de observar a execução.](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+## Retry não pode decidir sozinho o efeito
+
+Depois de detectar uma lacuna, é tentador disparar de novo. Esse é o ponto em que uma ausência de recibo pode virar efeito duplicado.
+
+Antes do retry, separe duas perguntas:
+
+```text
+A execução anterior terminou?      → estado do job
+O efeito externo já aconteceu?     → recibo ou chave da intenção
+```
+
+Se o job envia uma mensagem, cria uma cobrança, altera um pedido ou publica um artefato, ele precisa de uma chave que represente aquela intenção. O retry consulta essa chave antes de repetir o efeito. Sem isso, um timeout entre a chamada externa e a gravação do resultado deixa o sistema sem saber se deve tentar de novo ou parar.
+
+Essa fronteira é a mesma de [idempotência para efeitos externos](/2026/09/21/idempotencia-efeito-externo): falhar ao observar não prova que nada aconteceu.
+
+## Teste a ausência como caso de produto
+
+Uma rotina agendada não está bem testada porque a execução feliz passou uma vez. O contrato operacional precisa cobrir também os buracos:
+
+```text
+janela esperada sem execução terminal      → watchdog abre incidente
+trigger recebido, worker indisponível      → atraso fica visível
+job termina com erro                       → recibo registra falha e contexto seguro
+retry depois de timeout                    → não repete o efeito externo
+workflow fora da branch padrão             → configuração é recusada ou detectada
+```
+
+No GitHub Actions, a relação com a branch padrão não é detalhe de configuração: o evento `schedule` só executa o workflow que existe nela e roda a partir dela. [Essa regra precisa entrar no checklist de mudança, especialmente quando um workflow é editado em uma branch de feature.](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
+
+O cron continua sendo útil. Ele só volta ao tamanho certo: um mecanismo para declarar quando tentar, não a prova de que a operação terminou bem.
+
+## Fontes
+
+- [GitHub Docs: Events that trigger workflows: `schedule`](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule): atrasos e descarte sob alta carga, recomendação de evitar o início da hora, execução na branch padrão e desativação automática em repositórios públicos inativos.
+
+## Próximo passo
+
+Se uma rotina agendada alimenta operação, dados ou comunicação e hoje você só consegue dizer que ela está "configurada", mas não apontar a execução esperada, o recibo e o efeito único, <DiagnosticCTA locale="pt">traga esse workflow para um diagnóstico técnico de 30 minutos</DiagnosticCTA>.
